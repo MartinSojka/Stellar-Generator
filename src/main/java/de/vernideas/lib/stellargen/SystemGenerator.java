@@ -23,7 +23,7 @@ public class SystemGenerator {
 		// Build the star first
 		Star star = StarGenerator.star(u);
 		double maxPlanetaryMass = Math.min(25e6, star.mass / 25.0);
-		String scClass = star.spectralClass.classification;
+		String scClass = star.starClass.type().toString();
 		
 		// Planet building phase
 		double stellarDustLimit = 2400.0 * Math.pow(star.mass, 1.0 / 3.0) * (1.0 + star.random.nextGaussian() * 0.1);

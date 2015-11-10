@@ -7,11 +7,12 @@ import java.util.TreeMap;
 
 import de.vernideas.space.data.Constant;
 import de.vernideas.space.data.Pair;
-import de.vernideas.space.data.SpectralClass;
 import de.vernideas.space.data.Star;
 import de.vernideas.space.data.Star.StarBuilder;
 import de.vernideas.space.data.Universe;
 import de.vernideas.space.data.VectorI3D;
+import de.vernideas.space.data.starclass.StarClass;
+import de.vernideas.space.data.starclass.StarClassHelper;
 
 public final class StarGenerator {
 	/**
@@ -27,11 +28,10 @@ public final class StarGenerator {
 		int randomSC = u.random.nextInt(maxSpectralVal) + 1;
 		String scDef = spectralDistribution.lowerEntry(randomSC).getValue();
 		String scClass = scDef.substring(0, 1);
-		SpectralClass sc = new SpectralClass(scDef);
-		builder.spectralClass(sc);
+		StarClass sc = StarClassHelper.parse(scDef);
+		builder.starClass(sc);
 		
-		double meanTemp = sc.meanEffectiveTemperature;
-		double effTemp = u.random.nextGaussian() * 0.1 * meanTemp + meanTemp;
+		double effTemp = StarClassHelper.randomTemp(sc, u.random);
 		
 		builder.temperature(effTemp);
 		

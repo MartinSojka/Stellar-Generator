@@ -8,13 +8,14 @@ import lombok.NonNull;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 import lombok.experimental.Builder;
+import de.vernideas.space.data.starclass.StarClass;
 
 @ToString(callSuper=true)
 @Accessors(fluent = true)
 @EqualsAndHashCode(callSuper=true,of={"spectralClass","temperature"})
 public class Star extends StellarObject {
 	/** Spectral class */
-	@NonNull public final SpectralClass spectralClass;
+	@NonNull public final StarClass starClass;
 	@NonNull public final List<Planet> planets;
 	@NonNull public final List<Planet> planetoids;
 	/** Effective temperature in Kelvin; used for luminosity and colour */
@@ -31,11 +32,11 @@ public class Star extends StellarObject {
 	
 	@Builder(fluent=true, chain=true)
 	private Star(@NonNull String name, double mass, double diameter,
-			@NonNull VectorI3D position, @NonNull SpectralClass spectralClass, double temperature,
+			@NonNull VectorI3D position, @NonNull StarClass starClass, double temperature,
 			long seed)
 	{
 		super(name, mass, diameter, seed + 37L * position.hashCode());
-		this.spectralClass = spectralClass;
+		this.starClass = starClass;
 		this.temperature = temperature;
 		
 		this.planets = new ArrayList<Planet>();
