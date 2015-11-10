@@ -101,6 +101,8 @@ public abstract class StarClass {
 
 	/**
 	 * Main sequence stars and typical giants; also includes subdwarfs.
+	 * 
+	 * TODO: move T-class "methane" dwarfs to its own class, since they need modifications for colour
 	 */
 	public static class Main extends StarClass {
 		private String declaration = null;

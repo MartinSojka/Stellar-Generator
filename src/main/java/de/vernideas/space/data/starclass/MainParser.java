@@ -5,6 +5,14 @@ import java.util.List;
 
 import de.vernideas.space.data.starclass.StarClass.Main;
 
+// TODO:
+// Hypergiant variant classes Ia+ and Ia-0 (boch map to 0)
+// Supergiant sub-classes Ia, Iab and Ib
+// Spectral pecularities: e (emission lines), m (abnormally strong metals), n (broad absorption lines due to fast rotation),
+//   nn (very broad absorption lines), s (narrow absorption lines), ss (very narrow lines, sh (shell star, B-F), wl (weak lines)
+// Optional pecularities: f (N III and He II emission), h (WR star), element symbols, p (peculiar star, A-B)
+// Decimal values (M3.5V and so on)
+
 public class MainParser implements StarClassParser {
 
 	@Override public StarClass parse(String string) {

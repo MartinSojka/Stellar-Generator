@@ -21,20 +21,20 @@ public final class StarClassHelper {
 	public static double randomTemp(StarClass sc, Random rnd) {
 		return sc.minTemp() + rnd.nextDouble() * (sc.maxTemp() - sc.minTemp());
 	}
-	
+
 	/**
 	 * Get the minimum temperature for the given star class
 	 */
 	public static double minTemp(StarClass sc)
 	{
 		switch(sc.luminosityClass) {
-			case WHITE_DWARF:
-				return minTemp(String.format("D%d", sc.subType));
-			default:
-				return minTemp(String.format("%s%d", sc.type, sc.subType));
+		case WHITE_DWARF:
+			return minTemp(String.format("D%d", sc.subType));
+		default:
+			return minTemp(String.format("%s%d", sc.type, sc.subType));
 		}
 	}
-	
+
 	/**
 	 * Get the minimum temperature for the given (string) star class
 	 */
@@ -42,17 +42,17 @@ public final class StarClassHelper {
 	{
 		return minTempTable.get(sc);
 	}
-	
+
 	/**
 	 * Get the maximum temperature for the given star class
 	 */
 	public static double maxTemp(StarClass sc)
 	{
 		switch(sc.luminosityClass) {
-			case WHITE_DWARF:
-				return maxTemp(String.format("D%d", sc.subType));
-			default:
-				return maxTemp(String.format("%s%d", sc.type, sc.subType));
+		case WHITE_DWARF:
+			return maxTemp(String.format("D%d", sc.subType));
+		default:
+			return maxTemp(String.format("%s%d", sc.type, sc.subType));
 		}
 	}
 
@@ -63,20 +63,20 @@ public final class StarClassHelper {
 	{
 		return maxTempTable.get(sc);
 	}
-	
+
 	/**
 	 * Get the minimum safe jump distance for the star class, if available
 	 */
 	public static double safeJumpDistance(StarClass sc)
 	{
 		switch(sc.luminosityClass) {
-			case WHITE_DWARF:
-				return 0.0;
-			default:
-				return safeJumpDistance(String.format("%s%d", sc.type, sc.subType));
+		case WHITE_DWARF:
+			return 0.0;
+		default:
+			return safeJumpDistance(String.format("%s%d", sc.type, sc.subType));
 		}
 	}
-	
+
 	/**
 	 * Get the minimum safe jump distance for the given (string) star class, if available
 	 */
@@ -92,20 +92,20 @@ public final class StarClassHelper {
 	public static double randomMass(StarClass sc, Random rnd) {
 		return sc.minMass() + rnd.nextDouble()*(sc.maxMass() - sc.minMass());
 	}
-	
+
 	/**
 	 * Get the minimum temperature for the given star class
 	 */
 	public static double minMass(StarClass sc)
 	{
 		switch(sc.luminosityClass) {
-			case WHITE_DWARF:
-				return minMass(String.format("D%d", sc.subType));
-			default:
-				return minMass(String.format("%s%d", sc.type, sc.subType));
+		case WHITE_DWARF:
+			return minMass(String.format("D%d", sc.subType));
+		default:
+			return minMass(String.format("%s%d", sc.type, sc.subType));
 		}
 	}
-	
+
 	/**
 	 * Get the minimum temperature for the given (string) star class
 	 */
@@ -113,17 +113,17 @@ public final class StarClassHelper {
 	{
 		return minMassTable.get(sc);
 	}
-	
+
 	/**
 	 * Get the maximum temperature for the given star class
 	 */
 	public static double maxMass(StarClass sc)
 	{
 		switch(sc.luminosityClass) {
-			case WHITE_DWARF:
-				return maxMass(String.format("D%d", sc.subType));
-			default:
-				return maxMass(String.format("%s%d", sc.type, sc.subType));
+		case WHITE_DWARF:
+			return maxMass(String.format("D%d", sc.subType));
+		default:
+			return maxMass(String.format("%s%d", sc.type, sc.subType));
 		}
 	}
 
@@ -134,26 +134,26 @@ public final class StarClassHelper {
 	{
 		return maxMassTable.get(sc);
 	}
-	
+
 	public static double randomLuminosity(StarClass sc, Random rnd) {
 		return sc.avgLuminosity() * (rnd.nextDouble() * 0.2 + 0.9);
 	}
-	
+
 
 	public static double avgLuminosity(StarClass sc) {
 		switch(sc.luminosityClass) {
-			case WHITE_DWARF:
-				return avgLuminosity(String.format("D%d", sc.subType));
-			default:
-				return avgLuminosity(String.format("%s%d", sc.type, sc.subType));
+		case WHITE_DWARF:
+			return avgLuminosity(String.format("D%d", sc.subType));
+		default:
+			return avgLuminosity(String.format("%s%d", sc.type, sc.subType));
 		}
 	}
-	
+
 	public static double avgLuminosity(String sc)
 	{
 		return avgLuminosityTable.get(sc);
 	}
-	
+
 	/**
 	 * Returns the approximate B-V color index of the star
 	 * from its effective temperature (in Kelvin)
@@ -179,19 +179,19 @@ public final class StarClassHelper {
 	 */
 	public static double temperatureToBV(double temp, LuminosityClass lc) {
 		switch( lc ) {
-			case BRIGHT_GIANT:
-				return temperatureToBV(temp) + 0.1; // Slightly redder
-			case SUPERGIANT:
-				return temperatureToBV(temp) + 0.2; // Redder
-			case HYPERGIANT:
-				return temperatureToBV(temp) + 0.4; // Significantly redder
-			case WHITE_DWARF:
-				return temperatureToBV(temp + temp / 4); // Significantly bluer
-			default:
-				return temperatureToBV(temp);
+		case BRIGHT_GIANT:
+			return temperatureToBV(temp) + 0.1; // Slightly redder
+		case SUPERGIANT:
+			return temperatureToBV(temp) + 0.2; // Redder
+		case HYPERGIANT:
+			return temperatureToBV(temp) + 0.4; // Significantly redder
+		case WHITE_DWARF:
+			return temperatureToBV(temp + temp / 4); // Significantly bluer
+		default:
+			return temperatureToBV(temp);
 		}
 	}
-	
+
 	/**
 	 * Return the approximate color in sRGB space for the provided temperature
 	 * and luminosity class.
@@ -200,11 +200,11 @@ public final class StarClassHelper {
 	 */
 	public static Color temperatureToColor(double temp, LuminosityClass lc) {
 		double bv = temperatureToBV(temp, lc);
-		
+
 		// Limit ourselves to B-V index of -0.4 to +2.0, for simplicity.
 		if( bv < -0.4 ) { bv = -0.4; }
 		if( bv > 2.0 ) { bv = 2.0; }
-		
+
 		float red;
 		if( bv < 0.0 ) {
 			red = (float) (0.83 + 0.775 * bv + 0.625 * bv * bv); /* 0.62 - 0.83 */
@@ -215,7 +215,7 @@ public final class StarClassHelper {
 		else {
 			red = 1.00f;
 		}
-		
+
 		float green;
 		if( bv < 0.0 ) {
 			green = (float) (0.87 + 0.675 * bv + 0.625 * bv * bv); /* 0.70 - 0.87 */
@@ -229,7 +229,7 @@ public final class StarClassHelper {
 		else {
 			green = (float) (-7.18 + 10.0 * bv - 3.125 * bv * bv); /* 0.82 - 0.32  */
 		}
-		
+
 		float blue;
 		if( bv < 0.4 ) {
 			blue = 1.00f;
@@ -243,10 +243,10 @@ public final class StarClassHelper {
 		else {
 			blue = (float) (1.00 - 0.5 * bv); /* 0.03 - 0.00 */
 		}
-		
+
 		return new Color(red, green, blue, 1.0f);
 	}
-	
+
 	/**
 	 * Return the approximate color in sRGB space for the provided temperature.
 	 * <p>
@@ -263,7 +263,7 @@ public final class StarClassHelper {
 	 * List of parsers used to try and turn a string into a StarClass instance, in order.
 	 */
 	public static final List<StarClassParser> starClassParsers = new ArrayList<StarClassParser>();
-	
+
 	/**
 	 * Parse the given star class declaration and return a matching StarClass instance
 	 */
@@ -271,7 +271,7 @@ public final class StarClassHelper {
 		if( classDeclaration == null || classDeclaration.length() < 1 ) {
 			return null;
 		}
-		
+
 		// Run through all the parsers and pick the first one which recognises the string
 		for( StarClassParser parser : starClassParsers ) {
 			try {
@@ -284,7 +284,7 @@ public final class StarClassHelper {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Return all valid star classes as a list of strings
 	 */
@@ -306,17 +306,17 @@ public final class StarClassHelper {
 	// Star type effective temperature table courtesy of Wikipedia, GURPS4:Space and BT:IO
 	private static final Map<String, Double> minTempTable;
 	private static final Map<String, Double> maxTempTable;
-	
+
 	// Star type minimum safe jump distance (for BattleTech) - only for main sequence
 	private static final Map<String, Double> safeJumpDistance;
-	
+
 	// Star type solar masses limits
 	private static final Map<String, Double> minMassTable;
 	private static final Map<String, Double> maxMassTable;
-	
+
 	// Average luminosity
 	private static final Map<String, Double> avgLuminosityTable;
-	
+
 	// Star generation - modifiers
 	private static final Map<String, Integer> habilityModTable;
 	private static final Map<String, Integer> gasgiantModTable;
@@ -328,7 +328,7 @@ public final class StarClassHelper {
 			return Double.NaN;
 		}
 	}
-	
+
 	private static int asInt(String str) {
 		try {
 			return Integer.valueOf(str);
@@ -336,7 +336,7 @@ public final class StarClassHelper {
 			return Integer.MIN_VALUE;
 		}
 	}
-	
+
 
 	static {
 		starClassParsers.add(new SubdwarfParser());
@@ -352,11 +352,11 @@ public final class StarClassHelper {
 		avgLuminosityTable = new HashMap<String, Double>();
 		habilityModTable = new HashMap<String, Integer>();
 		gasgiantModTable = new HashMap<String, Integer>();
-		
+
 		try(
-			InputStream in = StarClassHelper.class.getResourceAsStream("/de/vernideas/space/data/starclass/starclasses.csv");
-			CSVReader reader = new CSVReader(new BufferedReader(new InputStreamReader(in)), ',', '"')
-		) {
+				InputStream in = StarClassHelper.class.getResourceAsStream("/de/vernideas/space/data/starclass/starclasses.csv");
+				CSVReader reader = new CSVReader(new BufferedReader(new InputStreamReader(in)), ',', '"')
+				) {
 			String[] line = reader.readNext();
 			while( null != line ) {
 				if( line.length == 0 || line[0].startsWith("#") ) {
@@ -377,7 +377,7 @@ public final class StarClassHelper {
 				double avgLum = (line.length > 5 ? asDouble(line[6]) : Double.NaN);
 				int habilityMod = (line.length > 6 ? asInt(line[7]) : Integer.MIN_VALUE);
 				int gasgiantMod = (line.length > 7 ? asInt(line[8]) : Integer.MIN_VALUE);
-				
+
 				if( !Double.isNaN(minTemp) && !Double.isNaN(maxTemp) ) {
 					minTempTable.put(type, minTemp);
 					maxTempTable.put(type, maxTemp);
@@ -404,7 +404,7 @@ public final class StarClassHelper {
 			e.printStackTrace();
 		}
 	}
-	
+
 	// Static-only class; no need for instances of it
 	private StarClassHelper() { }
 }
