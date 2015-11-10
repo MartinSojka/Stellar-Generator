@@ -3,16 +3,16 @@ package de.vernideas.space.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.vernideas.space.data.starclass.StarClass;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 import lombok.experimental.Accessors;
-import lombok.experimental.Builder;
-import de.vernideas.space.data.starclass.StarClass;
 
 @ToString(callSuper=true)
 @Accessors(fluent = true)
-@EqualsAndHashCode(callSuper=true,of={"spectralClass","temperature"})
+@EqualsAndHashCode(callSuper=true,of={"starClass","temperature"})
 public class Star extends StellarObject {
 	/** Spectral class */
 	@NonNull public final StarClass starClass;
@@ -28,11 +28,11 @@ public class Star extends StellarObject {
 	public final double frostLine;
 	public final double habitableZoneMin;
 	public final double habitableZoneMax;
-	public final VectorI3D position;
+	@NonNull public final VectorI3D position;
 	
-	@Builder(fluent=true, chain=true)
+	@Builder
 	private Star(@NonNull String name, double mass, double diameter,
-			@NonNull VectorI3D position, @NonNull StarClass starClass, double temperature,
+			VectorI3D position, @NonNull StarClass starClass, double temperature, double luminosity,
 			long seed)
 	{
 		super(name, mass, diameter, seed + 37L * position.hashCode());
@@ -42,7 +42,8 @@ public class Star extends StellarObject {
 		this.planets = new ArrayList<Planet>();
 		this.planetoids = new ArrayList<Planet>();
 		
-		this.luminosity = Math.PI * Constant.STEFAN_BOLTZMANN * diameter * diameter * temperature * temperature * temperature * temperature;
+		// this.luminosity = Math.PI * Constant.STEFAN_BOLTZMANN * diameter * diameter * temperature * temperature * temperature * temperature;
+		this.luminosity = luminosity;
 		
 		this.boilingLine = Math.pow(this.luminosity / (Math.PI * Constant.STEFAN_BOLTZMANN), 0.5) / (4 * 3200 * 3200);
 		

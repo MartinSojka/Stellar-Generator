@@ -1,7 +1,6 @@
 package test;
 
 import de.vernideas.lib.stellargen.StarGenerator;
-import de.vernideas.lib.stellargen.SystemGenerator;
 import de.vernideas.space.data.Star;
 import de.vernideas.space.data.Universe;
 

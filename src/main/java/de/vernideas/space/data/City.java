@@ -1,10 +1,10 @@
 package de.vernideas.space.data;
 
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 import lombok.experimental.Accessors;
-import lombok.experimental.Builder;
 
 /** Place on (or near) surface of a rounded body, like a planet or moon, or in close orbit around it */
 @ToString
@@ -18,8 +18,8 @@ public class City extends Place {
 	/** Offset in minute */
 	public final int dayOffset;
 
-	@Builder(fluent=true, chain=true)
-	protected City(@NonNull String name, @NonNull Satellite planet, float longitude) {
+	@Builder
+	protected City(@NonNull String name, Satellite planet, float longitude) {
 		super(name, planet.dayLength);
 		
 		if( longitude < -180.0f || longitude > 180.0f )

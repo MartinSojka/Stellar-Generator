@@ -1,13 +1,11 @@
 package de.vernideas.space.data;
 
-import java.util.Random;
-
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
-@ToString(of={"orbit", "rotationPeriod", "siderealPeriod", "dayLength", "hillsRadius", "planetRadius", "surfaceGravity"}, callSuper=true)
+@ToString(of={"orbit", "rotationPeriod", "siderealPeriod", "dayLength", "hillsRadius", "surfaceGravity"}, callSuper=true)
 @Accessors(fluent = true)
 @EqualsAndHashCode(callSuper=true)
 public abstract class Satellite extends StellarObject {

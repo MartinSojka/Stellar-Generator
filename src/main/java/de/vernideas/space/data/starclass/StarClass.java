@@ -20,6 +20,7 @@ public abstract class StarClass {
 	private double maxTemp = -1.0;
 	private double minMass = -1.0;
 	private double maxMass = -1.0;
+	private double avgLuminosity = -1.0;
 	private double safeJumpDistance = -1.0;
 
 	protected StarClass(Type type, int subType, LuminosityClass luminosityClass) {
@@ -67,6 +68,13 @@ public abstract class StarClass {
 			maxMass = StarClassHelper.maxMass(this);
 		}
 		return maxMass;
+	}
+	
+	public double avgLuminosity() {
+		if( avgLuminosity < 0 ) {
+			avgLuminosity = StarClassHelper.avgLuminosity(this);
+		}
+		return avgLuminosity;
 	}
 	
 	/**

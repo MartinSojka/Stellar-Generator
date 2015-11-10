@@ -3,16 +3,16 @@ package de.vernideas.space.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
-import lombok.experimental.Builder;
 
 /** Encompasses planets and planetoids */
-@ToString(of={"name", "moons", "yearLength", "minor", "capitalPlace"}, callSuper=true)
+@ToString(of={"moons", "yearLength", "minor", "capitalPlace"}, callSuper=true)
 @Accessors(fluent = true)
 @EqualsAndHashCode(callSuper=true)
 public class Planet extends Satellite implements Location {
@@ -24,7 +24,7 @@ public class Planet extends Satellite implements Location {
 	
 	@Getter @Setter private boolean valid;
 	
-	@Builder(fluent=true, chain=true)
+	@Builder
 	private Planet(String name, double mass, double diameter, @NonNull Star parent, @NonNull Orbit orbit, float rotationPeriod, double planetRadius, boolean minor)
 	{
 		super(name, mass, diameter, parent, orbit, rotationPeriod);

@@ -371,7 +371,7 @@ public abstract class PlanetaryClass {
 			possibleClasses.add(UNKNOWN);
 		}
 		
-		if( false && possibleClasses.size() > 1 )
+		if( possibleClasses.size() > 1 )
 		{
 			System.out.print("Multiple classification possible for \"" + planet.name + "\": ");
 			for( PlanetaryClass pc : possibleClasses )

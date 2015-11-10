@@ -10,8 +10,6 @@ import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
-import de.vernideas.space.data.Faction.Rank;
-import de.vernideas.space.data.component.Overlord;
 
 @ToString
 @Accessors(fluent = true)

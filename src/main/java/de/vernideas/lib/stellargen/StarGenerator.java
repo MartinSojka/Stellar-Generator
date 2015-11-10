@@ -36,15 +36,17 @@ public final class StarGenerator {
 		builder.temperature(effTemp);
 		
 		double solarR = solarRadius(scDef); // Radius in solar units (695500 km)
-		double actualR = (1.0 + u.random.nextGaussian() * 0.10) * solarR * Constant.SOLAR_RADIUS; // Actual radius
+		double diameter = (1.0 + u.random.nextGaussian() * 0.10) * solarR * Constant.SOLAR_DIAMETER; // Actual diameter
 		
-		builder.diameter((int)Math.ceil(actualR * 2));
+		builder.diameter(diameter);
 		
-		double luminosity = 4 * Math.PI * Constant.STEFAN_BOLTZMANN * actualR * actualR * effTemp * effTemp * effTemp * effTemp;
-		double solarLum = luminosity / Constant.SOLAR_LUM; // Luminosity in solar units
+		// double luminosity = Math.PI * Constant.STEFAN_BOLTZMANN * diameter * diameter * effTemp * effTemp * effTemp * effTemp;
+		// double solarLum = luminosity / Constant.SOLAR_LUM; // Luminosity in solar units
 		
 		// Mass calculation depends on luminosity ratio
-		double mass = Constant.SOLAR_MASS;
+		double mass = StarClassHelper.randomMass(sc, u.random) * Constant.SOLAR_MASS;
+		/*
+		// double mass = Constant.SOLAR_MASS;
 		if( solarLum >= 64000.0 )
 		{
 			// Giants or similar, linear
@@ -64,8 +66,9 @@ public final class StarGenerator {
 		{
 			// Tiny stars
 			mass *= Math.pow(solarLum / 0.23, 1 / 2.3);
-		}
+		}*/
 		builder.mass(mass);
+		builder.luminosity(StarClassHelper.randomLuminosity(sc, u.random) * Constant.SOLAR_LUM);
 		builder.name(starName(u, scClass));
 
 		return builder.build();

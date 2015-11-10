@@ -1,6 +1,20 @@
 package de.vernideas.space.data;
 
 public final class Constant {
+	// Units used inside the game in respect to SI units
+	/** Interstellar distance: 1 m */
+	public static final double DISTANCE_UNIT = 1.0;
+	/** Time tick: 1 s */
+	public static final double TIME_UNIT = 1.0;
+	/** Planetary mass unit: 1 kg */
+	public static final double MASS_UNIT = 1.0;
+	/** Interplanetary speed unit; mAU/minute. This is a very large speed, about 125 units = light speed */
+	public static final double SPEED_UNIT = DISTANCE_UNIT / TIME_UNIT;
+	/** Interplanetary acceleration unit: mAU/minute². Very large unit and not usable for display */
+	public static final double ACCELERATION_UNIT = SPEED_UNIT / TIME_UNIT;
+	/** Minutes per mAU; usable for display of interplanetary travel information */
+	public static final double PACE_UNIT = TIME_UNIT / DISTANCE_UNIT;
+	
 	/**
 	 * Gravitational constant (in m^3 kg^-1 s^-2)
 	 */
@@ -20,22 +34,8 @@ public final class Constant {
 	 */
 	public static final double ESCAPE_MULTIPLIER = Math.sqrt(2.0 * G);
 	
-	// Units used inside the game in respect to SI units
-	/** Interstellar distance: 1 m */
-	public static final double DISTANCE_UNIT = 1.0;
-	/** Time tick: 1 s */
-	public static final double TIME_UNIT = 1.0;
-	/** Planetary mass unit: 1 kg */
-	public static final double MASS_UNIT = 1.0;
-	/** Interplanetary speed unit; mAU/minute. This is a very large speed, about 125 units = light speed */
-	public static final double SPEED_UNIT = DISTANCE_UNIT / TIME_UNIT;
-	/** Interplanetary acceleration unit: mAU/minute². Very large unit and not usable for display */
-	public static final double ACCELERATION_UNIT = SPEED_UNIT / TIME_UNIT;
-	/** Minutes per mAU; usable for display of interplanetary travel information */
-	public static final double PACE_UNIT = TIME_UNIT / DISTANCE_UNIT;
-	
 	/** Solar radius (in distance units) */
-	public static final double SOLAR_RADIUS = 695500000.0 / DISTANCE_UNIT;
+	public static final double SOLAR_DIAMETER = 1.391e9 / DISTANCE_UNIT;
 	/** Solar luminosity (in W) */
 	public static final double SOLAR_LUM = 3.846e26;
 	/** Solar mass (in mass units) */
@@ -43,6 +43,7 @@ public final class Constant {
 	
 	/** One milli-lightyear in distance units */
 	public static final double MILLI_LIGHTYEAR = 9.4607304725808e15 / DISTANCE_UNIT;
+	public static final double AU = 149597870700.0 / DISTANCE_UNIT;
 	
 	/** One galactic day (25 hours of 60 minutes each) in s */
 	public static final int GALACTIC_DAY = 25 * 3600;
