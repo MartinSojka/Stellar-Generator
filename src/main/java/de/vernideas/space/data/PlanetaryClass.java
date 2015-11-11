@@ -44,10 +44,10 @@ public abstract class PlanetaryClass {
 	/** Metallic core of a gas giant stripped of hydrogen and helium atmosphere due to close proximity to a star */
 	public static final PlanetaryClass CTHONIAN = new PlanetaryClass("Cthonian planet", 0.3) {
 		@Override protected boolean possibleClass(Satellite planet) {
-			return ((planet.molecularLimit > 4.00 || planet.density + planet.effectiveTemperature / 10 > 2500)
+			return ((planet.molecularLimit > 4.00 || planet.density + planet.blackbodyTemperature / 10 > 2500)
 					&& planet.mass >= Constant.MAX_TERRESTRIAL_MASS * 0.9
 					&& planet.density > 2000
-					&& planet.effectiveTemperature > 300);
+					&& planet.blackbodyTemperature > 300);
 		}
 	};
 	/**
@@ -65,16 +65,16 @@ public abstract class PlanetaryClass {
 			return (planet.molecularLimit <= 1.00
 					&& planet.mass >= Constant.MAX_TERRESTRIAL_MASS
 					&& planet.density > 1200 && planet.density <= 3000
-					&& planet.effectiveTemperature > 20 && planet.effectiveTemperature <= 80 + planet.density / 120);
+					&& planet.blackbodyTemperature > 20 && planet.blackbodyTemperature <= 80 + planet.density / 120);
 		}
 	};
 	
 	public static final PlanetaryClass HELLIUM_ICE_GIANT = new PlanetaryClass("Ice giant (hydrogen-poor)", 0.3) {
 		@Override protected boolean possibleClass(Satellite planet) {
-			return ((planet.molecularLimit <= 4.00 && planet.molecularLimit > 1.00 || planet.effectiveTemperature <= 20)
+			return ((planet.molecularLimit <= 4.00 && planet.molecularLimit > 1.00 || planet.blackbodyTemperature <= 20)
 					&& planet.mass >= Constant.MAX_TERRESTRIAL_MASS
 					&& planet.density > 1400 && planet.density <= 3200
-					&& planet.effectiveTemperature <= 80 + planet.density / 120);
+					&& planet.blackbodyTemperature <= 80 + planet.density / 120);
 			}
 	};
 	/** Hot 'Puffy' giants, very hot and in transition to cthonian planets */
@@ -83,7 +83,7 @@ public abstract class PlanetaryClass {
 			return (planet.molecularLimit > Math.min(1.00, planet.density / 2000.0)
 					&& planet.mass >= Constant.MAX_TERRESTRIAL_MASS
 					&& planet.density < 1000
-					&& planet.effectiveTemperature >= 1000);
+					&& planet.blackbodyTemperature >= 1000);
 		}
 	};
 	/** Cold "puffy" giant, implies internal heating and strong magnetic fields */
@@ -92,16 +92,16 @@ public abstract class PlanetaryClass {
 			return (planet.molecularLimit <= 1.00
 					&& planet.mass >= Constant.MAX_TERRESTRIAL_MASS
 					&& planet.density < 500
-					&& planet.effectiveTemperature > 20 && planet.effectiveTemperature < 1000);
+					&& planet.blackbodyTemperature > 20 && planet.blackbodyTemperature < 1000);
 		}
 	};
 	/** Cold "puffy" giant with little hydrogen, implies internal heating and strong magnetic fields */
 	public static final PlanetaryClass HELLIUM_COLD_PUFFY_GIANT = new PlanetaryClass("'Puffy' gas giant (hydrogen-poor)", 0.55) {
 		@Override protected boolean possibleClass(Satellite planet) {
-			return ((planet.molecularLimit <= 4.00 && planet.molecularLimit > 1.00 || planet.effectiveTemperature <= 20)
+			return ((planet.molecularLimit <= 4.00 && planet.molecularLimit > 1.00 || planet.blackbodyTemperature <= 20)
 					&& planet.mass >= Constant.MAX_TERRESTRIAL_MASS
 					&& planet.density < 700
-					&& planet.effectiveTemperature < 1000);
+					&& planet.blackbodyTemperature < 1000);
 		}
 	};
 	/** Rocky core, thick hydrogen/hellium atmosphere */
@@ -109,8 +109,8 @@ public abstract class PlanetaryClass {
 		@Override protected boolean possibleClass(Satellite planet) {
 			return (planet.molecularLimit <= 1.00
 					&& planet.mass >= Constant.MAX_TERRESTRIAL_MASS * 0.5
-					&& planet.density > 1500 && planet.density < 3700 + planet.effectiveTemperature
-					&& planet.effectiveTemperature > 80 && planet.effectiveTemperature < 1700);
+					&& planet.density > 1500 && planet.density < 3700 + planet.blackbodyTemperature
+					&& planet.blackbodyTemperature > 80 && planet.blackbodyTemperature < 1700);
 		}
 	};
 	/** Rocky core, thick hellium atmosphere */
@@ -118,8 +118,8 @@ public abstract class PlanetaryClass {
 		@Override protected boolean possibleClass(Satellite planet) {
 			return (planet.molecularLimit > 1.00 && planet.molecularLimit <= 4.00
 					&& planet.mass >= Constant.MAX_TERRESTRIAL_MASS * 0.5
-					&& planet.density > 1500 && planet.density < 4000 + planet.effectiveTemperature
-					&& planet.effectiveTemperature > 80 && planet.effectiveTemperature < 1700);
+					&& planet.density > 1500 && planet.density < 4000 + planet.blackbodyTemperature
+					&& planet.blackbodyTemperature > 80 && planet.blackbodyTemperature < 1700);
 		}
 	};
 	
@@ -129,7 +129,7 @@ public abstract class PlanetaryClass {
 			return (planet.molecularLimit <= 4.00
 					&& planet.mass >= Constant.MAX_TERRESTRIAL_MASS
 					&& planet.density >= 2500 && planet.density < 4000
-					&& planet.effectiveTemperature <= 80);
+					&& planet.blackbodyTemperature <= 80);
 		}
 	};
 
@@ -139,7 +139,7 @@ public abstract class PlanetaryClass {
 			return (planet.molecularLimit > 4.00
 					&& planet.mass >= Constant.MAX_TERRESTRIAL_MASS * 0.9
 					&& planet.density < 2200
-					&& planet.effectiveTemperature > 200);
+					&& planet.blackbodyTemperature > 200);
 		}
 	};
 	/** Low-water variant on Earth-sized planet */
@@ -147,7 +147,7 @@ public abstract class PlanetaryClass {
 		@Override protected boolean possibleClass(Satellite planet) {
 			return( super.possibleClass(planet)
 					&& planet.uncompressedDensity >= 3500 && planet.uncompressedDensity <= 5000
-					&& planet.effectiveTemperature >= 250 && planet.effectiveTemperature <= 700
+					&& planet.blackbodyTemperature >= 250 && planet.blackbodyTemperature <= 700
 					&& planet.molecularLimit > 18.00 /* water vapour */);
 		}
 	};
@@ -156,7 +156,7 @@ public abstract class PlanetaryClass {
 		@Override protected boolean possibleClass(Satellite planet) {
 			return( super.possibleClass(planet)
 					&& planet.uncompressedDensity >= 3500 && planet.uncompressedDensity <= 5000
-					&& planet.effectiveTemperature >= 250 && planet.effectiveTemperature <= 330
+					&& planet.blackbodyTemperature >= 250 && planet.blackbodyTemperature <= 330
 					&& planet.molecularLimit <= 18.00 /* water vapour */ && planet.molecularLimit > 4.00);
 		}
 	};
@@ -165,7 +165,7 @@ public abstract class PlanetaryClass {
 		@Override protected boolean possibleClass(Satellite planet) {
 			return( super.possibleClass(planet)
 					&& planet.uncompressedDensity <= 5000
-					&& planet.effectiveTemperature >= 330 && planet.effectiveTemperature <= 500
+					&& planet.blackbodyTemperature >= 330 && planet.blackbodyTemperature <= 500
 					&& planet.molecularLimit <= 18.00 /* water vapour */ && planet.molecularLimit > 4.00);
 		}
 	};
@@ -176,8 +176,8 @@ public abstract class PlanetaryClass {
 		@Override protected boolean possibleClass(Satellite planet) {
 			return( super.possibleClass(planet)
 					&& planet.uncompressedDensity < 5000
-					&& (planet.effectiveTemperature >= 500
-						|| (planet.effectiveTemperature >= 330 && planet.molecularLimit > 18.00))
+					&& (planet.blackbodyTemperature >= 500
+						|| (planet.blackbodyTemperature >= 330 && planet.molecularLimit > 18.00))
 					&& planet.molecularLimit <= 44.00 );
 		}
 	};
@@ -187,7 +187,7 @@ public abstract class PlanetaryClass {
 		@Override protected boolean possibleClass(Satellite planet) {
 			return( super.possibleClass(planet)
 					&& planet.uncompressedDensity < 5000 && planet.uncompressedDensity >= 3000
-					&& planet.effectiveTemperature <= 260
+					&& planet.blackbodyTemperature <= 260
 					&& planet.molecularLimit <= 44.00 /* carbon dioxide */);
 		}
 	};
@@ -197,7 +197,7 @@ public abstract class PlanetaryClass {
 		@Override protected boolean possibleClass(Satellite planet) {
 			return( super.possibleClass(planet)
 					&& planet.uncompressedDensity < 5000
-					&& (planet.uncompressedDensity >= 2600 || planet.effectiveTemperature >= 260)
+					&& (planet.uncompressedDensity >= 2600 || planet.blackbodyTemperature >= 260)
 					&& planet.molecularLimit > 44.00 /* carbon dioxide */);
 		}
 	};
@@ -207,7 +207,7 @@ public abstract class PlanetaryClass {
 		@Override protected boolean possibleClass(Satellite planet) {
 			return( super.possibleClass(planet)
 					&& planet.uncompressedDensity <= 3500 && planet.uncompressedDensity >= 2600
-					&& planet.effectiveTemperature >= 250 && planet.effectiveTemperature <= 330
+					&& planet.blackbodyTemperature >= 250 && planet.blackbodyTemperature <= 330
 					&& planet.molecularLimit > 18.00 && planet.molecularLimit <= 44.00 );
 		}
 	};
@@ -218,7 +218,7 @@ public abstract class PlanetaryClass {
 		@Override protected boolean possibleClass(Satellite planet) {
 			return( super.possibleClass(planet)
 					&& planet.uncompressedDensity <= 3500 && planet.uncompressedDensity >= 2600
-					&& planet.effectiveTemperature >= 250 && planet.effectiveTemperature <= 330
+					&& planet.blackbodyTemperature >= 250 && planet.blackbodyTemperature <= 330
 					&& planet.molecularLimit <= 18.00 /* water vapour */);
 		}
 	};
@@ -228,7 +228,7 @@ public abstract class PlanetaryClass {
 		@Override protected boolean possibleClass(Satellite planet) {
 			return( super.possibleClass(planet)
 					&& planet.uncompressedDensity >= 3500 && planet.uncompressedDensity <= 5000
-					&& planet.effectiveTemperature >= 250 && planet.effectiveTemperature <= 330
+					&& planet.blackbodyTemperature >= 250 && planet.blackbodyTemperature <= 330
 					&& planet.molecularLimit <= 4.00);
 		}
 	};
@@ -238,7 +238,7 @@ public abstract class PlanetaryClass {
 		@Override protected boolean possibleClass(Satellite planet) {
 			return( super.possibleClass(planet)
 					&& planet.uncompressedDensity <= 5000
-					&& planet.effectiveTemperature >= 330 && planet.effectiveTemperature <= 500
+					&& planet.blackbodyTemperature >= 330 && planet.blackbodyTemperature <= 500
 					&& planet.molecularLimit <= 4.00);
 		}
 	};
@@ -253,19 +253,19 @@ public abstract class PlanetaryClass {
 	public static final PlanetaryClass WATER_ICE = new Terrestrial("Ice planet", 0.65, 0.2) {
 		@Override protected boolean possibleClass(Satellite planet) {
 			return( super.possibleClass(planet) && planet.uncompressedDensity < 3000
-					&& planet.effectiveTemperature <= 260 && planet.effectiveTemperature >= 170 );
+					&& planet.blackbodyTemperature <= 260 && planet.blackbodyTemperature >= 170 );
 		}
 	};
 	public static final PlanetaryClass AMMONIA_ICE = new Terrestrial("CO₂/ammonia ice planet", 0.65, 0.2) {
 		@Override protected boolean possibleClass(Satellite planet) {
 			return( super.possibleClass(planet) && planet.uncompressedDensity < 3000
-					&& planet.effectiveTemperature <= 180 && planet.effectiveTemperature >= 70 );
+					&& planet.blackbodyTemperature <= 180 && planet.blackbodyTemperature >= 70 );
 		}
 	};
 	public static final PlanetaryClass METHANE_ICE = new Terrestrial("Methane ice planet", 0.65, 0.2) {
 		@Override protected boolean possibleClass(Satellite planet) {
 			return( super.possibleClass(planet) && planet.uncompressedDensity < 3000
-					&& planet.effectiveTemperature <= 80 );
+					&& planet.blackbodyTemperature <= 80 );
 		}
 	};
 	/**
@@ -282,7 +282,7 @@ public abstract class PlanetaryClass {
 	public static final PlanetaryClass LAVA = new Terrestrial("Lava planet", 0.07, 0.06) {
 		@Override protected boolean possibleClass(Satellite planet) {
 			return( super.possibleClass(planet) && planet.uncompressedDensity <= 5000
-					&& planet.effectiveTemperature >= 700 );
+					&& planet.blackbodyTemperature >= 700 );
 		}
 	};
 	
@@ -290,7 +290,7 @@ public abstract class PlanetaryClass {
 	public static final PlanetaryClass OCEAN = new Terrestrial("Ocean planet", 0.2, 1.5) {
 		@Override protected boolean possibleClass(Satellite planet) {
 			return( super.possibleClass(planet) && planet.uncompressedDensity <= 3800
-					&& planet.effectiveTemperature >= 260 && planet.effectiveTemperature <= 350
+					&& planet.blackbodyTemperature >= 260 && planet.blackbodyTemperature <= 350
 					&& planet.molecularLimit <= 18.00 /* water vapour */);
 		}
 	};
@@ -302,7 +302,7 @@ public abstract class PlanetaryClass {
 		@Override protected boolean possibleClass(Satellite planet) {
 			return( super.possibleClass(planet)
 					&& planet.density >= 2000 && planet.density < 4000
-					&& planet.effectiveTemperature > 200 );
+					&& planet.blackbodyTemperature > 200 );
 		}
 	};
 	/** Mostly packed ice/gravel */
@@ -310,7 +310,7 @@ public abstract class PlanetaryClass {
 		@Override protected boolean possibleClass(Satellite planet) {
 			return( super.possibleClass(planet)
 					&& planet.density < 3500
-					&& planet.effectiveTemperature < 260 );
+					&& planet.blackbodyTemperature < 260 );
 		}
 	};
 	/** Rock */
@@ -331,7 +331,7 @@ public abstract class PlanetaryClass {
 		@Override protected boolean possibleClass(Satellite planet) {
 			return( super.possibleClass(planet)
 					&& planet.density < 2000
-					&& planet.effectiveTemperature >= 250 );
+					&& planet.blackbodyTemperature >= 250 );
 		}
 	};
 	
@@ -447,9 +447,9 @@ public abstract class PlanetaryClass {
 		
 		@Override protected boolean possibleClass(Satellite planet) {
 			return (planet.molecularLimit <= 1.00
-					&& planet.density <= 1500 + planet.effectiveTemperature / 2.0 && planet.density > 300
+					&& planet.density <= 1500 + planet.blackbodyTemperature / 2.0 && planet.density > 300
 					&& planet.mass >= Constant.MAX_TERRESTRIAL_MASS
-					&& planet.effectiveTemperature >= minTemp && planet.effectiveTemperature <= maxTemp);
+					&& planet.blackbodyTemperature >= minTemp && planet.blackbodyTemperature <= maxTemp);
 		}
 	}
 	
@@ -465,10 +465,10 @@ public abstract class PlanetaryClass {
 		}
 		
 		@Override protected boolean possibleClass(Satellite planet) {
-			return ((planet.molecularLimit <= 4.00 && planet.molecularLimit > 1.00 || planet.effectiveTemperature <= 20 || planet.density > 1500)
-					&& planet.density <= 1600 + planet.effectiveTemperature / 2.5 && planet.density > 400
+			return ((planet.molecularLimit <= 4.00 && planet.molecularLimit > 1.00 || planet.blackbodyTemperature <= 20 || planet.density > 1500)
+					&& planet.density <= 1600 + planet.blackbodyTemperature / 2.5 && planet.density > 400
 					&& planet.mass >= Constant.MAX_TERRESTRIAL_MASS
-					&& planet.effectiveTemperature >= minTemp && planet.effectiveTemperature <= maxTemp);
+					&& planet.blackbodyTemperature >= minTemp && planet.blackbodyTemperature <= maxTemp);
 		}
 	}
 	

@@ -6,7 +6,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
-import de.vernideas.lib.stellargen.StarGenerator;
 import de.vernideas.lib.stellargen.SystemGenerator;
 import de.vernideas.space.data.Constant;
 import de.vernideas.space.data.Moon;
@@ -14,11 +13,14 @@ import de.vernideas.space.data.Orbit;
 import de.vernideas.space.data.Planet;
 import de.vernideas.space.data.Star;
 import de.vernideas.space.data.Universe;
+import de.vernideas.space.data.VectorI3D;
+import de.vernideas.space.data.starclass.StarClassHelper;
 
 public final class StarGenTest1 {
 
 	public static void main(String[] args) {
-		Universe u = new Universe();
+		Universe u = new Universe(-6168985105448355243L);
+		System.err.println("UNIVERSE SEED " + u.seed);
 		Star s = SystemGenerator.star(u);
 
 		printStar(s, 1);
@@ -33,6 +35,14 @@ public final class StarGenTest1 {
 		{
 			printPlanet(p);
 		}
+		
+		// Test for Earth
+		
+		Star sol = Star.builder().name("Sol").diameter(Constant.SOLAR_DIAMETER).luminosity(Constant.SOLAR_LUM).mass(Constant.SOLAR_MASS)
+				.temperature(Constant.SOLAR_TEMPERATURE).starClass(StarClassHelper.parse("G2V")).position(new VectorI3D(0, 0, 0)).build();
+		Planet earth = Planet.builder().name("Earth").diameter(Constant.EARTH_DIAMETER).mass(Constant.EARTH_MASS).parent(sol)
+				.rotationPeriod(24 * 3600 * 364.0f / 365.0f).orbit(new Orbit(Constant.AU, 0.0167086f, 0.0f)).build();
+		printPlanet(earth);
 	}
 
 	private static void printStar(Star star, int i)
@@ -57,7 +67,7 @@ public final class StarGenTest1 {
 		System.out.println("     " + p.name + " [" + p.planetaryClass.name + "]"
 				+ ", mass: " + String.format(Locale.ROOT, "%.3f", p.mass / Constant.YOTTAGRAM) + " Yg, exclusion zone "
 				+ String.format(Locale.ROOT, "%.3f", p.exclusionZone / Constant.AU)
-				+ " AU, blackbody temp. " + String.format(Locale.ROOT, "%.1f", p.effectiveTemperature) + " K");
+				+ " AU, blackbody temp. " + String.format(Locale.ROOT, "%.1f", p.blackbodyTemperature) + " K");
 		printOrbit(p.orbit, "       ");
 		System.out.println("       diameter (Earth) "
 				+ String.format(Locale.ROOT, "%.2f", p.diameter / 6371000.8 / 2) + ", gravity: "
@@ -74,7 +84,7 @@ public final class StarGenTest1 {
 	private static void printMoon(Moon m)
 	{
 		System.out.println(String.format("\"%s\"\t\"%s\"\t%.3f\t%.0f\t%.0f\t%.0f\t%.2f\t%d",
-				m.name, m.planetaryClass.name, m.mass, m.diameter / 1000, m.density, m.uncompressedDensity, m.molecularLimit, m.effectiveTemperature));
+				m.name, m.planetaryClass.name, m.mass, m.diameter / 1000, m.density, m.uncompressedDensity, m.molecularLimit, m.blackbodyTemperature));
 		/*
 		System.out.println("         " + m.name + ", mass: " + String.format("%.3f", m.mass)
 				+ " Yg, radius (Earth radii) " + String.format("%.2f", m.planetRadius / 6371000)

@@ -2,7 +2,6 @@ package de.vernideas.lib.stellargen;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
 import de.vernideas.space.data.Constant;
@@ -39,7 +38,7 @@ public class SystemGenerator {
 		
 		double stellarDust = stellarDustLimit;
 		
-		System.err.println(star.name + " - trying to create " + planetNum + "+ planets from " + String.format("%.2f", stellarDust / Constant.YOTTAGRAM) + " Yg stellar dust"
+		System.err.println(star.name + " - trying to create " + planetNum + " planets from " + String.format("%.2f", stellarDust / Constant.YOTTAGRAM) + " Yg stellar dust"
 				+ " (gas giant mod " + gasgiantMod + ")");
 		
 		List<Double> planetMasses = null;
@@ -122,11 +121,12 @@ public class SystemGenerator {
 	 * Root mean square velocity of the molecule/atom given the temperature
 	 * (for calculating escape velocity of the atmosphere).
 	 * 
-	 * @return Velocity in m/minute
+	 * @param molWeight molar mass (g/mol)
+	 * @return Velocity in m/s
 	 */
 	public static double rmsVelocity(double molWeight, double temperature)
 	{
-		return Math.sqrt(3 * Constant.MOLAR_GAS * temperature / molWeight);
+		return Math.sqrt(3 * Constant.MOLAR_GAS * temperature / molWeight * 1000);
 	}
 	
 	

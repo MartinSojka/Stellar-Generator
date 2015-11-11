@@ -58,10 +58,12 @@ public final class Constant {
 	public static final int GALACTIC_YEAR = 12 * GALACTIC_MONTH;
 	
 	/** Average temperature of the universe, in Kelvin */
-	public static final double UNIVERSE_TEMPERATURE = 3.0;
+	public static final double UNIVERSE_TEMPERATURE = 2.73;
+	public static final double UNIVERSE_AGE = 1.3799e9 * 31557600.0; // Julian years for astronomy values
 	
 	/** Earth surface gravity in m/s^2 */
 	public static final double EARTH_SURFACE_GRAVITY = 9.807;
+	public static final double EARTH_DIAMETER = 6375098 * 2; // Calculated from gravity (9.807 m/s^2) and mass
 	
 	// Tidal locking constants: 6x10^10 years times 3x10^10 kg m^-1 s^-2 for rocky,
 	// times 4x10^9 N m^2 for icy worlds, and result in galactic years.
@@ -69,7 +71,7 @@ public final class Constant {
 	public static final double TIDAL_LOCKING_ICY = 6e10 * 4e9 / GALACTIC_YEAR;
 	
 	/** 8.3144621 m^2 kg s^-2 K^-1 mol^-1 with the base time unit */
-	public static final double MOLAR_GAS = 8.3144621 * TIME_UNIT * TIME_UNIT;
+	public static final double MOLAR_GAS = 8.314459848 * TIME_UNIT * TIME_UNIT;
 	
 	/** Rough upper limit of terrestrial planets, in Yg */
 	public static final double MAX_TERRESTRIAL_MASS = 5e25;

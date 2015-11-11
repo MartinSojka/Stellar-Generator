@@ -35,7 +35,7 @@ public abstract class Satellite extends StellarObject {
 	/** Mass at which this planet or moon would start to accrete gas as well as dust */
 	public final double criticalMass;
 	/** In Kelvin, assuming blackbody planet (albedo = 0). Multiply by Math.pow(1 - albedo, 0.25) (Earth: 0.91) to get the "real" value */
-	public final double effectiveTemperature;
+	public final double blackbodyTemperature;
 	/** Smallest molecular weight still retained by the satellite */
 	public final double molecularLimit;
 	
@@ -84,20 +84,19 @@ public abstract class Satellite extends StellarObject {
 		if( mainBody.parent instanceof Star )
 		{
 			Star mainStar = (Star)mainBody.parent;
-			double starLuminosity = mainStar.luminosity;
-	
+
 			// Calculate the (blackbody, albedo = 0) temperature of the planet
-			this.effectiveTemperature = Math.max(Math.pow(mainStar.luminosity / (16 * Math.PI * Constant.STEFAN_BOLTZMANN * mainBody.orbit.radius * mainBody.orbit.radius), 0.25), Constant.UNIVERSE_TEMPERATURE);
-			this.criticalMass = 3.95e16 * Math.pow(mainBody.orbit.pericenter * Math.sqrt(starLuminosity), -0.75);
+			this.blackbodyTemperature = Math.max(Math.pow(mainStar.luminosity / (16 * Constant.STEFAN_BOLTZMANN_PI * mainBody.orbit.radius * mainBody.orbit.radius), 0.25), Constant.UNIVERSE_TEMPERATURE);
+			this.criticalMass = 1.2e-5 * Constant.SOLAR_MASS * Math.pow(mainBody.orbit.pericenter * Math.sqrt(mainStar.originalLuminosity / Constant.SOLAR_LUM), -0.75);
 		}
 		else
 		{
 			// We're some kind of a deep-space object?
-			this.effectiveTemperature = Constant.UNIVERSE_TEMPERATURE;
+			this.blackbodyTemperature = Constant.UNIVERSE_TEMPERATURE;
 			this.criticalMass = 0.0;
 		}
 		
-		this.molecularLimit = 10000.0 * Constant.MOLAR_GAS * this.effectiveTemperature / Math.pow(this.escapeVelocity / 6.0, 2.0);
+		this.molecularLimit = 1000 * 3.0 * Constant.MOLAR_GAS * this.blackbodyTemperature / Math.pow(this.escapeVelocity / 9.15, 2.0);
 		
 		this.planetaryClass = PlanetaryClass.classify(this);
 	}
@@ -112,7 +111,7 @@ public abstract class Satellite extends StellarObject {
 				// The planet needs to retain water vapour (18.02), but not helium (4.00)
 				molecularLimit < 18.02 && molecularLimit > 4.00
 				// Effective temperature should be between 220 and 330 K
-				&& effectiveTemperature >= 220 && effectiveTemperature <= 330
+				&& blackbodyTemperature >= 220 && blackbodyTemperature <= 330
 				// Surface gravitation should be between 0.5 and 1.5g
 				&& surfaceGravity >= Constant.EARTH_SURFACE_GRAVITY * 0.5 && surfaceGravity <= Constant.EARTH_SURFACE_GRAVITY * 1.5 );
 	}
