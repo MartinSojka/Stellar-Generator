@@ -9,6 +9,7 @@ import java.util.UUID;
 public class Universe {
 	public final long seed;
 	public final Random random;
+	public final double maxStellarAge = 1.35e10;
 	
 	public Universe() {
 		this(UUID.randomUUID().getLeastSignificantBits());

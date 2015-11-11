@@ -28,6 +28,10 @@ public final class Constant {
 	 * Stefan-Boltzmann constant, for calculating luminosity out of radius and effective temperature (in W m^-2 K^-4)
 	 */
 	public static final double STEFAN_BOLTZMANN = 5.67036713e-8;
+	/**
+	 * Stefan-Boltzmann constant times PI, for blackbody temperature calculations
+	 */
+	public static final double STEFAN_BOLTZMANN_PI = STEFAN_BOLTZMANN * Math.PI;
 	
 	/**
 	 * Escape velocity multiplier - sqrt(2 * G) in m^1.5 kg^-0.5 s^-1

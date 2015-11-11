@@ -19,12 +19,14 @@ public final class PlanetGenerator {
 			float eccentrity = 0.0f;
 			int errCount = 0;
 			do {
-				orbit = Math.max(Math.pow(Math.min(star.random.nextDouble(), star.random.nextDouble()), 2.0) * Constant.MILLI_LIGHTYEAR, star.diameter * 5);
+				orbit = Math.pow(Math.min(star.random.nextDouble(), star.random.nextDouble()), 2.0) * (star.outerPlanetLimit - star.innerPlanetLimit) + star.innerPlanetLimit;
 				eccentrity = (float)Math.pow(star.random.nextDouble(), 6.0) / 2.0f;
-				// We try to keep the planets with less than about 50000 Yg weight in the "inside" of the frost zone
-				if( orbit > star.frostLine && mass < star.random.nextDouble() * 50000.0 * Constant.YOTTAGRAM )
-				{
-					orbit = Math.max(Math.min(orbit, star.random.nextDouble() * Constant.MILLI_LIGHTYEAR), star.diameter * 5);
+				// We try to keep the planets with less than about 50000 Yg weight in the "inside" of the frost zone,
+				// and gas giants outside
+				if( orbit > star.frostLine && mass < star.random.nextDouble() * Constant.MAX_TERRESTRIAL_MASS ) {
+					orbit = Math.max(Math.min(orbit, star.random.nextDouble() * star.outerPlanetLimit), star.innerPlanetLimit);
+				} else if( orbit < star.frostLine && mass * star.random.nextDouble() > Constant.MAX_TERRESTRIAL_MASS ) {
+					orbit = Math.pow(Math.min(star.random.nextDouble(), star.random.nextDouble()), 1.5) * (star.outerPlanetLimit - star.frostLine) + star.frostLine;
 				}
 				if( !star.orbitFree(orbit, eccentrity) )
 				{
@@ -97,11 +99,11 @@ public final class PlanetGenerator {
 	
 	public static Planet planetoid(Star star, double mass)
 	{
-		int orbit = 0;
+		double orbit = 0.0;
 		float eccentrity;
 		int errCount = 0;
 		do {
-			orbit = (int)(star.random.nextDouble() * Constant.MILLI_LIGHTYEAR);
+			orbit = star.random.nextDouble() * (star.outerPlanetLimit - star.boilingLine) + star.boilingLine;
 			eccentrity = (float)Math.pow(star.random.nextDouble(), 2.5) / 1.01f;
 			if( !star.orbitFree(orbit, eccentrity) )
 			{
@@ -113,7 +115,7 @@ public final class PlanetGenerator {
 				}
 			}
 		} while( !star.orbitFree(orbit, eccentrity) );
-		float rotationPeriod = (float)star.random.nextGaussian() * 1000 + 1200;
+		float rotationPeriod = (float)star.random.nextGaussian() * 60000 + 72000;
 		// Flatten out the eccentrity for low-lying orbits (below 1.99 AU for the Sun)
 		if( orbit < star.mass / 1000000 )
 		{

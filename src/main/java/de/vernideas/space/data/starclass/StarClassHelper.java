@@ -154,6 +154,34 @@ public final class StarClassHelper {
 		return avgLuminosityTable.get(sc);
 	}
 
+	public static int gasgiantMod(StarClass sc) {
+		switch(sc.luminosityClass) {
+		case WHITE_DWARF:
+			return gasgiantMod(String.format("D%d", sc.subType));
+		default:
+			return gasgiantMod(String.format("%s%d", sc.type, sc.subType));
+		}
+	}
+
+	public static int gasgiantMod(String sc)
+	{
+		return gasgiantModTable.get(sc);
+	}
+	
+	public static int habilityMod(StarClass sc) {
+		switch(sc.luminosityClass) {
+		case WHITE_DWARF:
+			return gasgiantMod(String.format("D%d", sc.subType));
+		default:
+			return gasgiantMod(String.format("%s%d", sc.type, sc.subType));
+		}
+	}
+	
+	public static int habilityMod(String sc)
+	{
+		return habilityModTable.get(sc);
+	}
+	
 	public static double randomPlanets(StarClass sc, Random rnd) {
 		return Math.max(rnd.nextGaussian() * sc.sigmaPlanets() + sc.avgPlanets(), 0.0);
 	}
@@ -186,6 +214,10 @@ public final class StarClassHelper {
 		return sigmaPlanetsTable.get(sc);
 	}
 
+	public static double randomOriginalLuminosity(StarClass sc, double luminosity, Random rnd) {
+		// TODO - allow the star class to override stuff
+		return luminosity / (1.0 + rnd.nextDouble() * 0.2);
+	}
 
 	/**
 	 * Returns the approximate B-V color index of the star
@@ -394,7 +426,7 @@ public final class StarClassHelper {
 		
 		try(
 				InputStream in = StarClassHelper.class.getResourceAsStream("/de/vernideas/space/data/starclass/starclasses.csv");
-				CSVReader reader = new CSVReader(new BufferedReader(new InputStreamReader(in)), ',', '"')
+				CSVReader reader = new CSVReader(new BufferedReader(new InputStreamReader(in, "UTF-8")), ',', '"')
 				) {
 			String[] line = reader.readNext();
 			while( null != line ) {

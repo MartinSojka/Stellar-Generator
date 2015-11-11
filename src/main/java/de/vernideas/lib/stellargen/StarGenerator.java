@@ -1,5 +1,9 @@
 package de.vernideas.lib.stellargen;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -39,6 +43,7 @@ public final class StarGenerator {
 		builder.temperature(effTemp);
 		builder.diameter(diameter * Constant.SOLAR_DIAMETER);
 		builder.luminosity(luminosity * Constant.SOLAR_LUM);
+		builder.originalLuminosity(StarClassHelper.randomOriginalLuminosity(sc, luminosity * Constant.SOLAR_LUM, u.random));
 		builder.mass(StarClassHelper.randomMass(sc, u.random) * Constant.SOLAR_MASS);
 		builder.name(starName(u, scClass));
 
@@ -50,22 +55,14 @@ public final class StarGenerator {
 	private static final TreeMap<Integer, String> spectralDistribution = new TreeMap<Integer, String>();
 	private static final int maxSpectralVal;
 
-	private static final List<String> constellationNames = Arrays.<String>asList(new String[]{
-			"Anguillae", "Apium", "Araneae", "Avis", "Bufonis", "Cameli", "Caprae", "Castoris", "Catuli", "Cervi", "Coronae",
-			"Erinacei", "Equi", "Felis", "Galli", "Hippocampi", "Hirudinis", "Hystricis", "Leaenae", "Lilii", "Limacis", "Marmoti",
-			"Mustelae", "Noctuae", "Patellae", "Pinnae", "Plutei", "Praesepis", "Quadrati", "Pantherae", "Phocae", "Regis",
-			"Roboris", "Rosae", "Sciuri", "Sirenis", "Talpae", "Tarandri", "Testudinis", "Tigris", "Trianguli", "Urnae",
-			"Vespae", "Vespertilionis", "Vexilli", "Vulpis"
-	}); 
+	private static final List<String> constellationNames;
 	
 	private static final List<String> starPrefixes = Arrays.<String>asList(new String[]{
 			"α", "β", "γ", "δ", "ε", "ζ", "η", "θ", "ι", "κ", "λ", "μ", "ν", "ξ", "ο", "π", "ρ", "σ", "τ", "υ", "φ", "χ", "ψ", "ω",
 			"A", "B", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "W", "X", "Y", "Z"
 	});
 	
-	private static final List<String> durchmusterungNames = Arrays.<String>asList(new String[]{
-			"BD", "CD", "HD", "ED", "KD", "VD", "FD", "MD", "RD", "SD"
-	});
+	private static final List<String> durchmusterungNames;
 	
 	private static void addSC(String base, int minDist, int maxDist)
 	{
@@ -109,7 +106,6 @@ public final class StarGenerator {
 		int catalogueMax = durchmusterungNames.size();
 		
 		// TODO: First number should depend on position relative to the origin
-		
 		return durchmusterungNames.get(Math.min(u.random.nextInt(catalogueMax), u.random.nextInt(catalogueMax)))
 				+ (u.random.nextBoolean() ? "+" : "-") + String.format("%02d", u.random.nextInt(90)) + "°" + (u.random.nextInt(19900) + 100);
 	}
@@ -134,6 +130,38 @@ public final class StarGenerator {
 			count += spectral.second;
 		}
 		maxSpectralVal = count;
+		
+		constellationNames = new ArrayList<String>();
+		try(
+			InputStream in = StarGenerator.class.getResourceAsStream("/de/vernideas/lib/stellargen/constellations.txt");
+			BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"))
+		) {
+			String line = reader.readLine();
+			while( null != line ) {
+				if( !line.startsWith("#") ) {
+					constellationNames.add(line);
+				}
+				line = reader.readLine();
+			}
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
+		
+		durchmusterungNames = new ArrayList<String>();
+		try(
+				InputStream in = StarGenerator.class.getResourceAsStream("/de/vernideas/lib/stellargen/durchmusterungs.txt");
+				BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"))
+			) {
+				String line = reader.readLine();
+				while( null != line ) {
+					if( !line.startsWith("#") ) {
+						durchmusterungNames.add(line);
+					}
+					line = reader.readLine();
+				}
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
 	}
 
 }

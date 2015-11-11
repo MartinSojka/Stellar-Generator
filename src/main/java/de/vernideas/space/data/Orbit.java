@@ -1,5 +1,7 @@
 package de.vernideas.space.data;
 
+import java.util.Locale;
+
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.Wither;
@@ -49,5 +51,10 @@ public class Orbit {
 	private Orbit(double r, float e, float i, double _ignore1, double _ignore2)
 	{
 		this(r, e, i);
+	}
+	
+	public String printablePlanetString() {
+		return String.format(Locale.ROOT, "radius %.3f AU, eccentricity %.3f AU, inclination %.2f°",
+				radius / Constant.AU, eccentricity, inclination);
 	}
 }

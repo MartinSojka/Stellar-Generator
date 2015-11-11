@@ -69,11 +69,11 @@ public abstract class Satellite extends StellarObject {
 		this.exclusionZone = hillsRadiusCircle * 5;
 		
 		this.surfaceGravity = Constant.G * 4 * mass / diameter / diameter * Math.pow(Constant.DISTANCE_UNIT, 3.0) / Constant.TIME_UNIT / Constant.TIME_UNIT;
-		this.escapeVelocity = Math.sqrt(4.0 * this.surfaceGravity * this.diameter);
+		this.escapeVelocity = Math.sqrt(this.surfaceGravity * this.diameter);
 		this.equatorialSpeed = Math.PI * this.diameter / Math.abs(rotationPeriod * Constant.TIME_UNIT);
 		this.density = mass * Constant.MASS_UNIT / (Math.PI * diameter * diameter * diameter / 6.0);
 		// Estimate uncompressed density
-		this.uncompressedDensity = this.density * 1.488560167 * Math.pow(this.mass, -0.06880048664);
+		this.uncompressedDensity = this.density * 1.488560167 * Math.pow(this.mass / Constant.YOTTAGRAM, -0.06880048664);
 
 		// Determine the main star and what its luminosity is, and derived values
 		Satellite mainBody = this;
@@ -97,7 +97,7 @@ public abstract class Satellite extends StellarObject {
 			this.criticalMass = 0.0;
 		}
 		
-		this.molecularLimit = 3.0 * Constant.MOLAR_GAS * this.effectiveTemperature / Math.pow(this.escapeVelocity / 6.0, 2.0);
+		this.molecularLimit = 10000.0 * Constant.MOLAR_GAS * this.effectiveTemperature / Math.pow(this.escapeVelocity / 6.0, 2.0);
 		
 		this.planetaryClass = PlanetaryClass.classify(this);
 	}
