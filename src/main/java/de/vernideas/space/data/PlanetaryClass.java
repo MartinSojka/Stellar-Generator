@@ -143,7 +143,7 @@ public abstract class PlanetaryClass {
 		}
 	};
 	/** Low-water variant on Earth-sized planet */
-	public static final PlanetaryClass DESERT = new Terrestrial("Desert planet", 0.27) {
+	public static final PlanetaryClass DESERT = new Terrestrial("Desert planet", 0.27, 0.16) {
 		@Override protected boolean possibleClass(Satellite planet) {
 			return( super.possibleClass(planet)
 					&& planet.uncompressedDensity >= 3500 && planet.uncompressedDensity <= 5000
@@ -152,7 +152,7 @@ public abstract class PlanetaryClass {
 		}
 	};
 	/** Earth-sized planet with oceans and water clouds, but without much hellium in the atmosphere */
-	public static final PlanetaryClass EARTH_LIKE = new Terrestrial("Earth-like planet", 0.29) {
+	public static final PlanetaryClass EARTH_LIKE = new Terrestrial("Earth-like planet", 0.29, 0.16) {
 		@Override protected boolean possibleClass(Satellite planet) {
 			return( super.possibleClass(planet)
 					&& planet.uncompressedDensity >= 3500 && planet.uncompressedDensity <= 5000
@@ -161,7 +161,7 @@ public abstract class PlanetaryClass {
 		}
 	};
 	/** Variant of an Earth-like planet with a runaway greenhouse effect. See: Venus */
-	public static final PlanetaryClass GREENHOUSE = new Terrestrial("Greenhouse planet", 0.65) {
+	public static final PlanetaryClass GREENHOUSE = new Terrestrial("Greenhouse planet", 0.65, 2.0) {
 		@Override protected boolean possibleClass(Satellite planet) {
 			return( super.possibleClass(planet)
 					&& planet.uncompressedDensity <= 5000
@@ -172,7 +172,7 @@ public abstract class PlanetaryClass {
 	
 	/** Hot planets still retaining a substantial atmosphere (CO2 molar mass = 44), but not liquid water;
 	 * also likely lacking a strong magnetic field */
-	public static final PlanetaryClass HELL = new Terrestrial("Hell planet", 0.4) {
+	public static final PlanetaryClass HELL = new Terrestrial("Hell planet", 0.4, 0.5) {
 		@Override protected boolean possibleClass(Satellite planet) {
 			return( super.possibleClass(planet)
 					&& planet.uncompressedDensity < 5000
@@ -183,7 +183,7 @@ public abstract class PlanetaryClass {
 	};
 	
 	/** Cold planet lacking a magnetic field, consisting mostly of rock */
-	public static final PlanetaryClass FROZEN_ROCK = new Terrestrial("Frozen rock planet", 0.4) {
+	public static final PlanetaryClass FROZEN_ROCK = new Terrestrial("Frozen rock planet", 0.4, 0.2) {
 		@Override protected boolean possibleClass(Satellite planet) {
 			return( super.possibleClass(planet)
 					&& planet.uncompressedDensity < 5000 && planet.uncompressedDensity >= 3000
@@ -193,7 +193,7 @@ public abstract class PlanetaryClass {
 	};
 	
 	/** Airless rock, mostly relatively warm */
-	public static final PlanetaryClass AIRLESS = new Terrestrial("Airless rock planet", 0.4) {
+	public static final PlanetaryClass AIRLESS = new Terrestrial("Airless rock planet", 0.4, 0.0) {
 		@Override protected boolean possibleClass(Satellite planet) {
 			return( super.possibleClass(planet)
 					&& planet.uncompressedDensity < 5000
@@ -203,7 +203,7 @@ public abstract class PlanetaryClass {
 	};
 
 	/** Small rocky worlds with carbon dioxide atmosphere (mostly) */
-	public static final PlanetaryClass DRY_ROCK = new Terrestrial("Dry rocky planet", 0.2) {
+	public static final PlanetaryClass DRY_ROCK = new Terrestrial("Dry rocky planet", 0.2, 0.2) {
 		@Override protected boolean possibleClass(Satellite planet) {
 			return( super.possibleClass(planet)
 					&& planet.uncompressedDensity <= 3500 && planet.uncompressedDensity >= 2600
@@ -214,7 +214,7 @@ public abstract class PlanetaryClass {
 
 
 	/** Earth-like conditions, including fluid water, but no notable magnetic field */
-	public static final PlanetaryClass ROCKY = new Terrestrial("Rocky planet", 0.2) {
+	public static final PlanetaryClass ROCKY = new Terrestrial("Rocky planet", 0.2, 0.16) {
 		@Override protected boolean possibleClass(Satellite planet) {
 			return( super.possibleClass(planet)
 					&& planet.uncompressedDensity <= 3500 && planet.uncompressedDensity >= 2600
@@ -224,7 +224,7 @@ public abstract class PlanetaryClass {
 	};
 
 	/** Earth-sized planet with oceans and water clouds, thick hellium-rich atmosphere */
-	public static final PlanetaryClass HIGH_PRESSURE = new Terrestrial("Earth-like planet (hellium-rich)", 0.29) {
+	public static final PlanetaryClass HIGH_PRESSURE = new Terrestrial("Earth-like planet (hellium-rich)", 0.29, 0.16) {
 		@Override protected boolean possibleClass(Satellite planet) {
 			return( super.possibleClass(planet)
 					&& planet.uncompressedDensity >= 3500 && planet.uncompressedDensity <= 5000
@@ -234,7 +234,7 @@ public abstract class PlanetaryClass {
 	};
 
 	/** Variant of an Earth-like planet with a runaway greenhouse effect and extremly thick hellium-rich atmosphere */
-	public static final PlanetaryClass EXTREME_GREENHOUSE = new Terrestrial("Greenhouse planet (hellium-rich)", 0.65) {
+	public static final PlanetaryClass EXTREME_GREENHOUSE = new Terrestrial("Greenhouse planet (hellium-rich)", 0.65, 2.0) {
 		@Override protected boolean possibleClass(Satellite planet) {
 			return( super.possibleClass(planet)
 					&& planet.uncompressedDensity <= 5000
@@ -250,19 +250,19 @@ public abstract class PlanetaryClass {
 	 *           Europa [CO2/NH3] (mass 48, density 3014, temp 102, blackbody 138, albedo 0.67, mollimit 108.68)
 	 *           Eris [methane] (mass 17, density 2580, temp 43, blackbody 38, albedo 0.97, mollimit 62.96)
 	 */
-	public static final PlanetaryClass WATER_ICE = new Terrestrial("Ice planet", 0.65) {
+	public static final PlanetaryClass WATER_ICE = new Terrestrial("Ice planet", 0.65, 0.2) {
 		@Override protected boolean possibleClass(Satellite planet) {
 			return( super.possibleClass(planet) && planet.uncompressedDensity < 3000
 					&& planet.effectiveTemperature <= 260 && planet.effectiveTemperature >= 170 );
 		}
 	};
-	public static final PlanetaryClass AMMONIA_ICE = new Terrestrial("CO₂/ammonia ice planet", 0.65) {
+	public static final PlanetaryClass AMMONIA_ICE = new Terrestrial("CO₂/ammonia ice planet", 0.65, 0.2) {
 		@Override protected boolean possibleClass(Satellite planet) {
 			return( super.possibleClass(planet) && planet.uncompressedDensity < 3000
 					&& planet.effectiveTemperature <= 180 && planet.effectiveTemperature >= 70 );
 		}
 	};
-	public static final PlanetaryClass METHANE_ICE = new Terrestrial("Methane ice planet", 0.65) {
+	public static final PlanetaryClass METHANE_ICE = new Terrestrial("Methane ice planet", 0.65, 0.2) {
 		@Override protected boolean possibleClass(Satellite planet) {
 			return( super.possibleClass(planet) && planet.uncompressedDensity < 3000
 					&& planet.effectiveTemperature <= 80 );
@@ -273,13 +273,13 @@ public abstract class PlanetaryClass {
 	 * <p>
 	 * Examples: Mercury (mass 330, density 5425, temp 340, blackbody 508, albedo 0.07, mollimit 90.96)
 	 */
-	public static final PlanetaryClass IRON = new Terrestrial("Iron planet", 0.07) {
+	public static final PlanetaryClass IRON = new Terrestrial("Iron planet", 0.07, 0.08) {
 		@Override protected boolean possibleClass(Satellite planet) {
 			return( super.possibleClass(planet) && planet.uncompressedDensity >= 5000 );
 		}
 	};
 	/** Very hot rocky planets */
-	public static final PlanetaryClass LAVA = new Terrestrial("Lava planet", 0.07) {
+	public static final PlanetaryClass LAVA = new Terrestrial("Lava planet", 0.07, 0.06) {
 		@Override protected boolean possibleClass(Satellite planet) {
 			return( super.possibleClass(planet) && planet.uncompressedDensity <= 5000
 					&& planet.effectiveTemperature >= 700 );
@@ -287,7 +287,7 @@ public abstract class PlanetaryClass {
 	};
 	
 	/** High-water content planets with temperatures between 260 K and 350 K; typically good cloud cover and greenhouse effect */
-	public static final PlanetaryClass OCEAN = new Terrestrial("Ocean planet", 0.2) {
+	public static final PlanetaryClass OCEAN = new Terrestrial("Ocean planet", 0.2, 1.5) {
 		@Override protected boolean possibleClass(Satellite planet) {
 			return( super.possibleClass(planet) && planet.uncompressedDensity <= 3800
 					&& planet.effectiveTemperature >= 260 && planet.effectiveTemperature <= 350
@@ -350,7 +350,12 @@ public abstract class PlanetaryClass {
 		this.albedo = albedo;
 	}
 	
+	/** Is this planet a possible candidate for this planetary class? */
 	protected abstract boolean possibleClass(Satellite planet);
+	/** Average greenhouse factor (only important for terrestial planets) */
+	public double avgGreenhouseFactor() {
+		return 0.0;
+	}
 	
 	/* public abstract Map<Gas, Integer> atmosphere(Orbit orbit, SpectralClass sc, int temperature, long seed); */
 	
@@ -469,13 +474,20 @@ public abstract class PlanetaryClass {
 	
 
 	public static class Terrestrial extends PlanetaryClass {
-		protected Terrestrial(String name, double albedo) {
+		private final double avgGreenhouseFactor;
+		
+		protected Terrestrial(String name, double albedo, double greenhouseFactor) {
 			super(name, albedo);
+			avgGreenhouseFactor = greenhouseFactor;
 		}
 
 		@Override protected boolean possibleClass(Satellite planet) {
 			return (planet.mass <= Constant.MAX_TERRESTRIAL_MASS && planet.mass >= Constant.MIN_TERRESTRIAL_MASS
 					&& planet.density > 1000);
+		}
+		
+		@Override public double avgGreenhouseFactor() {
+			return avgGreenhouseFactor;
 		}
 	}
 	
