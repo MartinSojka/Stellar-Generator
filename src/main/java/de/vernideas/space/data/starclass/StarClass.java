@@ -21,6 +21,8 @@ public abstract class StarClass {
 	private double minMass = -1.0;
 	private double maxMass = -1.0;
 	private double avgLuminosity = -1.0;
+	private double avgPlanets = -1.0;
+	private double sigmaPlanets = -1.0;
 	private double safeJumpDistance = -1.0;
 
 	protected StarClass(Type type, int subType, LuminosityClass luminosityClass) {
@@ -77,6 +79,21 @@ public abstract class StarClass {
 		return avgLuminosity;
 	}
 	
+	public double avgPlanets() {
+		if( avgPlanets < 0 ) {
+			avgPlanets = StarClassHelper.avgPlanets(this);
+		}
+		return avgPlanets;
+	}
+	
+	public double sigmaPlanets() {
+		if( sigmaPlanets < 0 ) {
+			sigmaPlanets = StarClassHelper.sigmaPlanets(this);
+		}
+		return sigmaPlanets;
+	}
+	
+
 	/**
 	 * Full (human-readable) class declaration, for example "G4V", "K3II", "DA7" and so on.
 	 * <p>

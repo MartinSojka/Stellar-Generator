@@ -58,9 +58,9 @@ public class Star extends StellarObject {
 	}
 	
 	/** This method doesn't check for conflicting data, it just adds the planet to the right list */
-	public Planet addPlanet(String name, double mass, @NonNull Orbit orbit, float rotationPeriod, double planetRadius, boolean minor)
+	public Planet addPlanet(String name, double mass, double diameter, @NonNull Orbit orbit, float rotationPeriod, boolean minor)
 	{
-		Planet planet = Planet.builder().name(name).mass(mass).orbit(orbit).rotationPeriod(rotationPeriod).planetRadius(planetRadius).minor(minor).parent(this).build();
+		Planet planet = Planet.builder().name(name).mass(mass).orbit(orbit).rotationPeriod(rotationPeriod).diameter(diameter).minor(minor).parent(this).build();
 		
 		(minor ? planetoids : planets).add(planet);
 		

@@ -25,7 +25,7 @@ public class Planet extends Satellite implements Location {
 	@Getter @Setter private boolean valid;
 	
 	@Builder
-	private Planet(String name, double mass, double diameter, @NonNull Star parent, @NonNull Orbit orbit, float rotationPeriod, double planetRadius, boolean minor)
+	private Planet(String name, double mass, double diameter, @NonNull Star parent, @NonNull Orbit orbit, float rotationPeriod, boolean minor)
 	{
 		super(name, mass, diameter, parent, orbit, rotationPeriod);
 		

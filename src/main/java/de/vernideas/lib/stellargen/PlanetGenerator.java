@@ -22,9 +22,9 @@ public final class PlanetGenerator {
 				orbit = Math.max(Math.pow(Math.min(star.random.nextDouble(), star.random.nextDouble()), 2.0) * Constant.MILLI_LIGHTYEAR, star.diameter * 5);
 				eccentrity = (float)Math.pow(star.random.nextDouble(), 6.0) / 2.0f;
 				// We try to keep the planets with less than about 50000 Yg weight in the "inside" of the frost zone
-				if( orbit > star.frostLine && mass < star.random.nextDouble() * 50000.0 )
+				if( orbit > star.frostLine && mass < star.random.nextDouble() * 50000.0 * Constant.YOTTAGRAM )
 				{
-					orbit = Math.min(orbit, star.random.nextInt((int)Constant.MILLI_LIGHTYEAR));
+					orbit = Math.max(Math.min(orbit, star.random.nextDouble() * Constant.MILLI_LIGHTYEAR), star.diameter * 5);
 				}
 				if( !star.orbitFree(orbit, eccentrity) )
 				{
@@ -36,15 +36,15 @@ public final class PlanetGenerator {
 					}
 				}
 			} while( !star.orbitFree(orbit, eccentrity) );
-			float rotationPeriod = (float)star.random.nextGaussian() * 1000 + 1200;
+			float rotationPeriod = (float)star.random.nextGaussian() * 60000 + 72000;
 			// Flatten out the eccentrity for low-lying orbits (below 1.99 AU for the Sun)
-			if( orbit < star.mass / 1000000 )
+			if( orbit / Constant.AU < star.mass / 1e29 )
 			{
-				eccentrity *= (orbit * 1000000.0 / star.mass);
+				eccentrity *= (orbit / Constant.AU * 1e29 / star.mass);
 			}
 			builder.orbit(new Orbit(orbit, eccentrity, (float)Math.abs(star.random.nextGaussian() / 72 / Math.PI)))
 					.rotationPeriod(rotationPeriod)
-					.planetRadius(planetRadius(star.random, mass, orbitalZone(star, orbit)));
+					.diameter(planetRadius(star.random, mass, orbitalZone(star, orbit)) * 2);
 			planet = builder.build();
 			// Try to make the planet habitable (for humans) if possible ...
 			-- habitableRetries;
@@ -53,11 +53,11 @@ public final class PlanetGenerator {
 		
 		// Moon generation
 		// Estimated amount of major moons
-		double moonEstimate = 8.5 * Math.exp(-65000.0 / planet.mass) + planet.random.nextGaussian() * 0.4 * Math.pow(planet.mass, 0.135);
+		double moonEstimate = 8.5 * Math.exp(-65000.0 / planet.mass * Constant.YOTTAGRAM) + planet.random.nextGaussian() * 0.4 * Math.pow(planet.mass / Constant.YOTTAGRAM, 0.135);
 		// Lower the chances for small Hill radii
-		if( planet.hillsRadius < 100 )
+		if( planet.hillsRadius < 0.1 * Constant.AU )
 		{
-			moonEstimate *= Math.pow(planet.hillsRadius / 100.0, 0.4);
+			moonEstimate *= Math.pow(planet.hillsRadius * 10.0 / Constant.AU, 0.4);
 		}
 		int majorMoons = (int)Math.min(moonEstimate, planet.hillsRadius);
 		for( int m = 0; m < majorMoons; ++ m )
@@ -71,7 +71,7 @@ public final class PlanetGenerator {
 			// Make sure we don't get too near to the Roche limit (rough estimate for fluid moon).
 			// This is almost never more than 1.0 and practically never more than 2.0
 			double rocheLimit = Math.max(1.0, Math.ceil(3.0 * moonRadius * Math.pow(planet.mass / moonMass, 1.0 / 3.0) / Constant.DISTANCE_UNIT));
-			int moonOrbit = (int)Math.round(Math.pow(planet.random.nextDouble(), 3.0) * (planet.hillsRadius - rocheLimit) + rocheLimit);
+			double moonOrbit = Math.pow(planet.random.nextDouble(), 3.0) * (planet.hillsRadius - rocheLimit) + rocheLimit;
 			float moonRotationPeriod = (float)planet.random.nextGaussian() * 1000 + 1200;
 			float moonEccentrity = (float)Math.pow(planet.random.nextDouble(), 6.0) / 1.01f;
 			// Flatten out the eccentrity for low-lying orbits (below 1.99 AU for the Sun)
@@ -125,7 +125,7 @@ public final class PlanetGenerator {
 				.name(planetoidName).mass(mass)
 				.orbit(new Orbit(orbit, eccentrity, (float)Math.abs(star.random.nextGaussian() / Math.PI)))
 				.rotationPeriod(rotationPeriod)
-				.planetRadius(planetRadius(star.random, mass, orbitalZone(star, orbit)))
+				.diameter(planetRadius(star.random, mass, orbitalZone(star, orbit)) * 2)
 				.minor(true).build();
 		return planet;
 	}
@@ -202,7 +202,7 @@ public final class PlanetGenerator {
 		while( density < 50.0 
 				|| (mass <= Constant.MAX_TERRESTRIAL_MASS && density < 1200.0)
 				|| (mass <= Constant.MAX_TERRESTRIAL_MASS * 11 && (density - 50.0) / 115.0 < 11.0 - mass / Constant.MAX_TERRESTRIAL_MASS ));
-		return Math.pow(0.75 * mass / (Math.PI * density), 1.0 / 3.0) * 1e7;
+		return Math.pow(0.75 * mass / (Math.PI * density), 1.0 / 3.0);
 	}
 
 	private static String firstPlanetoidPart[] = {"A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y"};

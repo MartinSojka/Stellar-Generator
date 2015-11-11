@@ -32,43 +32,14 @@ public final class StarGenerator {
 		builder.starClass(sc);
 		
 		double effTemp = StarClassHelper.randomTemp(sc, u.random);
+		double luminosity = StarClassHelper.randomLuminosity(sc, u.random);
+		// Calculate diameter out of temperature and luminosity
+		double diameter = Math.sqrt(luminosity) / effTemp / effTemp * Constant.SOLAR_TEMPERATURE * Constant.SOLAR_TEMPERATURE;
 		
 		builder.temperature(effTemp);
-		
-		double solarR = solarRadius(scDef); // Radius in solar units (695500 km)
-		double diameter = (1.0 + u.random.nextGaussian() * 0.10) * solarR * Constant.SOLAR_DIAMETER; // Actual diameter
-		
-		builder.diameter(diameter);
-		
-		// double luminosity = Math.PI * Constant.STEFAN_BOLTZMANN * diameter * diameter * effTemp * effTemp * effTemp * effTemp;
-		// double solarLum = luminosity / Constant.SOLAR_LUM; // Luminosity in solar units
-		
-		// Mass calculation depends on luminosity ratio
-		double mass = StarClassHelper.randomMass(sc, u.random) * Constant.SOLAR_MASS;
-		/*
-		// double mass = Constant.SOLAR_MASS;
-		if( solarLum >= 64000.0 )
-		{
-			// Giants or similar, linear
-			mass *= solarLum / 3200.0;
-		}
-		else if( solarLum > 16.97  )
-		{
-			// Bigger stars, mostly A and F
-			mass *= Math.pow(solarLum / 1.5, 1 / 3.5);
-		}
-		else if( solarLum > 0.034188 )
-		{
-			// Around the sol's size, G/K/M
-			mass *= Math.pow(solarLum, 0.25);
-		}
-		else
-		{
-			// Tiny stars
-			mass *= Math.pow(solarLum / 0.23, 1 / 2.3);
-		}*/
-		builder.mass(mass);
-		builder.luminosity(StarClassHelper.randomLuminosity(sc, u.random) * Constant.SOLAR_LUM);
+		builder.diameter(diameter * Constant.SOLAR_DIAMETER);
+		builder.luminosity(luminosity * Constant.SOLAR_LUM);
+		builder.mass(StarClassHelper.randomMass(sc, u.random) * Constant.SOLAR_MASS);
 		builder.name(starName(u, scClass));
 
 		return builder.build();
@@ -104,14 +75,6 @@ public final class StarGenerator {
 		}
 	}
 
-	/**
-	 * Estimate the radius via r(x) = 32*exp(-0.08251674051476068*x)
-	 */
-	private static double solarRadius(String spec)
-	{
-		return 32.0 * Math.exp(specNum(spec) * -0.08251674051476068);
-	}
-	
 	/**
 	 * Generate a random star name
 	 */
@@ -149,15 +112,6 @@ public final class StarGenerator {
 		
 		return durchmusterungNames.get(Math.min(u.random.nextInt(catalogueMax), u.random.nextInt(catalogueMax)))
 				+ (u.random.nextBoolean() ? "+" : "-") + String.format("%02d", u.random.nextInt(90)) + "°" + (u.random.nextInt(19900) + 100);
-	}
-	
-	private static final List<String> specClasses = Arrays.<String>asList(new String[]{"O", "B", "A", "F", "G", "K", "M", "L", "T", "Y"});
-
-	private static int specNum(String spec)
-	{
-		String specClass = spec.substring(0, 1);
-		int classNum = specClasses.indexOf(specClass);
-		return classNum * 10 + Integer.valueOf(spec.substring(1, 2));
 	}
 	
 	static {

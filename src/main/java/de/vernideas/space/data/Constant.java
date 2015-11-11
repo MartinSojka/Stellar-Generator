@@ -40,6 +40,7 @@ public final class Constant {
 	public static final double SOLAR_LUM = 3.846e26;
 	/** Solar mass (in mass units) */
 	public static final double SOLAR_MASS = 1.98855e30 / MASS_UNIT;
+	public static final double SOLAR_TEMPERATURE = 5778.0;
 	
 	/** One milli-lightyear in distance units */
 	public static final double MILLI_LIGHTYEAR = 9.4607304725808e15 / DISTANCE_UNIT;

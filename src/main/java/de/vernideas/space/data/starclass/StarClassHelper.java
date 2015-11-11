@@ -154,6 +154,39 @@ public final class StarClassHelper {
 		return avgLuminosityTable.get(sc);
 	}
 
+	public static double randomPlanets(StarClass sc, Random rnd) {
+		return Math.max(rnd.nextGaussian() * sc.sigmaPlanets() + sc.avgPlanets(), 0.0);
+	}
+	
+	public static double avgPlanets(StarClass sc) {
+		switch(sc.luminosityClass) {
+		case WHITE_DWARF:
+			return avgPlanets(String.format("D%d", sc.subType));
+		default:
+			return avgPlanets(String.format("%s%d", sc.type, sc.subType));
+		}
+	}
+
+	public static double avgPlanets(String sc)
+	{
+		return avgPlanetsTable.get(sc);
+	}
+
+	public static double sigmaPlanets(StarClass sc) {
+		switch(sc.luminosityClass) {
+		case WHITE_DWARF:
+			return sigmaPlanets(String.format("D%d", sc.subType));
+		default:
+			return sigmaPlanets(String.format("%s%d", sc.type, sc.subType));
+		}
+	}
+
+	public static double sigmaPlanets(String sc)
+	{
+		return sigmaPlanetsTable.get(sc);
+	}
+
+
 	/**
 	 * Returns the approximate B-V color index of the star
 	 * from its effective temperature (in Kelvin)
@@ -320,7 +353,11 @@ public final class StarClassHelper {
 	// Star generation - modifiers
 	private static final Map<String, Integer> habilityModTable;
 	private static final Map<String, Integer> gasgiantModTable;
-
+	
+	// Average and sigma planet amount
+	private static final Map<String, Double> avgPlanetsTable;
+	private static final Map<String, Double> sigmaPlanetsTable;
+	
 	private static double asDouble(String str) {
 		try {
 			return Double.valueOf(str);
@@ -352,7 +389,9 @@ public final class StarClassHelper {
 		avgLuminosityTable = new HashMap<String, Double>();
 		habilityModTable = new HashMap<String, Integer>();
 		gasgiantModTable = new HashMap<String, Integer>();
-
+		avgPlanetsTable = new HashMap<String, Double>();
+		sigmaPlanetsTable = new HashMap<String, Double>();
+		
 		try(
 				InputStream in = StarClassHelper.class.getResourceAsStream("/de/vernideas/space/data/starclass/starclasses.csv");
 				CSVReader reader = new CSVReader(new BufferedReader(new InputStreamReader(in)), ',', '"')
@@ -377,7 +416,9 @@ public final class StarClassHelper {
 				double avgLum = (line.length > 5 ? asDouble(line[6]) : Double.NaN);
 				int habilityMod = (line.length > 6 ? asInt(line[7]) : Integer.MIN_VALUE);
 				int gasgiantMod = (line.length > 7 ? asInt(line[8]) : Integer.MIN_VALUE);
-
+				double avgPlanets = (line.length > 8 ? asDouble(line[9]) : Double.NaN);
+				double sigmaPlanets = (line.length > 9 ? asDouble(line[10]) : Double.NaN);
+				
 				if( !Double.isNaN(minTemp) && !Double.isNaN(maxTemp) ) {
 					minTempTable.put(type, minTemp);
 					maxTempTable.put(type, maxTemp);
@@ -397,6 +438,10 @@ public final class StarClassHelper {
 				}
 				if( gasgiantMod > Integer.MIN_VALUE ) {
 					gasgiantModTable.put(type, gasgiantMod);
+				}
+				if( !Double.isNaN(avgPlanets) && !Double.isNaN(sigmaPlanets) ) {
+					avgPlanetsTable.put(type, avgPlanets);
+					sigmaPlanetsTable.put(type, sigmaPlanets);
 				}
 				line = reader.readNext();
 			}

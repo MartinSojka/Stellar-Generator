@@ -9,6 +9,7 @@ import de.vernideas.space.data.Constant;
 import de.vernideas.space.data.Planet;
 import de.vernideas.space.data.Star;
 import de.vernideas.space.data.Universe;
+import de.vernideas.space.data.starclass.StarClassHelper;
 
 /**
  * Random stateless star generator
@@ -22,14 +23,14 @@ public class SystemGenerator {
 	public static Star star(Universe u) {
 		// Build the star first
 		Star star = StarGenerator.star(u);
-		double maxPlanetaryMass = Math.min(25e6, star.mass / 25.0);
-		String scClass = star.starClass.type().toString();
+		double maxPlanetaryMass = Math.min(25e28, star.mass / 25.0);
 		
 		// Planet building phase
-		double stellarDustLimit = 2400.0 * Math.pow(star.mass, 1.0 / 3.0) * (1.0 + star.random.nextGaussian() * 0.1);
+		double stellarDustLimit = 2.4e17 * Math.pow(star.mass, 1.0 / 3.0) * (1.0 + star.random.nextGaussian() * 0.1);
 		double stellarDust = stellarDustLimit;
 		
-		int planetNum = (int)(star.random.nextGaussian() * sigmaPlanets.get(scClass) + meanPlanets.get(scClass));
+		int planetNum = (int)StarClassHelper.randomPlanets(star.starClass, star.random);
+		
 		List<Double> planetMasses = null;
 		if( planetNum < 0 )
 		{
@@ -43,7 +44,7 @@ public class SystemGenerator {
 			planetMasses = new ArrayList<Double>(planetNum);
 
 			int curPlanetNum = 0;
-			while( stellarDust > 1000.0 && planetNum > curPlanetNum )
+			while( stellarDust > 1000.0 * Constant.YOTTAGRAM && planetNum > curPlanetNum )
 			{
 				double randomMass = 0.0;
 				if( stellarDust > stellarDustLimit * 0.01 && stellarDust > Constant.MAX_TERRESTRIAL_MASS )
@@ -56,7 +57,7 @@ public class SystemGenerator {
 				else
 				{
 					double maxMass = Math.min(maxPlanetaryMass, stellarDust * (0.5 + (planetNum - curPlanetNum) / (2.0 * planetNum)));
-					randomMass = planetMass(u, 100.0, maxMass);
+					randomMass = planetMass(u, 1e23, maxMass);
 					// System.err.println(star.name + " generated rocky planet of " + randomMass + " [100.0, " +maxMass + "]");
 				}
 				if( randomMass <= stellarDust )
@@ -124,7 +125,7 @@ public class SystemGenerator {
 		
 		for( int i = 0; i < planetoids; ++ i )
 		{
-			double planetoidMass = Math.pow(Math.min(star.random.nextDouble(), star.random.nextDouble()), 6.0) * (smallestPlanetMass / 10 - 0.01) + 0.01;
+			double planetoidMass = Math.pow(Math.min(star.random.nextDouble(), star.random.nextDouble()), 6.0) * (smallestPlanetMass / 10 - 1e19) + 1e19;
 			Planet planet = PlanetGenerator.planetoid(star, planetoidMass);
 			if( null != planet )
 			{
@@ -133,20 +134,14 @@ public class SystemGenerator {
 		}
 		return star;
 	}
-	
-	// Constant tables
-	private static final HashMap<String, Double> meanPlanets = new HashMap<String, Double>();
-	private static final HashMap<String, Double> sigmaPlanets = new HashMap<String, Double>();
-	
-
-	
+		
 	/**
 	 * Root mean square velocity of the molecule/atom given the temperature
 	 * (for calculating escape velocity of the atmosphere).
 	 * 
 	 * @return Velocity in m/minute
 	 */
-	private static double rmsVelocity(double molWeight, double temperature)
+	public static double rmsVelocity(double molWeight, double temperature)
 	{
 		return Math.sqrt(3 * Constant.MOLAR_GAS * temperature / molWeight);
 	}
@@ -164,21 +159,8 @@ public class SystemGenerator {
 			double rnd = u.random.nextDouble();
 			// mass = Math.pow(rnd, 2.0) * (maxMass - 100) + 100; 
 			mass = 0.0001814813990910743 * Math.exp(25.647952850461436 * rnd) + 19765.338232060116 * rnd;
+			mass *= Constant.YOTTAGRAM;
 		} while( mass > maxMass || mass < minMass );
 		return mass;
-	}
-	
-	static {		
-		// Lower the chances for O and B systems due to most of the mass being in the star itself
-		meanPlanets.put("O", 2.0); sigmaPlanets.put("O", 3.0);
-		meanPlanets.put("B", 5.0); sigmaPlanets.put("B", 3.0);
-		meanPlanets.put("A", 10.0); sigmaPlanets.put("A", 4.5);
-		meanPlanets.put("F", 8.0);  sigmaPlanets.put("F", 4.0);
-		meanPlanets.put("G", 7.0);  sigmaPlanets.put("G", 3.0);
-		meanPlanets.put("K", 6.0);  sigmaPlanets.put("K", 2.5);
-		meanPlanets.put("M", 5.0);  sigmaPlanets.put("M", 2.0);
-		meanPlanets.put("L", 4.0);  sigmaPlanets.put("L", 1.5);
-		meanPlanets.put("T", 3.0);  sigmaPlanets.put("T", 1.25);
-		meanPlanets.put("Y", 2.0);  sigmaPlanets.put("Y", 1.0);
 	}
 }
