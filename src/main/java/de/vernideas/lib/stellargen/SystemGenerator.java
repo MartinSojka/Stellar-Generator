@@ -140,7 +140,6 @@ public class SystemGenerator {
 		double mass;
 		do {
 			double rnd = u.random.nextDouble();
-			// mass = Math.pow(rnd, 2.0) * (maxMass - 100) + 100; 
 			mass = 0.0001814813990910743 * Math.exp(25.647952850461436 * rnd) + 19765.338232060116 * rnd;
 			mass *= Constant.YOTTAGRAM;
 		} while( mass > maxMass || mass < minMass );

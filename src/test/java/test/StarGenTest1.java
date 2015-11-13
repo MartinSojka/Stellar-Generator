@@ -19,13 +19,13 @@ import de.vernideas.space.data.starclass.StarClassHelper;
 public final class StarGenTest1 {
 
 	public static void main(String[] args) {
-		Universe u = new Universe(-6168985105448355243L);
+		Universe u = new Universe(/*-6168985105448355243L*/);
 		System.err.println("UNIVERSE SEED " + u.seed);
 		Star s = SystemGenerator.star(u);
 
 		printStar(s, 1);
 		List<Planet> planets = new ArrayList<Planet>(s.planets);
-		//planets.addAll(s.planetoids);
+		planets.addAll(s.planetoids);
 		Collections.sort(planets, new Comparator<Planet>(){
 			@Override public int compare(Planet o1, Planet o2) {
 				return (o1.orbit.radius < o2.orbit.radius ? -1 : o1.orbit.radius > o2.orbit.radius ? 1 : 0);
@@ -69,7 +69,7 @@ public final class StarGenTest1 {
 				+ ", mass: " + String.format(Locale.ROOT, "%.3f", p.mass / Constant.YOTTAGRAM) + " Yg, exclusion zone "
 				+ String.format(Locale.ROOT, "%.3f", p.exclusionZone / Constant.AU)
 				+ " AU, blackbody temp. " + String.format(Locale.ROOT, "%.1f", p.blackbodyTemperature) + " K");
-		printOrbit(p.orbit, "       ");
+		System.out.println("       orbit " + p.orbit.printablePlanetString());
 		System.out.println("       diameter (Earth) "
 				+ String.format(Locale.ROOT, "%.2f", p.diameter / 6371000.8 / 2) + ", gravity: "
 				+ String.format(Locale.ROOT, "%.3f", p.surfaceGravity)
@@ -96,10 +96,4 @@ public final class StarGenTest1 {
 		*/
 	}
 
-	private static void printOrbit(Orbit o, String prefix) {
-		System.out.println(prefix + "orbit radius "
-				+ String.format(Locale.ROOT, "%.3f", o.radius / Constant.AU) + " AU"
-				+ ", eccentricity " + String.format(Locale.ROOT, "%.3f", o.eccentricity)
-				+ ", inclination " + String.format(Locale.ROOT, "%.2f", o.inclination));
-	}
 }

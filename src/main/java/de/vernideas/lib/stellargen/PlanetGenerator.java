@@ -44,7 +44,9 @@ public final class PlanetGenerator {
 			{
 				eccentrity *= (orbit / Constant.AU * 1e29 / star.mass);
 			}
-			builder.orbit(new Orbit(orbit, eccentrity, (float)Math.abs(star.random.nextGaussian() / 72 / Math.PI)))
+			// Rayleigh distribution, sigma = 1° (see arXiv:1207.5250 [astro-ph.EP])
+			float inclination = (float)Math.toRadians(Math.sqrt(-2.0 * Math.log(star.random.nextDouble())));
+			builder.orbit(new Orbit(orbit, eccentrity, inclination))
 					.rotationPeriod(rotationPeriod)
 					.diameter(planetRadius(star.random, mass, orbitalZone(star, orbit)) * 2);
 			planet = builder.build();
@@ -117,15 +119,17 @@ public final class PlanetGenerator {
 		} while( !star.orbitFree(orbit, eccentrity) );
 		float rotationPeriod = (float)star.random.nextGaussian() * 60000 + 72000;
 		// Flatten out the eccentrity for low-lying orbits (below 1.99 AU for the Sun)
-		if( orbit < star.mass / 1000000 )
+		if( orbit / Constant.AU < star.mass / 1e29 )
 		{
-			eccentrity *= (orbit * 1000000.0 / star.mass);
+			eccentrity *= (orbit / Constant.AU * 1e29 / star.mass);
 		}
+		// Rayleigh distribution, sigma = 5°
+		float inclination = (float)Math.toRadians(5.0 * Math.sqrt(-2.0 * Math.log(star.random.nextDouble())));
 		String planetoidName = planetoidName(star.random);
 		Planet planet = Planet.builder()
 				.parent(star)
 				.name(planetoidName).mass(mass)
-				.orbit(new Orbit(orbit, eccentrity, (float)Math.abs(star.random.nextGaussian() / Math.PI)))
+				.orbit(new Orbit(orbit, eccentrity, inclination))
 				.rotationPeriod(rotationPeriod)
 				.diameter(planetRadius(star.random, mass, orbitalZone(star, orbit)) * 2)
 				.minor(true).build();
