@@ -1,5 +1,6 @@
 package de.vernideas.space.data;
 
+import de.vernideas.space.data.planetaryclass.PlanetaryClass;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;

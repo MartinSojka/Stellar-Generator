@@ -1,11 +1,12 @@
-package de.vernideas.space.data;
+package de.vernideas.space.data.planetaryclass;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
-
 import java.util.Set;
 
+import de.vernideas.space.data.Constant;
+import de.vernideas.space.data.Satellite;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.Accessors;
