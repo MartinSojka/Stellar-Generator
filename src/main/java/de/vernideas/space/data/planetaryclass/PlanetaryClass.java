@@ -1,8 +1,8 @@
 package de.vernideas.space.data.planetaryclass;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Set;
 
 import de.vernideas.space.data.Constant;
@@ -42,15 +42,9 @@ public abstract class PlanetaryClass {
 	public static final PlanetaryClass HELLIUM_GIANT_III = new HelliumGiant("Cloudless gas giant (hydrogen-poor)", 0.12, 300, 900);
 	public static final PlanetaryClass HELLIUM_GIANT_IV = new HelliumGiant("Alkali gas giant (hydrogen-poor)", 0.03, 900, 1500);
 	public static final PlanetaryClass HELLIUM_GIANT_V = new HelliumGiant("Silicate-clouded gas giant (hydrogen-poor)", 0.55, 1500, 9999);
+	
 	/** Metallic core of a gas giant stripped of hydrogen and helium atmosphere due to close proximity to a star */
-	public static final PlanetaryClass CTHONIAN = new PlanetaryClass("Cthonian planet", 0.3) {
-		@Override protected boolean possibleClass(Satellite planet) {
-			return ((planet.molecularLimit > 4.00 || planet.density + planet.blackbodyTemperature / 10 > 2500)
-					&& planet.mass >= Constant.MAX_TERRESTRIAL_MASS * 0.9
-					&& planet.density > 2000
-					&& planet.blackbodyTemperature > 300);
-		}
-	};
+	public static final PlanetaryClass CTHONIAN = new Cthonian();
 	/**
 	 *  Giant planet composed mostly of water, methane and ammonia; typically very cold.
 	 *  <p>
@@ -433,73 +427,6 @@ public abstract class PlanetaryClass {
 		knownClasses.add(SILICATE_PLANETOID);
 		knownClasses.add(METALLIC_PLANETOID);
 		knownClasses.add(GRAVEL_PLANETOID);
-	}
-	
-	public static class GasGiant extends PlanetaryClass {
-		private final int minTemp;
-		private final int maxTemp;
-		
-		protected GasGiant(String name, double albedo, int minTemp, int maxTemp) {
-			super(name, albedo);
-			
-			this.minTemp = minTemp;
-			this.maxTemp = maxTemp;
-		}
-		
-		@Override protected boolean possibleClass(Satellite planet) {
-			return (planet.molecularLimit <= 1.00
-					&& planet.density <= 1500 + planet.blackbodyTemperature / 2.0 && planet.density > 300
-					&& planet.mass >= Constant.MAX_TERRESTRIAL_MASS
-					&& planet.blackbodyTemperature >= minTemp && planet.blackbodyTemperature <= maxTemp);
-		}
-	}
-	
-	public static class HelliumGiant extends PlanetaryClass {
-		private final int minTemp;
-		private final int maxTemp;
-		
-		protected HelliumGiant(String name, double albedo, int minTemp, int maxTemp) {
-			super(name, albedo);
-			
-			this.minTemp = minTemp;
-			this.maxTemp = maxTemp;
-		}
-		
-		@Override protected boolean possibleClass(Satellite planet) {
-			return ((planet.molecularLimit <= 4.00 && planet.molecularLimit > 1.00 || planet.blackbodyTemperature <= 20 || planet.density > 1500)
-					&& planet.density <= 1600 + planet.blackbodyTemperature / 2.5 && planet.density > 400
-					&& planet.mass >= Constant.MAX_TERRESTRIAL_MASS
-					&& planet.blackbodyTemperature >= minTemp && planet.blackbodyTemperature <= maxTemp);
-		}
-	}
-	
-
-	public static class Terrestrial extends PlanetaryClass {
-		private final double avgGreenhouseFactor;
-		
-		protected Terrestrial(String name, double albedo, double greenhouseFactor) {
-			super(name, albedo);
-			avgGreenhouseFactor = greenhouseFactor;
-		}
-
-		@Override protected boolean possibleClass(Satellite planet) {
-			return (planet.mass <= Constant.MAX_TERRESTRIAL_MASS && planet.mass >= Constant.MIN_TERRESTRIAL_MASS
-					&& planet.density > 1000);
-		}
-		
-		@Override public double avgGreenhouseFactor() {
-			return avgGreenhouseFactor;
-		}
-	}
-	
-	public static class Planetoid extends PlanetaryClass {
-		protected Planetoid(String name, double albedo) {
-			super(name, albedo);
-		}
-
-		@Override protected boolean possibleClass(Satellite planet) {
-			return (planet.mass <= Constant.MIN_TERRESTRIAL_MASS);
-		}
 	}
 
 }

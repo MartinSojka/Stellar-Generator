@@ -73,9 +73,7 @@ public abstract class Satellite extends StellarObject {
 		this.escapeVelocity = Math.sqrt(this.surfaceGravity * this.diameter);
 		this.equatorialSpeed = Math.PI * this.diameter / Math.abs(rotationPeriod * Constant.TIME_UNIT);
 		this.density = mass * Constant.MASS_UNIT / (Math.PI * diameter * diameter * diameter / 6.0);
-		// Estimate uncompressed density
-		this.uncompressedDensity = this.density * 1.488560167 * Math.pow(this.mass / Constant.YOTTAGRAM, -0.06880048664);
-
+		 
 		// Determine the main star and what its luminosity is, and derived values
 		Satellite mainBody = this;
 		while( mainBody.parent instanceof Satellite )
@@ -88,7 +86,7 @@ public abstract class Satellite extends StellarObject {
 
 			// Calculate the (blackbody, albedo = 0) temperature of the planet
 			this.blackbodyTemperature = Math.max(Math.pow(mainStar.luminosity / (16 * Constant.STEFAN_BOLTZMANN_PI * mainBody.orbit.radius * mainBody.orbit.radius), 0.25), Constant.UNIVERSE_TEMPERATURE);
-			this.criticalMass = 1.2e-5 * Constant.SOLAR_MASS * Math.pow(mainBody.orbit.pericenter * Math.sqrt(mainStar.originalLuminosity / Constant.SOLAR_LUM), -0.75);
+			this.criticalMass = 1.2e-5 * Constant.SOLAR_MASS * Math.pow(mainBody.orbit.pericenter / Constant.AU * Math.sqrt(mainStar.originalLuminosity / Constant.SOLAR_LUM), -0.75);
 		}
 		else
 		{
@@ -96,10 +94,41 @@ public abstract class Satellite extends StellarObject {
 			this.blackbodyTemperature = Constant.UNIVERSE_TEMPERATURE;
 			this.criticalMass = 0.0;
 		}
-		
+		this.uncompressedDensity = estimateUncompressedDensity(this.mass / Constant.EARTH_MASS, Math.sqrt(this.density));
+
 		this.molecularLimit = 1000 * 3.0 * Constant.MOLAR_GAS * this.blackbodyTemperature / Math.pow(this.escapeVelocity / 9.15, 2.0);
 		
 		this.planetaryClass = PlanetaryClass.classify(this);
+	}
+	
+	private double[] densParam = {
+		1.075223888e-2, 1.033854725e-3, -2.440327804e-1,
+		-2.385275401e-4, 1.007597897e-1, -6.690967381,
+		7.934910194e-1, -7.675943516e-1, 100.1634514, -354.1767288
+	};
+	
+	/**
+	 * Estimate uncompressed density
+	 * 
+	 * Polynomial regression from following data (maxx, density, temp, uncompressed density)
+	 * <pre>
+	 * 0.0553 5427 448 5400
+	 * 0.815 5243 327.8 3970
+	 * 1 5514 5503 278.7 4030
+	 * 0.0123 3340 278.7 3300 # Moon
+	 * 0.107 3933 226.1 3710
+	 * 317.83 1326 122.2 300
+	 * 95.159 687 90 300
+	 * 14.536 1271 63.6 500
+	 * 17.147 1638 50.8 500
+	 * 0.0022 1869 44.4 1800 # Pluto
+	 * 0.00016 2160 167.5 2100 # Ceres
+	 * </pre>
+	 */
+	private double estimateUncompressedDensity(double mass, double density) {
+		return Math.pow(-1.522468415 * mass * mass + 6.550424608e-1 * mass * density - 4.301092033e-4 * density * density
+				- 58.14803175 * mass + 1.087590418 * density - 3.748494515
+				, 2.0);
 	}
 	
 	/**
@@ -115,5 +144,18 @@ public abstract class Satellite extends StellarObject {
 				&& blackbodyTemperature >= 220 && blackbodyTemperature <= 330
 				// Surface gravitation should be between 0.5 and 1.5g
 				&& surfaceGravity >= Constant.EARTH_SURFACE_GRAVITY * 0.5 && surfaceGravity <= Constant.EARTH_SURFACE_GRAVITY * 1.5 );
+	}
+	
+	/**
+	 * Assumes a uniform distribution (not really true for most planets, but ok for planetoids).
+	 * <p>
+	 * For Earth-like planets, it underestimates the pressure by about a factor of 2
+	 * <p>
+	 * Formula: πGρ^2d^2/6, ρ = density, d = diameter
+	 * 
+	 * @return in Pa
+	 */
+	public double corePressure() {
+		return Math.PI * Constant.G * density * density * diameter * diameter / 6.0;
 	}
 }

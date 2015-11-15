@@ -42,8 +42,11 @@ public final class StarGenTest1 {
 				.temperature(Constant.SOLAR_TEMPERATURE).starClass(StarClassHelper.parse("G2V")).position(new VectorI3D(0, 0, 0)).build();
 		Planet earth = Planet.builder().name("Earth").diameter(Constant.EARTH_DIAMETER).mass(Constant.EARTH_MASS).parent(sol)
 				.rotationPeriod(24 * 3600 * 364.0f / 365.0f).orbit(new Orbit(Constant.AU, 0.0167086f, 0.0f)).build();
+		Planet jupiter = Planet.builder().name("Jupiter").diameter(69911000 * 2.0).mass(1.898e+27).parent(sol)
+				.rotationPeriod(24 * 3600 /* ignorable */).orbit(new Orbit(778547200000.0, 0.048775f, 0.0f)).build();
 		printStar(sol, 2);
 		printPlanet(earth);
+		printPlanet(jupiter);
 	}
 
 	private static void printStar(Star star, int i)
@@ -66,16 +69,18 @@ public final class StarGenTest1 {
 	private static void printPlanet(Planet p)
 	{
 		System.out.println("     " + p.name + " [" + p.planetaryClass.name + "]"
-				+ ", mass: " + String.format(Locale.ROOT, "%.3f", p.mass / Constant.YOTTAGRAM) + " Yg, exclusion zone "
+				+ ", mass: " + String.format(Locale.ROOT, "%.3f Yg [gas giant limit %.3f Yg]", p.mass / Constant.YOTTAGRAM, p.criticalMass / Constant.YOTTAGRAM)
+				+ ", exclusion zone "
 				+ String.format(Locale.ROOT, "%.3f", p.exclusionZone / Constant.AU)
 				+ " AU, blackbody temp. " + String.format(Locale.ROOT, "%.1f", p.blackbodyTemperature) + " K");
 		System.out.println("       orbit " + p.orbit.printablePlanetString());
 		System.out.println("       diameter (Earth) "
 				+ String.format(Locale.ROOT, "%.2f", p.diameter / 6371000.8 / 2) + ", gravity: "
 				+ String.format(Locale.ROOT, "%.3f", p.surfaceGravity)
-				+ " m/s², density: " + String.format(Locale.ROOT, "%.0f", p.density)
+				+ " m/s², density: " + String.format(Locale.ROOT, "%.0f [%.0f]", p.density, p.uncompressedDensity)
 				+ " kg/m³, escape V: " + String.format(Locale.ROOT, "%.0f", p.escapeVelocity)
 				+ " m/s, mol. limit: " + String.format(Locale.ROOT, "%.2f", p.molecularLimit));
+		System.out.println("       core pressure " + String.format(Locale.ROOT, "%.2f GPa", p.corePressure() / 1e9));
 		System.out.println("       day length: "
 				+ String.format(Locale.ROOT, "%.2f",  p.dayLength / 3600.0) + " hours, year length: "
 				+ String.format(Locale.ROOT, "%.2f", p.yearLength / 90000.0) + " galactic days, moons: "
