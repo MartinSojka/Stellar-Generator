@@ -114,7 +114,7 @@ public abstract class Satellite extends StellarObject {
 	 * <pre>
 	 * 0.0553 5427 448 5400
 	 * 0.815 5243 327.8 3970
-	 * 1 5514 5503 278.7 4030
+	 * 1 5503 278.7 4030
 	 * 0.0123 3340 278.7 3300 # Moon
 	 * 0.107 3933 226.1 3710
 	 * 317.83 1326 122.2 300
@@ -157,5 +157,42 @@ public abstract class Satellite extends StellarObject {
 	 */
 	public double corePressure() {
 		return Math.PI * Constant.G * density * density * diameter * diameter / 6.0;
+	}
+	
+	/**
+	 * Assumes a distribution between innerD at the center and outerD on the surface
+	 */
+	public double corePressure(double innerD, double outerD) {
+		double r = diameter / 2;
+		double slope = (outerD - innerD) / r;
+		double intercept = outerD - r * slope;
+		
+		// innerIntergal would be 0 anyway
+		double outerIntegral = Math.PI / 36.0 * Constant.G * r * r *
+				(9.0 * slope * slope * r * r + 28.0 * slope * intercept * r + 24.0 * intercept * intercept);
+		return outerIntegral /* - innerIntegral */;
+	}
+	
+	/**
+	 * Given a min radius, max radius, inner density and outer density, calculate the total mass
+	 * of the spheric shell.
+	 * <p>
+	 * Integral of 4 * pi * r^2 * (a * r + b) for r, with a = slope and b = intercept of the linear
+	 * interpolation between inner and outer density and r the radius.
+	 * 
+	 * @param minRadius in m
+	 * @param maxRadius in m
+	 * @param innerD in kg/m^3
+	 * @param outerD in kg/m^3
+	 * @return in kg
+	 */
+	public static double shellMass(double minRadius, double maxRadius, double innerD, double outerD) {
+		double slope = (outerD - innerD) / (maxRadius - minRadius);
+		double intercept = outerD - maxRadius * slope;
+		
+		double outerIntegral = Math.PI / 3.0 * Math.pow(maxRadius, 3.0) * (3.0 * slope * maxRadius + 4.0 * intercept);
+		double innerIntegral = Math.PI / 3.0 * Math.pow(minRadius, 3.0) * (3.0 * slope * minRadius + 4.0 * intercept);
+		
+		return outerIntegral - innerIntegral;
 	}
 }

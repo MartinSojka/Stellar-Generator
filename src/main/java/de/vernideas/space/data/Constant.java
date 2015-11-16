@@ -80,4 +80,16 @@ public final class Constant {
 	public static final double EARTH_MASS = 5.97219e24;
 	
 	public static final double YOTTAGRAM = 1e21 / MASS_UNIT;
+	
+	// Earth - estimated density limits for core, mantle and crust.
+	// Used with linear interpolation
+	public static final double EARTH_CORE_MAX_DENSITY = 13300.0;
+	public static final double EARTH_CORE_MIN_DENSITY = 10000.0;
+	public static final double EARTH_MANTLE_MAX_DENSITY = 5700.0;
+	public static final double EARTH_MANTLE_MIN_DENSITY = 4600.0;
+	public static final double EARTH_CRUST_MAX_DENSITY = 4000.0;
+	public static final double EARTH_CRUST_MIN_DENSITY = 2600.0;
+	// Earth - estimated radius of core and mantle (crust = planet radius) in m
+	public static final double EARTH_CORE_RADIUS = 3500000.0;
+	public static final double EARTH_MANTLE_RADIUS = 5700000.0;
 }

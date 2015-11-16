@@ -80,7 +80,7 @@ public final class StarGenTest1 {
 				+ " m/s², density: " + String.format(Locale.ROOT, "%.0f [%.0f]", p.density, p.uncompressedDensity)
 				+ " kg/m³, escape V: " + String.format(Locale.ROOT, "%.0f", p.escapeVelocity)
 				+ " m/s, mol. limit: " + String.format(Locale.ROOT, "%.2f", p.molecularLimit));
-		System.out.println("       core pressure " + String.format(Locale.ROOT, "%.2f GPa", p.corePressure() / 1e9));
+		System.out.println("       core pressure (Earth) " + String.format(Locale.ROOT, "%.2f GPa", p.corePressure(13300, 2600) / 1e9));
 		System.out.println("       day length: "
 				+ String.format(Locale.ROOT, "%.2f",  p.dayLength / 3600.0) + " hours, year length: "
 				+ String.format(Locale.ROOT, "%.2f", p.yearLength / 90000.0) + " galactic days, moons: "
