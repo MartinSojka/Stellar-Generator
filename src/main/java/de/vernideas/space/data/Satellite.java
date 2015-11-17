@@ -161,13 +161,35 @@ public abstract class Satellite extends StellarObject {
 	
 	/**
 	 * Assumes a distribution between innerD at the center and outerD on the surface
+	 * <p>
+	 * What we <i>should</i> be doing is solving the following:
+	 * 
+	 * dp/dr = - d * g
+	 * 
+	 * with p = pressure, r = radius, d = density and g = gravitation.
+	 * <p>
+	 * Density at any given point depends on local pressure:
+	 * d = u / e^(-c * p)
+	 * 
+	 * with u = uncompressed density, c = compressibility
+	 * <p>
+	 * Gravitation at any point depends on mass and radius, with the formula given in shellMass():
+	 * 
+	 * g = G * m / r^2 = G * (PI * r^3 * d(0)) / r^2 = G * PI * r * d(0) = G * PI * r * u / e^(-c * p(0))
+	 * 
+	 * with G = gravitational constant, d(0) = inner density, p(0) = inner pressure
+	 * <p>
+	 * Full formula:
+	 * 
+	 * dp/dr = - u / e^(-c * p) * G * PI * r * u / e^(-c * p(0))
+	 *       = - u^2 * G * PI * r * e^(c * (p + p(0)))
 	 */
 	public double corePressure(double innerD, double outerD) {
 		double r = diameter / 2;
 		double slope = (outerD - innerD) / r;
 		double intercept = outerD - r * slope;
 		
-		// innerIntergal would be 0 anyway
+		// innerIntegral would be 0 anyway
 		double outerIntegral = Math.PI / 36.0 * Constant.G * r * r *
 				(9.0 * slope * slope * r * r + 28.0 * slope * intercept * r + 24.0 * intercept * intercept);
 		return outerIntegral /* - innerIntegral */;

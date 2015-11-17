@@ -32,6 +32,6 @@ public class Solid {
 	}
 	
 	public double densityAtPressure(double pressure) {
-		return uncompressedDensity / Math.exp(- compressibility * pressure);
+		return uncompressedDensity * Math.exp(compressibility * pressure);
 	}
 }
