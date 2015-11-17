@@ -1,0 +1,37 @@
+Original equation:
+p'(r) = - d(r) g(r)
+
+with d(r) = u * e^(c * p(r))
+     g(r) = G * m(r) / r^2
+
+m(r) defined (simplified) as linear density gradient from 0 to r
+
+m(x) = integral (0, x) 4 * PI * r^2 * d(x) dr
+m(x) = integral (0, x) 4 * PI * r^2 * u * e^(c * p(r)) dr
+m(x) = 4 / 3 * PI * r^3 * u * e^(c * p(r))
+
+Thus:
+
+p'(r) = - u * e^(c * p(r)) * G / r^2 * 4 / 3 * PI * r^3 * u * e^(c * p(r))
+p'(r) = - 4 / 3 * PI * G * r * u^2 * e^(2 * c * p(r))
+	 
+p'(r) = C * r * e^(2 * c * (p(r))
+p(R) = 0
+
+with C = - 4 / 3 * PI * G * u^2 (kg/(m^3 s^2))
+G - gravitiational constant (kg/(m s^2))
+u - unpressured density (kg/(m s^2))
+R - radius (m)
+c - compressibility ((m s^2)/kg)
+p(r) - pressure at distance r from center
+d - density (kg/(m s^2))
+g - gravitational acceleration (m/s^2)
+
+Solution(?):
+
+p(r) = - log(2 * c * (k - C * r^2 / 2)) / (2 * c)
+
+from p(R) = 0 follows
+
+k = (c C R^2 + 1) / (2 * c)
+p(0) = - log(2 * c * k) / (2 * c)

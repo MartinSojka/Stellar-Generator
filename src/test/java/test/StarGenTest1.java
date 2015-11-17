@@ -11,6 +11,8 @@ import de.vernideas.space.data.Constant;
 import de.vernideas.space.data.Moon;
 import de.vernideas.space.data.Orbit;
 import de.vernideas.space.data.Planet;
+import de.vernideas.space.data.Satellite;
+import de.vernideas.space.data.Material;
 import de.vernideas.space.data.Star;
 import de.vernideas.space.data.Universe;
 import de.vernideas.space.data.VectorI3D;

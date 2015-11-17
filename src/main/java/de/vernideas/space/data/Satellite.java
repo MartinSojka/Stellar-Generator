@@ -161,28 +161,6 @@ public abstract class Satellite extends StellarObject {
 	
 	/**
 	 * Assumes a distribution between innerD at the center and outerD on the surface
-	 * <p>
-	 * What we <i>should</i> be doing is solving the following:
-	 * 
-	 * dp/dr = - d * g
-	 * 
-	 * with p = pressure, r = radius, d = density and g = gravitation.
-	 * <p>
-	 * Density at any given point depends on local pressure:
-	 * d = u / e^(-c * p)
-	 * 
-	 * with u = uncompressed density, c = compressibility
-	 * <p>
-	 * Gravitation at any point depends on mass and radius, with the formula given in shellMass():
-	 * 
-	 * g = G * m / r^2 = G * (PI * r^3 * d(0)) / r^2 = G * PI * r * d(0) = G * PI * r * u / e^(-c * p(0))
-	 * 
-	 * with G = gravitational constant, d(0) = inner density, p(0) = inner pressure
-	 * <p>
-	 * Full formula:
-	 * 
-	 * dp/dr = - u / e^(-c * p) * G * PI * r * u / e^(-c * p(0))
-	 *       = - u^2 * G * PI * r * e^(c * (p + p(0)))
 	 */
 	public double corePressure(double innerD, double outerD) {
 		double r = diameter / 2;
@@ -216,5 +194,34 @@ public abstract class Satellite extends StellarObject {
 		double innerIntegral = Math.PI / 3.0 * Math.pow(minRadius, 3.0) * (3.0 * slope * minRadius + 4.0 * intercept);
 		
 		return outerIntegral - innerIntegral;
+	}
+	
+	/**
+	 * Given a min radius, max radius, inner pressure, outer pressure (typically 0) and material,
+	 * calculate the total mass of the spheric shell.
+	 * <p>
+	 * Integral of 4 * pi * r^2 * u * e^(c * ((o - i) / (b - a) * r + o - (o - i) / (b - a) * b)) for r between a and b
+	 * <p>
+	 * Simplified to : V * r^2 * e^(C * r) with<br>
+	 * C = c * (o - i) / (b - a)<br>
+	 * V = 4 * pi * u * e^(c * (o - (o - i) * b / (b - a))) 
+	 *   = 4 * pi * u * e^(c * o - C * b)
+	 * 
+	 * @param minRadius in m
+	 * @param maxRadius in m
+	 * @param innerP in N/m^2
+	 * @param outerP in N/m^2
+	 * @param mat Material instance
+	 * @return
+	 */
+	public static double shellMass(double minRadius, double maxRadius, double innerP, double outerP, Material mat) {
+		// value type: m^-1
+		double c = mat.compressibility * (outerP - innerP) / (maxRadius - minRadius);
+		// value type: kg/m^-3
+		double v = 4 * Math.PI * mat.uncompressedDensity * Math.exp(mat.compressibility * outerP - c * maxRadius);
+		
+		double outerVal = (maxRadius * c * (maxRadius * c - 2) + 2) * Math.exp(maxRadius * c);
+		double innerVal = (minRadius * c * (minRadius * c - 2) + 2) * Math.exp(minRadius * c);
+		return v * (outerVal - innerVal) / c / c / c;
 	}
 }
