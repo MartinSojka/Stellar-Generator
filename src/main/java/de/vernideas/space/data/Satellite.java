@@ -172,7 +172,7 @@ public abstract class Satellite extends StellarObject {
 				(9.0 * slope * slope * r * r + 28.0 * slope * intercept * r + 24.0 * intercept * intercept);
 		return outerIntegral /* - innerIntegral */;
 	}
-	
+
 	/**
 	 * Given a min radius, max radius, inner density and outer density, calculate the total mass
 	 * of the spheric shell.
