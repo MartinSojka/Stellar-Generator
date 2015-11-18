@@ -17,9 +17,9 @@ public class Material {
 	public static final Material METAL_IRON = new Material("Iron", 7874, 5.88e-12);
 	public static final Material METAL_NICKEL = new Material("Nickel", 8908, 5.56e-12);
 	// Generic core, mantle and crust material mixes (based on "ideal" Earth)
-	public static final Material METAL_CORE = new Material("Core Material", 8453, 1.245e-12);
-	public static final Material METAL_MANTLE = new Material("Mantle Material", 4392, 1.929e-12);
-	public static final Material ROCK_CRUST = new Material("Mantle Material", 2600, 17.95e-12);
+	public static final Material METAL_CORE = new Material("Core Material", 8376, 1.2291e-12);
+	public static final Material METAL_MANTLE = new Material("Mantle Material", 4230, 1.4667e-12);
+	public static final Material ROCK_CRUST = new Material("Mantle Material", 2300, 713.22e-12);
 
 	public final String name;
 	public final double uncompressedDensity;
