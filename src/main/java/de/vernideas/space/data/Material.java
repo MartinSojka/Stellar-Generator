@@ -12,6 +12,8 @@ public class Material {
 	// public static final Solid ICE_METHANE = new Solid("Methane Ice", 1500, 4.5e-10);
 	/** Generic rock (mostly silicates) */
 	public static final Material ROCK = new Material("Rock", 2800, 3.3e-10);
+	/** Relatively pure olivine-type rock, intrusions tend to dramatically increase compressibility */
+	public static final Material ROCK_OLIVINE = new Material("Olivine", 3320, 7.8e-12);
 	/** Generic metal (mostly iron) */
 	public static final Material METAL = new Material("Metal", 7250, 1.25e-12);
 	public static final Material METAL_IRON = new Material("Iron", 7874, 5.88e-12);
