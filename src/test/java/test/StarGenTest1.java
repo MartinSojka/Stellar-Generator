@@ -27,7 +27,7 @@ public final class StarGenTest1 {
 
 		printStar(s, 1);
 		List<Planet> planets = new ArrayList<Planet>(s.planets);
-		planets.addAll(s.planetoids);
+		//planets.addAll(s.planetoids);
 		Collections.sort(planets, new Comparator<Planet>(){
 			@Override public int compare(Planet o1, Planet o2) {
 				return (o1.orbit.radius < o2.orbit.radius ? -1 : o1.orbit.radius > o2.orbit.radius ? 1 : 0);
@@ -43,9 +43,11 @@ public final class StarGenTest1 {
 		Star sol = Star.builder().name("Sol").diameter(Constant.SOLAR_DIAMETER).luminosity(Constant.SOLAR_LUM).mass(Constant.SOLAR_MASS)
 				.temperature(Constant.SOLAR_TEMPERATURE).starClass(StarClassHelper.parse("G2V")).position(new VectorI3D(0, 0, 0)).build();
 		Planet earth = Planet.builder().name("Earth").diameter(Constant.EARTH_DIAMETER).mass(Constant.EARTH_MASS).parent(sol)
-				.rotationPeriod(24 * 3600 * 364.0f / 365.0f).orbit(new Orbit(Constant.AU, 0.0167086f, 0.0f)).build();
+				.rotationPeriod(24 * 3600 * 364.0f / 365.0f).orbit(new Orbit(Constant.AU, 0.0167086f, 0.0f))
+				.compressibility(7.64997739863382e-12).build();
 		Planet jupiter = Planet.builder().name("Jupiter").diameter(69911000 * 2.0).mass(1.898e+27).parent(sol)
-				.rotationPeriod(24 * 3600 /* ignorable */).orbit(new Orbit(778547200000.0, 0.048775f, 0.0f)).build();
+				.rotationPeriod(24 * 3600 /* ignorable */).orbit(new Orbit(778547200000.0, 0.048775f, 0.0f))
+				.compressibility(100.0e-12).build();
 		printStar(sol, 2);
 		printPlanet(earth);
 		printPlanet(jupiter);
@@ -82,7 +84,8 @@ public final class StarGenTest1 {
 				+ " m/s², density: " + String.format(Locale.ROOT, "%.0f [%.0f]", p.density, p.uncompressedDensity)
 				+ " kg/m³, escape V: " + String.format(Locale.ROOT, "%.0f", p.escapeVelocity)
 				+ " m/s, mol. limit: " + String.format(Locale.ROOT, "%.2f", p.molecularLimit));
-		System.out.println("       core pressure (Earth) " + String.format(Locale.ROOT, "%.2f GPa", p.corePressure(13300, 2600) / 1e9));
+		System.out.println("       core pressure (Earth) " + String.format(Locale.ROOT, "%.2f GPa", p.corePressure(13300, 2600) / 1e9)
+				+ " compressibility: " + String.format(Locale.ROOT, "%.2f TPa^-1", p.compressibility * 1e12));
 		System.out.println("       day length: "
 				+ String.format(Locale.ROOT, "%.2f",  p.dayLength / 3600.0) + " hours, year length: "
 				+ String.format(Locale.ROOT, "%.2f", p.yearLength / 90000.0) + " galactic days, moons: "

@@ -27,7 +27,7 @@ public class Material {
 	public final double uncompressedDensity;
 	public final double compressibility;
 	
-	protected Material(String name, double uncompressedDensity, double compressibility) {
+	public Material(String name, double uncompressedDensity, double compressibility) {
 		this.name = name;
 		this.uncompressedDensity = uncompressedDensity;
 		this.compressibility = compressibility;

@@ -31,6 +31,9 @@ public abstract class Satellite extends StellarObject {
 	public final double equatorialSpeed;
 	/** In kg/m^3 */
 	public final double density;
+	/** Estimate of overall compressibility, in Pa^-1, normal range 1e-12 to 30e-12 for planets,
+	 * 20e-12 to 200e-12 for planetoids, see Material class for more examples */
+	public final double compressibility;
 	/** In kg/m^3, rough estimate (only really valid for terrestial planets) */
 	public final double uncompressedDensity;
 	/** Mass at which this planet or moon would start to accrete gas as well as dust */
@@ -42,7 +45,7 @@ public abstract class Satellite extends StellarObject {
 	
 	public final PlanetaryClass planetaryClass;
 
-	protected Satellite(String name, double mass, double diameter, StellarObject parent, Orbit orbit, float rotationPeriod)
+	protected Satellite(String name, double mass, double diameter, StellarObject parent, Orbit orbit, float rotationPeriod, double compressibility)
 	{
 		super(name, mass, diameter, Math.round(parent.seed + 79L * orbit.radius));
 		
@@ -94,7 +97,8 @@ public abstract class Satellite extends StellarObject {
 			this.blackbodyTemperature = Constant.UNIVERSE_TEMPERATURE;
 			this.criticalMass = 0.0;
 		}
-		this.uncompressedDensity = estimateUncompressedDensity(this.mass / Constant.YOTTAGRAM, 7.65 /* TODO - variable */, this.density);
+		this.compressibility = compressibility;
+		this.uncompressedDensity = estimateUncompressedDensity(this.mass / Constant.YOTTAGRAM, this.compressibility * 1e12, this.density);
 
 		this.molecularLimit = 1000 * 3.0 * Constant.MOLAR_GAS * this.blackbodyTemperature / Math.pow(this.escapeVelocity / 9.15, 2.0);
 		
@@ -125,12 +129,21 @@ public abstract class Satellite extends StellarObject {
 	 * 0.00016 2160 167.5 2100 # Ceres
 	 * </pre>
 	 */
-	private double estimateUncompressedDensity(double mass, double compressibility, double density) {
-		double compression = 0.0066360944 * Math.sqrt(mass)
-				+ -7.86318990843244e-5 * Math.pow(mass, 0.3333333333333) * compressibility
-				+ -0.0079972568 * Math.pow(mass, 0.333333333333)
-				+ 6.71921795119818e-5 * compressibility + 1.0;
-		return density / compression;
+	public static double estimateUncompressedDensity(double mass, double compressibility, double density) {
+		return density / compression(mass, compressibility);
+	}
+	
+	public static double estimateCompressedDensity(double mass, Material material) {
+		return material.uncompressedDensity * compression(mass / Constant.YOTTAGRAM, material.compressibility * 1e12);
+	}
+	
+	private static double compression(double mass, double compressibility) {
+		double c = Math.log(compressibility);
+		double compression = -0.000000370257402642426 * mass * c
+				+ -0.0000945990465920971 *  mass
+				+ -0.0279169422082733 * c
+				+ 0.000559849969002507 * c * c;
+		return compression * compression + 1.0;
 	}
 	
 	/**

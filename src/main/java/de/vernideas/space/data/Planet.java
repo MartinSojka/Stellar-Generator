@@ -25,9 +25,9 @@ public class Planet extends Satellite implements Location {
 	@Getter @Setter private boolean valid;
 	
 	@Builder
-	private Planet(String name, double mass, double diameter, @NonNull Star parent, @NonNull Orbit orbit, float rotationPeriod, boolean minor)
+	private Planet(String name, double mass, double diameter, @NonNull Star parent, @NonNull Orbit orbit, float rotationPeriod, double compressibility, boolean minor)
 	{
-		super(name, mass, diameter, parent, orbit, rotationPeriod);
+		super(name, mass, diameter, parent, orbit, rotationPeriod, compressibility);
 		
 		this.moons = new ArrayList<Moon>();
 		this.minor = minor;

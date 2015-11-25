@@ -88,7 +88,12 @@ public class SystemGenerator {
 		int generatedPlanets = 0;
 		double smallestPlanetMass = Constant.MAX_TERRESTRIAL_MASS;
 		for( int i = 0; i < planetNum; ++ i ) {
-			Planet planet = PlanetGenerator.planet(star, planetMasses.get(i), star.name + " " + (char)('b' + generatedPlanets));
+			Planet planet = null;
+			if( planetMasses.get(i) > Constant.MIN_TERRESTRIAL_MASS && planetMasses.get(i) < Constant.MAX_TERRESTRIAL_MASS ) {
+				planet = PlanetGenerator.newTerrestialPlanet(star, planetMasses.get(i), star.name + " " + (char)('b' + generatedPlanets));
+			} else {
+				planet = PlanetGenerator.planet(star, planetMasses.get(i), star.name + " " + (char)('b' + generatedPlanets));
+			}
 			if( null != planet )
 			{
 				star.planets.add(planet);

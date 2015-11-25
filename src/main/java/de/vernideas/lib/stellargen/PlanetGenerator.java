@@ -3,13 +3,78 @@ package de.vernideas.lib.stellargen;
 import java.util.Random;
 
 import de.vernideas.space.data.Constant;
+import de.vernideas.space.data.Material;
 import de.vernideas.space.data.Moon;
 import de.vernideas.space.data.Orbit;
+import de.vernideas.space.data.Pair;
 import de.vernideas.space.data.Planet;
 import de.vernideas.space.data.Planet.PlanetBuilder;
 import de.vernideas.space.data.Star;
 
 public final class PlanetGenerator {
+	private static double between(double min, double max, double val) {
+		return min + (max - min) * val;
+	}
+	
+	public static Planet newTerrestialPlanet(Star star, double mass, String name) {
+		return newTerrestialPlanet(star, mass, name, 0);
+	}
+	
+	/** Try to generate a new terrestial planet */
+	public static Planet newTerrestialPlanet(Star star, double mass, String name, int habitableRetries) {
+		if( mass > Constant.MAX_TERRESTRIAL_MASS || mass < Constant.MIN_TERRESTRIAL_MASS || null == star ) {
+			return null;
+		}
+		PlanetBuilder builder = Planet.builder().parent(star).name(name).mass(mass).minor(false);
+		Planet planet = null;
+		
+		do {
+			// Trying to get a free orbit
+			double orbit = 0;
+			float eccentrity = 0.0f;
+			int errCount = 0;
+			do {
+				orbit = between(star.innerPlanetLimit, star.outerPlanetLimit, Math.pow(Math.min(star.random.nextDouble(), star.random.nextDouble()), 2.0));
+				eccentrity = (float)Math.pow(star.random.nextDouble(), 6.0) / 2.0f;
+				// Flatten out the eccentrity for low-lying orbits (below 1.99 AU for the Sun)
+				if( orbit / Constant.AU < star.mass / 1e29 )
+				{
+					eccentrity *= (orbit / Constant.AU * 1e29 / star.mass);
+				}
+				// We try to keep the terrestial planets in the "inside" of the frost zone.
+				if( orbit > star.frostLine && mass < star.random.nextDouble() * Constant.MAX_TERRESTRIAL_MASS ) {
+					orbit = Math.max(Math.min(orbit, star.random.nextDouble() * star.outerPlanetLimit), star.innerPlanetLimit);
+				}
+				if( !star.orbitFree(orbit, eccentrity) )
+				{
+					++ errCount;
+					if( errCount > 20 )
+					{
+						// We give up on that one
+						return null;
+					}
+				}
+			} while( !star.orbitFree(orbit, eccentrity) );
+			// Rayleigh distribution, sigma = 1° (see arXiv:1207.5250 [astro-ph.EP])
+			float inclination = (float)Math.toRadians(Math.sqrt(-2.0 * Math.log(star.random.nextDouble())));
+			float rotationPeriod = (float)star.random.nextGaussian() * 60000 + 72000;
+			
+			builder.orbit(new Orbit(orbit, eccentrity, inclination)).rotationPeriod(rotationPeriod);
+	
+			// Create planetary material
+			Material material = newPlanetaryMaterial(star.random, mass, orbitalZone(star, orbit));
+			builder.compressibility(material.compressibility);
+			double density = Planet.estimateCompressedDensity(mass, material);
+			builder.diameter(Math.pow(6 * mass / (Math.PI * density), 1.0 / 3.0));
+			
+			planet = builder.build();
+			// Try to make the planet habitable (for humans) if possible ...
+			-- habitableRetries;
+		} while( habitableRetries >= 0 && !planet.habitable() );
+		
+		return planet;
+	}
+	
 	public static Planet planet(Star star, double mass, String planetName, int habitableRetries) {
 		PlanetBuilder builder = Planet.builder().parent(star).name(planetName).mass(mass).minor(false);
 		Planet planet = null;
@@ -46,9 +111,11 @@ public final class PlanetGenerator {
 			}
 			// Rayleigh distribution, sigma = 1° (see arXiv:1207.5250 [astro-ph.EP])
 			float inclination = (float)Math.toRadians(Math.sqrt(-2.0 * Math.log(star.random.nextDouble())));
+			Pair<Double, Double> radiusCompressibility = newPlanetRadiusCompressibility(star.random, mass, orbitalZone(star, orbit));
 			builder.orbit(new Orbit(orbit, eccentrity, inclination))
 					.rotationPeriod(rotationPeriod)
-					.diameter(planetRadius(star.random, mass, orbitalZone(star, orbit)) * 2);
+					.diameter(radiusCompressibility.first * 2)
+					.compressibility(radiusCompressibility.second);
 			planet = builder.build();
 			// Try to make the planet habitable (for humans) if possible ...
 			-- habitableRetries;
@@ -71,7 +138,8 @@ public final class PlanetGenerator {
 			{
 				moonMass = (planet.random.nextDouble() * 999.0 + 1.0 ) * Constant.MIN_MOON_MASS;
 			}
-			double moonRadius = planetRadius(planet.random, moonMass, orbitalZone(star, planet.orbit.radius));
+			Pair<Double, Double> radiusCompressibility = newPlanetRadiusCompressibility(planet.random, moonMass, orbitalZone(star, planet.orbit.radius));
+			double moonRadius = radiusCompressibility.first;
 			// Make sure we don't get too near to the Roche limit (rough estimate for fluid moon).
 			// This is almost never more than 1.0 and practically never more than 2.0
 			double rocheLimit = Math.max(1.0, Math.ceil(3.0 * moonRadius * Math.pow(planet.mass / moonMass, 1.0 / 3.0) / Constant.DISTANCE_UNIT));
@@ -88,6 +156,8 @@ public final class PlanetGenerator {
 					.orbit(new Orbit(moonOrbit, moonEccentrity, (float)Math.abs(planet.random.nextGaussian() / 6 / Math.PI)))
 					.parent(planet)
 					.rotationPeriod(moonRotationPeriod)
+					.diameter(moonRadius * 2)
+					.compressibility(radiusCompressibility.second * 2.0)
 					.build();
 			planet.moons.add(newMoon);
 		}
@@ -126,12 +196,19 @@ public final class PlanetGenerator {
 		// Rayleigh distribution, sigma = 5°
 		float inclination = (float)Math.toRadians(5.0 * Math.sqrt(-2.0 * Math.log(star.random.nextDouble())));
 		String planetoidName = planetoidName(star.random);
+
+		// Create planetary material
+		Material material = newPlanetaryMaterial(star.random, mass, orbitalZone(star, orbit));
+		double density = Planet.estimateCompressedDensity(mass, material);
+		double diameter = Math.pow(6 * mass / (Math.PI * density), 1.0 / 3.0);
+
 		Planet planet = Planet.builder()
 				.parent(star)
 				.name(planetoidName).mass(mass)
 				.orbit(new Orbit(orbit, eccentrity, inclination))
 				.rotationPeriod(rotationPeriod)
-				.diameter(planetRadius(star.random, mass, orbitalZone(star, orbit)) * 2)
+				.diameter(diameter)
+				.compressibility(material.compressibility)
 				.minor(true).build();
 		return planet;
 	}
@@ -145,12 +222,65 @@ public final class PlanetGenerator {
 	}
 	
 	/**
+	 * Get a random planetary (average) Material
+	 */
+	private static Material newPlanetaryMaterial(Random rnd, double mass, OrbitalZone zone) {
+		double density = 1200.0;
+		double compressibility = 20.0;
+		if( mass < Constant.MIN_TERRESTRIAL_MASS ) {
+			// Planetoids, moons
+			// Moon lowest value: Thetys 981, highest: moon Io 3534
+			// Minor planet lowest value: 2002UX25 820, highest: 16 Psyche 9780
+			do {
+				switch( zone ) {
+					case HOT:
+						density = rnd.nextGaussian() * 1500 + 5500;
+						break;
+					case HABITABLE:
+						density = rnd.nextGaussian() * 1500 + 5000;
+						break;
+					case COLD:
+						density = rnd.nextGaussian() * 1800 + 4000;
+						break;
+					case FROZEN:
+						density = rnd.nextGaussian() * 1000 + 3000;
+						break;
+				}
+			} while( density < 800 );
+			compressibility = between(100.0, 25000.0, rnd.nextDouble()) / Math.sqrt(density);
+		} else if( mass < Constant.MAX_TERRESTRIAL_MASS ) {
+			// Terrestial planets and dwarf giants
+			// Lowest known value: Mars 3710, highest: Mercury 5400; possibly Callisto 1831
+			do {
+				switch( zone ) {
+					case HOT:
+						density = rnd.nextGaussian() * 1000 + 5500;
+						break;
+					case HABITABLE:
+						density = rnd.nextGaussian() * 1000 + 5000;
+						break;
+					case COLD:
+						density = rnd.nextGaussian() * 1200 + 4000;
+						break;
+					case FROZEN:
+						density = rnd.nextGaussian() * 700 + 3000;
+						break;
+				}
+			} while( density < 1200 );
+			compressibility = between(250.0, 2500.0, rnd.nextDouble() * rnd.nextDouble()) / Math.sqrt(density);
+
+		}
+		return new Material("", density, compressibility * 1e-12);
+	}
+	
+	/**
 	 * Calculate the planetary radius (excluding the atmosphere) depending on mass and orbital zone
 	 */
-	private static double planetRadius(Random rnd, double mass, OrbitalZone zone)
+	private static Pair<Double, Double> newPlanetRadiusCompressibility(Random rnd, double mass, OrbitalZone zone)
 	{
 		// Density in kg/m^3
 		double density = 1200.0;
+		double compressibility = 20.0e-12;
 		do
 		{
 			switch(zone)
@@ -163,10 +293,12 @@ public final class PlanetGenerator {
 							// No icy or watery planets here
 							density = rnd.nextGaussian() * 1000 + 5500;
 						}
+						compressibility = rnd.nextDouble() * rnd.nextDouble() * 30e-12 + 1e-12;
 					}
 					else
 					{
 						density = Math.abs(rnd.nextGaussian() * 1000 + 500);
+						compressibility = rnd.nextDouble() * 900e-12 + 100e-12;
 					}
 					break;
 				case HABITABLE:
@@ -177,30 +309,36 @@ public final class PlanetGenerator {
 							// No icy planets here
 							density = rnd.nextGaussian() * 1000 + 5000;
 						}
+						compressibility = rnd.nextDouble() * rnd.nextDouble() * 40e-12 + 1e-12;
 					}
 					else
 					{
 						density =  Math.abs(rnd.nextGaussian() * 500 + 700);
+						compressibility = rnd.nextDouble() * 900e-12 + 100e-12;
 					}
 					break;
 				case COLD:
 					if( mass < Constant.MAX_TERRESTRIAL_MASS )
 					{
 						density = rnd.nextGaussian() * 1200 + 4000;
+						compressibility = rnd.nextDouble() * rnd.nextDouble() * 50e-12 + 1e-12;
 					}
 					else
 					{
 						density = rnd.nextGaussian() * 500 + 1000;
+						compressibility = rnd.nextDouble() * 900e-12 + 100e-12;
 					}
 					break;
 				case FROZEN:
 					if( mass < Constant.MAX_TERRESTRIAL_MASS )
 					{
 						density = rnd.nextGaussian() * 700 + 3000;
+						compressibility = rnd.nextDouble() * rnd.nextDouble() * 100e-12 + 1e-12;
 					}
 					else
 					{
 						density = rnd.nextGaussian() * 500 + 1300;
+						compressibility = rnd.nextDouble() * 900e-12 + 100e-12;
 					}
 					break;
 			}
@@ -208,7 +346,7 @@ public final class PlanetGenerator {
 		while( density < 50.0 
 				|| (mass <= Constant.MAX_TERRESTRIAL_MASS && density < 1200.0)
 				|| (mass <= Constant.MAX_TERRESTRIAL_MASS * 11 && (density - 50.0) / 115.0 < 11.0 - mass / Constant.MAX_TERRESTRIAL_MASS ));
-		return Math.pow(0.75 * mass / (Math.PI * density), 1.0 / 3.0);
+		return Pair.of(Math.pow(0.75 * mass / (Math.PI * density), 1.0 / 3.0), compressibility);
 	}
 
 	private static String firstPlanetoidPart[] = {"A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y"};
