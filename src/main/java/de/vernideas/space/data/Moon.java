@@ -1,5 +1,6 @@
 package de.vernideas.space.data;
 
+import de.vernideas.space.data.planetaryclass.PlanetaryClass;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -11,8 +12,9 @@ import lombok.experimental.Accessors;
 @EqualsAndHashCode(callSuper=true)
 public class Moon extends Satellite implements Location {
 	@Builder
-	private Moon(String name, double mass, double diameter, @NonNull Planet parent, Orbit orbit, float rotationPeriod, double compressibility)
+	private Moon(String name, double mass, double diameter, @NonNull Planet parent, Orbit orbit, float rotationPeriod,
+			double compressibility, PlanetaryClass planetaryClass)
 	{
-		super(name, mass, diameter, parent, orbit, rotationPeriod, compressibility);
+		super(name, mass, diameter, parent, orbit, rotationPeriod, compressibility, planetaryClass);
 	}
 }

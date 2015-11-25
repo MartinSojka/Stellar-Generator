@@ -3,6 +3,7 @@ package de.vernideas.space.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.vernideas.space.data.planetaryclass.PlanetaryClass;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -25,9 +26,10 @@ public class Planet extends Satellite implements Location {
 	@Getter @Setter private boolean valid;
 	
 	@Builder
-	private Planet(String name, double mass, double diameter, @NonNull Star parent, @NonNull Orbit orbit, float rotationPeriod, double compressibility, boolean minor)
+	private Planet(String name, double mass, double diameter, @NonNull Star parent, @NonNull Orbit orbit,
+			float rotationPeriod, double compressibility, boolean minor, PlanetaryClass planetaryClass)
 	{
-		super(name, mass, diameter, parent, orbit, rotationPeriod, compressibility);
+		super(name, mass, diameter, parent, orbit, rotationPeriod, compressibility, planetaryClass);
 		
 		this.moons = new ArrayList<Moon>();
 		this.minor = minor;

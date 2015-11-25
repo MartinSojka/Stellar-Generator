@@ -6,6 +6,7 @@ import de.vernideas.space.data.Constant;
 import de.vernideas.space.data.Material;
 import de.vernideas.space.data.Moon;
 import de.vernideas.space.data.Orbit;
+import de.vernideas.space.data.OrbitalZone;
 import de.vernideas.space.data.Pair;
 import de.vernideas.space.data.Planet;
 import de.vernideas.space.data.Planet.PlanetBuilder;
@@ -59,10 +60,12 @@ public final class PlanetGenerator {
 			float inclination = (float)Math.toRadians(Math.sqrt(-2.0 * Math.log(star.random.nextDouble())));
 			float rotationPeriod = (float)star.random.nextGaussian() * 60000 + 72000;
 			
-			builder.orbit(new Orbit(orbit, eccentrity, inclination)).rotationPeriod(rotationPeriod);
-	
+			Orbit planetaryOrbit = new Orbit(orbit, eccentrity, inclination);
+			builder.orbit(planetaryOrbit).rotationPeriod(rotationPeriod);
+			OrbitalZone orbitalZone = planetaryOrbit.orbitalZone(star);
+
 			// Create planetary material
-			Material material = newPlanetaryMaterial(star.random, mass, orbitalZone(star, orbit));
+			Material material = newPlanetaryMaterial(star.random, mass, orbitalZone);
 			builder.compressibility(material.compressibility);
 			double density = Planet.estimateCompressedDensity(mass, material);
 			builder.diameter(Math.pow(6 * mass / (Math.PI * density), 1.0 / 3.0));
@@ -111,8 +114,9 @@ public final class PlanetGenerator {
 			}
 			// Rayleigh distribution, sigma = 1° (see arXiv:1207.5250 [astro-ph.EP])
 			float inclination = (float)Math.toRadians(Math.sqrt(-2.0 * Math.log(star.random.nextDouble())));
-			Pair<Double, Double> radiusCompressibility = newPlanetRadiusCompressibility(star.random, mass, orbitalZone(star, orbit));
-			builder.orbit(new Orbit(orbit, eccentrity, inclination))
+			Orbit planetOrbit = new Orbit(orbit, eccentrity, inclination);
+			Pair<Double, Double> radiusCompressibility = newPlanetRadiusCompressibility(star.random, mass, planetOrbit.orbitalZone(star));
+			builder.orbit(planetOrbit)
 					.rotationPeriod(rotationPeriod)
 					.diameter(radiusCompressibility.first * 2)
 					.compressibility(radiusCompressibility.second);
@@ -138,7 +142,7 @@ public final class PlanetGenerator {
 			{
 				moonMass = (planet.random.nextDouble() * 999.0 + 1.0 ) * Constant.MIN_MOON_MASS;
 			}
-			Pair<Double, Double> radiusCompressibility = newPlanetRadiusCompressibility(planet.random, moonMass, orbitalZone(star, planet.orbit.radius));
+			Pair<Double, Double> radiusCompressibility = newPlanetRadiusCompressibility(planet.random, moonMass, planet.orbit.orbitalZone(star));
 			double moonRadius = radiusCompressibility.first;
 			// Make sure we don't get too near to the Roche limit (rough estimate for fluid moon).
 			// This is almost never more than 1.0 and practically never more than 2.0
@@ -195,17 +199,18 @@ public final class PlanetGenerator {
 		}
 		// Rayleigh distribution, sigma = 5°
 		float inclination = (float)Math.toRadians(5.0 * Math.sqrt(-2.0 * Math.log(star.random.nextDouble())));
+		Orbit planetoidOrbit = new Orbit(orbit, eccentrity, inclination);
 		String planetoidName = planetoidName(star.random);
 
 		// Create planetary material
-		Material material = newPlanetaryMaterial(star.random, mass, orbitalZone(star, orbit));
+		Material material = newPlanetaryMaterial(star.random, mass, planetoidOrbit.orbitalZone(star));
 		double density = Planet.estimateCompressedDensity(mass, material);
 		double diameter = Math.pow(6 * mass / (Math.PI * density), 1.0 / 3.0);
 
 		Planet planet = Planet.builder()
 				.parent(star)
 				.name(planetoidName).mass(mass)
-				.orbit(new Orbit(orbit, eccentrity, inclination))
+				.orbit(planetoidOrbit)
 				.rotationPeriod(rotationPeriod)
 				.diameter(diameter)
 				.compressibility(material.compressibility)
@@ -213,14 +218,6 @@ public final class PlanetGenerator {
 		return planet;
 	}
 
-	private static OrbitalZone orbitalZone(Star star, double orbit)
-	{
-		if( orbit < star.habitableZoneMin ) { return OrbitalZone.HOT; }
-		if( orbit < star.habitableZoneMax ) { return OrbitalZone.HABITABLE; }
-		if( orbit < star.frostLine ) { return OrbitalZone.COLD; }
-		return OrbitalZone.FROZEN;
-	}
-	
 	/**
 	 * Get a random planetary (average) Material
 	 */
@@ -364,10 +361,5 @@ public final class PlanetGenerator {
 		}
 		
 		return name;
-	}
-	
-	private static enum OrbitalZone
-	{
-		HOT, HABITABLE, COLD, FROZEN
 	}
 }

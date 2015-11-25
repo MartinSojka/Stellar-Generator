@@ -211,6 +211,13 @@ public class PlanetaryClass {
 			&& planet.blackbodyTemperature >= 260 && planet.blackbodyTemperature <= 350
 			&& planet.molecularLimit <= 18.00 /* water vapour */, 0.2, 1.5);
 
+	/**
+	 * Special - tidally flexed small planet, see Io.
+	 * These need special calculations to appear, and can only appear as moons of gas giants.
+	 */
+	public static final PlanetaryClass SULFUR = new Terrestrial("Tidally-flexed planet",
+			(planet) -> planet.uncompressedDensity < 3000
+			&& planet.blackbodyTemperature <= 260, 0.65, 0);
 
 	// Planetoid classes
 	/** Very dark, consisting mostly of carbonaceous chondite */
@@ -269,7 +276,7 @@ public class PlanetaryClass {
 	}
 	
 	/** Get a random amount of surface covered by water, in percent (0.0-1.0) */
-	public double newHydrosphereAmount(Random rnd, double blackbodyTemperature) {
+	public double newHydrographicCoverage(Random rnd, double blackbodyTemperature) {
 		return 0.0;
 	}
 	

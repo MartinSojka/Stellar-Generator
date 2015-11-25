@@ -47,6 +47,13 @@ public class Orbit {
 		apocenter = (1.0f + e) * r;
 	}
 	
+	public OrbitalZone orbitalZone(Star star) {
+		if( radius < star.habitableZoneMin ) { return OrbitalZone.HOT; }
+		if( radius < star.habitableZoneMax ) { return OrbitalZone.HABITABLE; }
+		if( radius < star.frostLine ) { return OrbitalZone.COLD; }
+		return OrbitalZone.FROZEN;
+	}
+	
 	// for @Wither
 	private Orbit(double r, float e, float i, double _ignore1, double _ignore2)
 	{

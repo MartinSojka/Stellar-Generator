@@ -45,7 +45,7 @@ public abstract class Satellite extends StellarObject {
 	
 	public final PlanetaryClass planetaryClass;
 
-	protected Satellite(String name, double mass, double diameter, StellarObject parent, Orbit orbit, float rotationPeriod, double compressibility)
+	protected Satellite(String name, double mass, double diameter, StellarObject parent, Orbit orbit, float rotationPeriod, double compressibility, PlanetaryClass planetaryClass)
 	{
 		super(name, mass, diameter, Math.round(parent.seed + 79L * orbit.radius));
 		
@@ -102,14 +102,8 @@ public abstract class Satellite extends StellarObject {
 
 		this.molecularLimit = 1000 * 3.0 * Constant.MOLAR_GAS * this.blackbodyTemperature / Math.pow(this.escapeVelocity / 9.15, 2.0);
 		
-		this.planetaryClass = PlanetaryClass.classify(this);
+		this.planetaryClass = null != planetaryClass ? planetaryClass : PlanetaryClass.classify(this);
 	}
-	
-	private double[] densParam = {
-		1.075223888e-2, 1.033854725e-3, -2.440327804e-1,
-		-2.385275401e-4, 1.007597897e-1, -6.690967381,
-		7.934910194e-1, -7.675943516e-1, 100.1634514, -354.1767288
-	};
 	
 	/**
 	 * Estimate uncompressed density
