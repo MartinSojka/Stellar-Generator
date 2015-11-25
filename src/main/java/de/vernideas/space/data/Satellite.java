@@ -94,7 +94,7 @@ public abstract class Satellite extends StellarObject {
 			this.blackbodyTemperature = Constant.UNIVERSE_TEMPERATURE;
 			this.criticalMass = 0.0;
 		}
-		this.uncompressedDensity = estimateUncompressedDensity(this.mass / Constant.EARTH_MASS, Math.sqrt(this.density));
+		this.uncompressedDensity = estimateUncompressedDensity(this.mass / Constant.YOTTAGRAM, 7.65 /* TODO - variable */, this.density);
 
 		this.molecularLimit = 1000 * 3.0 * Constant.MOLAR_GAS * this.blackbodyTemperature / Math.pow(this.escapeVelocity / 9.15, 2.0);
 		
@@ -125,10 +125,12 @@ public abstract class Satellite extends StellarObject {
 	 * 0.00016 2160 167.5 2100 # Ceres
 	 * </pre>
 	 */
-	private double estimateUncompressedDensity(double mass, double density) {
-		return Math.pow(-1.522468415 * mass * mass + 6.550424608e-1 * mass * density - 4.301092033e-4 * density * density
-				- 58.14803175 * mass + 1.087590418 * density - 3.748494515
-				, 2.0);
+	private double estimateUncompressedDensity(double mass, double compressibility, double density) {
+		double compression = 0.0066360944 * Math.sqrt(mass)
+				+ -7.86318990843244e-5 * Math.pow(mass, 0.3333333333333) * compressibility
+				+ -0.0079972568 * Math.pow(mass, 0.333333333333)
+				+ 6.71921795119818e-5 * compressibility + 1.0;
+		return density / compression;
 	}
 	
 	/**
