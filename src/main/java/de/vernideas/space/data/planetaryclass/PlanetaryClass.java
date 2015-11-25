@@ -258,9 +258,19 @@ public class PlanetaryClass {
 		return 0.0;
 	}
 	
+	/** Get a random greenhouse factor */
+	public double newGreenhouseFactor() {
+		return 0.0;
+	}
+	
 	/** Get a random material for the given planet class */
-	public Material newMaterial(Random rnd) {
+	public Material newMaterial(Random rnd, double blackbodyTemperature) {
 		return null;
+	}
+	
+	/** Get a random amount of surface covered by water, in percent (0.0-1.0) */
+	public double newHydrosphereAmount(Random rnd, double blackbodyTemperature) {
+		return 0.0;
 	}
 	
 	/* public abstract Map<Gas, Integer> atmosphere(Orbit orbit, SpectralClass sc, int temperature, long seed); */
