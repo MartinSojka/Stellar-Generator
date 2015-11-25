@@ -3,10 +3,12 @@ package de.vernideas.space.data.planetaryclass;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.Predicate;
 
 import de.vernideas.space.data.Constant;
+import de.vernideas.space.data.Material;
 import de.vernideas.space.data.Satellite;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -254,6 +256,11 @@ public class PlanetaryClass {
 	/** Average greenhouse factor (only important for terrestial planets) */
 	public double avgGreenhouseFactor() {
 		return 0.0;
+	}
+	
+	/** Get a random material for the given planet class */
+	public Material newMaterial(Random rnd) {
+		return null;
 	}
 	
 	/* public abstract Map<Gas, Integer> atmosphere(Orbit orbit, SpectralClass sc, int temperature, long seed); */
