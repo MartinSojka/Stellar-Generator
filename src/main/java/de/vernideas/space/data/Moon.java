@@ -13,8 +13,8 @@ import lombok.experimental.Accessors;
 public class Moon extends Satellite implements Location {
 	@Builder
 	private Moon(String name, double mass, double diameter, @NonNull Planet parent, Orbit orbit, float rotationPeriod,
-			double compressibility, PlanetaryClass planetaryClass)
+			Material material, PlanetaryClass planetaryClass)
 	{
-		super(name, mass, diameter, parent, orbit, rotationPeriod, compressibility, planetaryClass);
+		super(name, mass, diameter, parent, orbit, rotationPeriod, material, planetaryClass);
 	}
 }

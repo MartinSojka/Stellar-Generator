@@ -14,6 +14,10 @@ import de.vernideas.space.data.starclass.StarClassHelper;
  * Random stateless star generator
  */
 public class SystemGenerator {
+	private static double between(double min, double max, double val) {
+		return min + (max - min) * val;
+	}
+	
 	/**
 	 * Generate a random star in the specified universe
 	 * 
@@ -37,9 +41,6 @@ public class SystemGenerator {
 		stellarDustLimit += planetNum * Constant.MIN_TERRESTRIAL_MASS;
 		
 		double stellarDust = stellarDustLimit;
-		
-		System.err.println(star.name + " - trying to create " + planetNum + " planets from " + String.format("%.2f", stellarDust / Constant.YOTTAGRAM) + " Yg stellar dust"
-				+ " (gas giant mod " + gasgiantMod + ")");
 		
 		List<Double> planetMasses = null;
 		if( planetNum == 0 )
@@ -108,11 +109,10 @@ public class SystemGenerator {
 		// Add planetoids
 		double planetoidEstimate = Math.min(Math.pow(stellarDust / Constant.YOTTAGRAM, 0.3) * 20.0, 20.0 + Math.abs(star.random.nextGaussian() * 15.0));
 		int planetoids = (int)Math.round(planetoidEstimate);
-		System.err.println("Remaining mass of "+ star.name + ": " + String.format("%.2f", stellarDust / Constant.YOTTAGRAM) + " Yg -> " + planetoids + " planetoids");
 		
 		for( int i = 0; i < planetoids; ++ i )
 		{
-			double planetoidMass = Math.pow(Math.min(star.random.nextDouble(), star.random.nextDouble()), 6.0) * (smallestPlanetMass / 10 - 1e19) + 1e19;
+			double planetoidMass = between(Constant.MIN_TERRESTRIAL_MASS / 1000, Math.min(smallestPlanetMass / 10, Constant.MIN_TERRESTRIAL_MASS * 10), Math.pow(Math.min(star.random.nextDouble(), star.random.nextDouble()), 6.0));
 			Planet planet = PlanetGenerator.newPlanetoid(star, planetoidMass);
 			if( null != planet )
 			{

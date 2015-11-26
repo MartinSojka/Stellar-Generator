@@ -23,8 +23,8 @@ public class GasGiant extends PlanetaryClass {
 		this.maxDensity = maxDensity;
 	}
 	
-	@Override protected boolean possibleClass(Satellite planet) {
-		return (super.possibleClass(planet) && planet.molecularLimit <= molLimit
+	@Override public boolean validClass(Satellite planet) {
+		return (super.validClass(planet) && planet.molecularLimit <= molLimit
 				&& planet.density <= maxDensity && planet.density > minDensity
 				&& planet.mass >= Constant.MAX_TERRESTRIAL_MASS);
 	}

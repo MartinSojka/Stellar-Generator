@@ -8,6 +8,7 @@ import java.util.Locale;
 
 import de.vernideas.lib.stellargen.SystemGenerator;
 import de.vernideas.space.data.Constant;
+import de.vernideas.space.data.Material;
 import de.vernideas.space.data.Moon;
 import de.vernideas.space.data.Orbit;
 import de.vernideas.space.data.Planet;
@@ -36,19 +37,26 @@ public final class StarGenTest1 {
 			printPlanet(p);
 		}
 		
+		// Generate a bunch more to test for bugs and outliers
+		for( int i = 2; i < 1000000; ++ i ) {
+			printStar(SystemGenerator.star(u), i);
+		}
+		
 		// Test for Earth
 		
 		Star sol = Star.builder().name("Sol").diameter(Constant.SOLAR_DIAMETER).luminosity(Constant.SOLAR_LUM).mass(Constant.SOLAR_MASS)
 				.temperature(Constant.SOLAR_TEMPERATURE).starClass(StarClassHelper.parse("G2V")).position(new VectorI3D(0, 0, 0)).build();
 		Planet earth = Planet.builder().name("Earth").diameter(Constant.EARTH_DIAMETER).mass(Constant.EARTH_MASS).parent(sol)
 				.rotationPeriod(24 * 3600 * 364.0f / 365.0f).orbit(new Orbit(Constant.AU, 0.0167086f, 0.0f))
-				.compressibility(7.64997739863382e-12).build();
+				.material(new Material("", 4030, 7.64997739863382e-12)).build();
 		Planet jupiter = Planet.builder().name("Jupiter").diameter(69911000 * 2.0).mass(1.898e+27).parent(sol)
 				.rotationPeriod(24 * 3600 /* ignorable */).orbit(new Orbit(778547200000.0, 0.048775f, 0.0f))
-				.compressibility(100.0e-12).build();
+				.material(new Material("", 200, 100.0e-12)).build();
 		printStar(sol, 2);
 		printPlanet(earth);
 		printPlanet(jupiter);
+
+		System.exit(0);
 	}
 
 	private static void printStar(Star star, int i)

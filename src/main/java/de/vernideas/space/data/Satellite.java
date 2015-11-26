@@ -45,7 +45,7 @@ public abstract class Satellite extends StellarObject {
 	
 	public final PlanetaryClass planetaryClass;
 
-	protected Satellite(String name, double mass, double diameter, StellarObject parent, Orbit orbit, float rotationPeriod, double compressibility, PlanetaryClass planetaryClass)
+	protected Satellite(String name, double mass, double diameter, StellarObject parent, Orbit orbit, float rotationPeriod, Material material, PlanetaryClass planetaryClass)
 	{
 		super(name, mass, diameter, Math.round(parent.seed + 79L * orbit.radius));
 		
@@ -97,48 +97,12 @@ public abstract class Satellite extends StellarObject {
 			this.blackbodyTemperature = Constant.UNIVERSE_TEMPERATURE;
 			this.criticalMass = 0.0;
 		}
-		this.compressibility = compressibility;
-		this.uncompressedDensity = estimateUncompressedDensity(this.mass / Constant.YOTTAGRAM, this.compressibility * 1e12, this.density);
+		this.compressibility = material.compressibility;
+		this.uncompressedDensity = material.uncompressedDensity;
 
 		this.molecularLimit = 1000 * 3.0 * Constant.MOLAR_GAS * this.blackbodyTemperature / Math.pow(this.escapeVelocity / 9.15, 2.0);
 		
-		this.planetaryClass = null != planetaryClass ? planetaryClass : PlanetaryClass.classify(this);
-	}
-	
-	/**
-	 * Estimate uncompressed density
-	 * 
-	 * Polynomial regression from following data (maxx, density, temp, uncompressed density)
-	 * <pre>
-	 * 0.0553 5427 448 5400
-	 * 0.815 5243 327.8 3970
-	 * 1 5503 278.7 4030
-	 * 0.0123 3340 278.7 3300 # Moon
-	 * 0.107 3933 226.1 3710
-	 * 317.83 1326 122.2 300
-	 * 95.159 687 90 300
-	 * 14.536 1271 63.6 500
-	 * 17.147 1638 50.8 500
-	 * 0.0022 1869 44.4 1800 # Pluto
-	 * 0.00016 2160 167.5 2100 # Ceres
-	 * </pre>
-	 */
-	public static double estimateUncompressedDensity(double mass, double compressibility, double density) {
-		return density / compression(mass, compressibility);
-	}
-	
-	public static double estimateCompressedDensity(double mass, Material material) {
-		return material.uncompressedDensity * compression(mass / Constant.YOTTAGRAM, material.compressibility * 1e12);
-	}
-	
-	private static double compression(double mass, double compressibility) {
-		double c = Math.log(compressibility);
-		double compression = -0.00000794181233235453 * mass * c
-				+ 0.0000220753829612755 *  mass
-				+ -0.0895616181274319 * c
-				+ 0.0148607527093062 * c * c
-				+ -0.00616550736971977 * Math.sqrt(mass);
-		return compression * compression + 1.0;
+		this.planetaryClass = null != planetaryClass && planetaryClass.validClass(this) ? planetaryClass : PlanetaryClass.classify(this);
 	}
 	
 	/**

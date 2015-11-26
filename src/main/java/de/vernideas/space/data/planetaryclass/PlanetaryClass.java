@@ -293,7 +293,7 @@ public class PlanetaryClass {
 	
 	/** Very dark, consisting mostly of carbonaceous chondite. Zones HOT, HABITABLE and COLD. */
 	public static final PlanetaryClass CARBONACEOUS_PLANETOID = new Planetoid("Carbonaceous planetoid",
-			(planet) -> planet.density >= 2000 && planet.density < 4000, 0.1)
+			(planet) -> planet.uncompressedDensity >= 2000 && planet.uncompressedDensity < 4000, 0.1)
 			.materialDensity(2800, 1500, 2000, 4000)
 			.materialCompressibility(100e-12, 25000e-12, 1.0)
 			.validZones(OrbitalZone.HOT, OrbitalZone.HABITABLE, OrbitalZone.COLD)
@@ -301,7 +301,7 @@ public class PlanetaryClass {
 
 	/** Mostly packed ice/gravel. Zones HABITABLE, COLD and FROZEN. */
 	public static final PlanetaryClass ICE_PLANETOID = new Planetoid("Ice planetoid",
-			(planet) -> planet.density < 3500, 0.6)
+			(planet) -> planet.uncompressedDensity < 3500, 0.6)
 			.materialDensity(1400, 800, 700, 3500)
 			.materialCompressibility(100e-12, 25000e-12, 1.0)
 			.validZones(OrbitalZone.HABITABLE, OrbitalZone.COLD, OrbitalZone.FROZEN)
@@ -309,19 +309,19 @@ public class PlanetaryClass {
 
 	/** Rock; the most common type */
 	public static final PlanetaryClass SILICATE_PLANETOID = new Planetoid("Silicate planetoid",
-			(planet) -> planet.density >= 3000 && planet.density <= 5000, 0.35)
+			(planet) -> planet.uncompressedDensity >= 3000 && planet.uncompressedDensity <= 5000, 0.35)
 			.materialDensity(3800, 1500, 3000, 5000)
 			.materialCompressibility(100e-12, 25000e-12, 1.0);
 
 	/** Metal (resource-rich) */
 	public static final PlanetaryClass METALLIC_PLANETOID = new Planetoid("Metallic planetoid",
-			(planet) -> planet.density >= 4000, 0.2)
+			(planet) -> planet.uncompressedDensity >= 4000, 0.2)
 			.materialDensity(5000, 1500, 4000, 15000)
 			.materialCompressibility(100e-12, 25000e-12, 1.0);
 
 	/** Loose gravel stuff, but not frozen. Zones HOT and HABITABLE. */
 	public static final PlanetaryClass GRAVEL_PLANETOID = new Planetoid("Gravel planetoid",
-			(planet) -> planet.density < 2000, 0.2)
+			(planet) -> planet.uncompressedDensity < 2000, 0.2)
 			.materialDensity(1200, 1000, 600, 2000)
 			.materialCompressibility(100e-12, 25000e-12, 1.0)
 			.validZones(OrbitalZone.HOT, OrbitalZone.HABITABLE, OrbitalZone.COLD)
@@ -345,7 +345,7 @@ public class PlanetaryClass {
 	}
 
 	/** Is this planet a possible candidate for this planetary class? */
-	protected boolean possibleClass(Satellite planet) {
+	public boolean validClass(Satellite planet) {
 		return (null == predicate || predicate.test(planet))
 				&& validTemperature(planet.blackbodyTemperature);
 	}
@@ -475,7 +475,7 @@ public class PlanetaryClass {
 		
 		for( PlanetaryClass pc : knownClasses )
 		{
-			if( pc.possibleClass(planet) )
+			if( pc.validClass(planet) )
 			{
 				possibleClasses.add(pc);
 			}

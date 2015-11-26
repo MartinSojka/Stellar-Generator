@@ -13,8 +13,8 @@ public class Terrestrial extends PlanetaryClass {
 		avgGreenhouseFactor = greenhouseFactor;
 	}
 
-	@Override protected boolean possibleClass(Satellite planet) {
-		return (super.possibleClass(planet)
+	@Override public boolean validClass(Satellite planet) {
+		return (super.validClass(planet)
 				&& planet.mass <= Constant.MAX_TERRESTRIAL_MASS && planet.mass >= Constant.MIN_TERRESTRIAL_MASS
 				&& planet.density > 800);
 	}

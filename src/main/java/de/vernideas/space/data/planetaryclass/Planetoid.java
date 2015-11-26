@@ -10,7 +10,7 @@ public class Planetoid extends PlanetaryClass {
 		super(name, predicate, albedo);
 	}
 
-	@Override protected boolean possibleClass(Satellite planet) {
-		return (super.possibleClass(planet) && planet.mass <= Constant.MIN_TERRESTRIAL_MASS);
+	@Override public boolean validClass(Satellite planet) {
+		return (super.validClass(planet) && planet.mass <= Constant.MIN_TERRESTRIAL_MASS);
 	}
 }
