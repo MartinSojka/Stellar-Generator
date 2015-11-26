@@ -33,21 +33,31 @@ public class PlanetaryClass {
 	 * Below 1.00 -> Hydrogen/Helium<br>
 	 * 1.00 to 4.00 -> Helium
 	 */
-	public static final PlanetaryClass GAS_GIANT_I = new GasGiant("Ammonia-clouded gas giant", null, 0.57, 1.0, 20, 170, 300, 1550);
+	public static final PlanetaryClass GAS_GIANT_I = new GasGiant("Ammonia-clouded gas giant", null, 0.57, 1.0, 300, 1550)
+			.temperatureLimits(20, 170);
 	/** Water clouds, max temperature 300 K; white */
-	public static final PlanetaryClass GAS_GIANT_II = new GasGiant("Water-clouded gas giant",null,  0.81, 1.0, 150, 400, 300, 1650);
+	public static final PlanetaryClass GAS_GIANT_II = new GasGiant("Water-clouded gas giant",null,  0.81, 1.0, 300, 1650)
+			.temperatureLimits(150, 400);
 	/** No global cloud cover, temperatures between 300 K and 800 K; dark blue */
-	public static final PlanetaryClass GAS_GIANT_III = new GasGiant("Cloudless gas giant", null, 0.12, 300, 1.0, 900, 300, 1850);
+	public static final PlanetaryClass GAS_GIANT_III = new GasGiant("Cloudless gas giant", null, 0.12, 1.0, 300, 1850)
+			.temperatureLimits(300, 900);
 	/** Deep cloud cover of silicates and iron, temperature range 800 to 1400 K; dark greenish grey */
-	public static final PlanetaryClass GAS_GIANT_IV = new GasGiant("Alkali gas giant", null, 0.03, 900, 1.0, 1500, 300, 2100);
+	public static final PlanetaryClass GAS_GIANT_IV = new GasGiant("Alkali gas giant", null, 0.03, 1.0, 300, 2100)
+			.temperatureLimits(900, 1500);
 	/** High cloud cover of silicates and iron, temperatures above 1400 K; greenish grey */
-	public static final PlanetaryClass GAS_GIANT_V = new GasGiant("Silicate-clouded gas giant", null, 0.55, 1.0, 1500, 9999, 300, 2500);
+	public static final PlanetaryClass GAS_GIANT_V = new GasGiant("Silicate-clouded gas giant", null, 0.55, 1.0, 300, 2500)
+			.temperatureLimits(1500, 5000);
 	// Hellium-rich variants of the above
-	public static final PlanetaryClass HELLIUM_GIANT_I = new GasGiant("Ammonia-clouded gas giant (hydrogen-poor)", (planet) -> planet.molecularLimit > 1.00 || planet.blackbodyTemperature <= 20 || planet.density > 1500, 0.57, 4.0, 0, 170, 400, 1650);
-	public static final PlanetaryClass HELLIUM_GIANT_II = new GasGiant("Water-clouded gas giant (hydrogen-poor)", (planet) -> planet.molecularLimit > 1.00 || planet.blackbodyTemperature <= 20 || planet.density > 1500, 0.81, 4.0, 150, 400, 400, 1750);
-	public static final PlanetaryClass HELLIUM_GIANT_III = new GasGiant("Cloudless gas giant (hydrogen-poor)", (planet) -> planet.molecularLimit > 1.00 || planet.blackbodyTemperature <= 20 || planet.density > 1500, 0.12, 4.0, 300, 900, 400, 1950);
-	public static final PlanetaryClass HELLIUM_GIANT_IV = new GasGiant("Alkali gas giant (hydrogen-poor)", (planet) -> planet.molecularLimit > 1.00 || planet.blackbodyTemperature <= 20 || planet.density > 1500, 0.03, 900, 4.0, 1500, 400, 2200);
-	public static final PlanetaryClass HELLIUM_GIANT_V = new GasGiant("Silicate-clouded gas giant (hydrogen-poor)", (planet) -> planet.molecularLimit > 1.00 || planet.blackbodyTemperature <= 20 || planet.density > 1500, 0.55, 4.0, 1500, 9999, 400, 2600);
+	public static final PlanetaryClass HELLIUM_GIANT_I = new GasGiant("Ammonia-clouded gas giant (hydrogen-poor)", (planet) -> planet.molecularLimit > 1.00 || planet.blackbodyTemperature <= 20 || planet.density > 1500, 0.57, 4.0, 400, 1650)
+			.temperatureLimits(0, 170);
+	public static final PlanetaryClass HELLIUM_GIANT_II = new GasGiant("Water-clouded gas giant (hydrogen-poor)", (planet) -> planet.molecularLimit > 1.00 || planet.blackbodyTemperature <= 20 || planet.density > 1500, 0.81, 4.0, 400, 1750)
+			.temperatureLimits(150, 400);
+	public static final PlanetaryClass HELLIUM_GIANT_III = new GasGiant("Cloudless gas giant (hydrogen-poor)", (planet) -> planet.molecularLimit > 1.00 || planet.blackbodyTemperature <= 20 || planet.density > 1500, 0.12, 4.0, 400, 1950)
+			.temperatureLimits(300, 900);
+	public static final PlanetaryClass HELLIUM_GIANT_IV = new GasGiant("Alkali gas giant (hydrogen-poor)", (planet) -> planet.molecularLimit > 1.00 || planet.blackbodyTemperature <= 20 || planet.density > 1500, 0.03, 4.0, 400, 2200)
+			.temperatureLimits(900, 1500);
+	public static final PlanetaryClass HELLIUM_GIANT_V = new GasGiant("Silicate-clouded gas giant (hydrogen-poor)", (planet) -> planet.molecularLimit > 1.00 || planet.blackbodyTemperature <= 20 || planet.density > 1500, 0.55, 4.0, 400, 2600)
+			.temperatureLimits(1500, 5000);
 	
 	/** Metallic core of a gas giant stripped of hydrogen and helium atmosphere due to close proximity to a star */
 	public static final PlanetaryClass CTHONIAN = new Cthonian();
@@ -61,8 +71,10 @@ public class PlanetaryClass {
 	 * Below 1.00 -> Hydrogen/Helium<br>
 	 * 1.00 to 4.00 -> Helium
 	 */
-	public static final PlanetaryClass ICE_GIANT = new GasGiant("Ice giant", (planet) -> planet.blackbodyTemperature <= 80 + planet.density / 120, 0.3, 1.0, 20, 9999, 1200, 3000);
-	public static final PlanetaryClass HELLIUM_ICE_GIANT = new GasGiant("Ice giant (hydrogen-poor)", (planet) -> planet.blackbodyTemperature <= 80 + planet.density / 120 && (planet.molecularLimit > 1.00 || planet.blackbodyTemperature <= 20), 0.3, 4.0, 0, 9999, 1200, 3000);
+	public static final PlanetaryClass ICE_GIANT = new GasGiant("Ice giant", (planet) -> planet.blackbodyTemperature <= 80 + planet.density / 120, 0.3, 1.0, 1200, 3000)
+			.temperatureLimits(20, 5000);
+	public static final PlanetaryClass HELLIUM_ICE_GIANT = new GasGiant("Ice giant (hydrogen-poor)", (planet) -> planet.blackbodyTemperature <= 80 + planet.density / 120 && (planet.molecularLimit > 1.00 || planet.blackbodyTemperature <= 20), 0.3, 4.0, 1200, 3000)
+			.temperatureLimits(0, 5000);
 
 	/** Hot 'Puffy' giants, very hot and in transition to cthonian planets */
 	public static final PlanetaryClass HOT_PUFFY_GIANT = new PlanetaryClass("Hot 'puffy' gas giant",
