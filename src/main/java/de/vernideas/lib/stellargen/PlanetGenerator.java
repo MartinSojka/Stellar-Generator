@@ -1,6 +1,9 @@
 package de.vernideas.lib.stellargen;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
+import java.util.TreeMap;
 
 import de.vernideas.space.data.Constant;
 import de.vernideas.space.data.Material;
@@ -65,17 +68,24 @@ public final class PlanetGenerator {
 			builder.orbit(planetaryOrbit).rotationPeriod(rotationPeriod);
 			OrbitalZone orbitalZone = planetaryOrbit.orbitalZone(star);
 
+			// Pick planetary model
+			PlanetaryClass pClass = newTerrestialClass(star.random);
+			while( !pClass.validTemperature(star, planetaryOrbit) ) {
+				pClass = newTerrestialClass(star.random);
+			}
+
 			// Create planetary material
-			Material material = PlanetaryClass.DESERT.newMaterial(star.random, planetaryOrbit.blackbodyTemp(star)); //newPlanetaryMaterial(star.random, mass, orbitalZone);
+			Material material = pClass.newMaterial(star.random, planetaryOrbit.blackbodyTemp(star)); //newPlanetaryMaterial(star.random, mass, orbitalZone);
 			builder.compressibility(material.compressibility);
 			double density = Planet.estimateCompressedDensity(mass, material);
 			builder.diameter(Math.pow(6 * mass / (Math.PI * density), 1.0 / 3.0));
 			
 			planet = builder.build();
+			System.out.println(name + " -> " + pClass.name + " -> " + planet.planetaryClass.name);
 			// Try to make the planet habitable (for humans) if possible ...
 			-- habitableRetries;
 		} while( habitableRetries >= 0 && !planet.habitable() );
-		
+
 		return planet;
 	}
 	
@@ -208,7 +218,12 @@ public final class PlanetGenerator {
 		String planetoidName = null != name ? name : planetoidName(star.random);
 
 		// Create planetary material
-		Material material = newPlanetaryMaterial(star.random, mass, planetoidOrbit.orbitalZone(star));
+		PlanetaryClass pClass = newPlanetoidClass(star.random);
+		while( !pClass.validTemperature(star, planetoidOrbit) ) {
+			pClass = newPlanetoidClass(star.random);
+		}
+		
+		Material material = pClass.newMaterial(star.random, planetoidOrbit.blackbodyTemp(star)); // newPlanetaryMaterial(star.random, mass, planetoidOrbit.orbitalZone(star));
 		double density = Planet.estimateCompressedDensity(mass, material);
 		double diameter = Math.pow(6 * mass / (Math.PI * density), 1.0 / 3.0);
 
@@ -220,61 +235,10 @@ public final class PlanetGenerator {
 				.diameter(diameter)
 				.compressibility(material.compressibility)
 				.minor(true).build();
+		System.out.println(planetoidName + " -> " + pClass.name + " -> " + planet.planetaryClass.name);
 		return planet;
 	}
 
-	/**
-	 * Get a random planetary (average) Material
-	 */
-	private static Material newPlanetaryMaterial(Random rnd, double mass, OrbitalZone zone) {
-		double density = 1200.0;
-		double compressibility = 20.0;
-		if( mass < Constant.MIN_TERRESTRIAL_MASS ) {
-			// Planetoids, moons
-			// Moon lowest value: Thetys 981, highest: moon Io 3534
-			// Minor planet lowest value: 2002UX25 820, highest: 16 Psyche 9780
-			do {
-				switch( zone ) {
-					case HOT:
-						density = rnd.nextGaussian() * 1500 + 5500;
-						break;
-					case HABITABLE:
-						density = rnd.nextGaussian() * 1500 + 5000;
-						break;
-					case COLD:
-						density = rnd.nextGaussian() * 1800 + 4000;
-						break;
-					case FROZEN:
-						density = rnd.nextGaussian() * 1000 + 3000;
-						break;
-				}
-			} while( density < 800 );
-			compressibility = between(100.0, 25000.0, rnd.nextDouble()) / Math.sqrt(density);
-		} else if( mass < Constant.MAX_TERRESTRIAL_MASS ) {
-			// Terrestial planets and dwarf giants
-			// Lowest known value: Mars 3710, highest: Mercury 5400; possibly Callisto 1831
-			do {
-				switch( zone ) {
-					case HOT:
-						density = rnd.nextGaussian() * 1000 + 5500;
-						break;
-					case HABITABLE:
-						density = rnd.nextGaussian() * 1000 + 5000;
-						break;
-					case COLD:
-						density = rnd.nextGaussian() * 1200 + 4000;
-						break;
-					case FROZEN:
-						density = rnd.nextGaussian() * 700 + 3000;
-						break;
-				}
-			} while( density < 1200 );
-			compressibility = between(250.0, 2500.0, rnd.nextDouble() * rnd.nextDouble()) / Math.sqrt(density);
-
-		}
-		return new Material("", density, compressibility * 1e-12);
-	}
-	
 	/**
 	 * Calculate the planetary radius (excluding the atmosphere) depending on mass and orbital zone
 	 */
@@ -368,5 +332,63 @@ public final class PlanetGenerator {
 		return name;
 	}
 	
+	private static PlanetaryClass newTerrestialClass(Random rnd) {
+		int randomSC = rnd.nextInt(maxTerrestialClasses) + 1;
+		return terrestialClassesDistribution.lowerEntry(randomSC).getValue();
+	}
 	
+	private static final List<Pair<PlanetaryClass, Integer>> terrestialClassesList = new ArrayList<Pair<PlanetaryClass,Integer>>();
+	private static final TreeMap<Integer, PlanetaryClass> terrestialClassesDistribution = new TreeMap<Integer, PlanetaryClass>();
+	private static final int maxTerrestialClasses;
+
+	static {
+		// Weights for planetoid classes
+		terrestialClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.DESERT, 10));
+		terrestialClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.EARTH_LIKE, 10));
+		terrestialClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.GREENHOUSE, 10));
+		terrestialClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.HELL, 5));
+		terrestialClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.AIRLESS, 25));
+		terrestialClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.DRY_ROCK, 20));
+		terrestialClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.ROCKY, 10));
+		terrestialClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.HIGH_PRESSURE, 5));
+		terrestialClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.EXTREME_GREENHOUSE, 2));
+		terrestialClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.WATER_ICE, 10));
+		terrestialClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.AMMONIA_ICE, 20));
+		terrestialClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.METHANE_ICE, 25));
+		terrestialClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.IRON, 5));
+		terrestialClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.LAVA, 2));
+		terrestialClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.OCEAN, 5));
+
+		int count = 0;
+		for( Pair<PlanetaryClass, Integer> spectral : terrestialClassesList) {
+			terrestialClassesDistribution.put(count, spectral.first);
+			count += spectral.second;
+		}
+		maxTerrestialClasses = count;
+	}
+	
+	private static PlanetaryClass newPlanetoidClass(Random rnd) {
+		int randomSC = rnd.nextInt(maxPlanetoidClasses) + 1;
+		return planetoidClassesDistribution.lowerEntry(randomSC).getValue();
+	}
+	
+	private static final List<Pair<PlanetaryClass, Integer>> planetoidClassesList = new ArrayList<Pair<PlanetaryClass,Integer>>(5);
+	private static final TreeMap<Integer, PlanetaryClass> planetoidClassesDistribution = new TreeMap<Integer, PlanetaryClass>();
+	private static final int maxPlanetoidClasses;
+
+	static {
+		// Weights for planetoid classes
+		planetoidClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.SILICATE_PLANETOID, 200));
+		planetoidClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.METALLIC_PLANETOID, 10));
+		planetoidClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.ICE_PLANETOID, 50));
+		planetoidClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.GRAVEL_PLANETOID, 5));
+		planetoidClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.CARBONACEOUS_PLANETOID, 2));
+		
+		int count = 0;
+		for( Pair<PlanetaryClass, Integer> spectral : planetoidClassesList) {
+			planetoidClassesDistribution.put(count, spectral.first);
+			count += spectral.second;
+		}
+		maxPlanetoidClasses = count;
+	}
 }

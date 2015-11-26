@@ -54,7 +54,9 @@ public class Star extends StellarObject {
 		// Calculate the frost line by assuming a black-body with temperature of 150K (water sublimation in vacuum)
 		this.frostLine = Math.sqrt(this.originalLuminosity / Constant.STEFAN_BOLTZMANN_PI) / (4 * 150 * 150);
 		
-		// Habitable zone for Earth-like planets: from 310 K at 0.4 albedo to 220 K at 0.1 albedo (below that - desert planet, above - snow planets)
+		// Habitable zone for Earth-like planets: from 310 K at 0.4 albedo to 220 K at 0.1 albedo
+		// Below that - desert planet, above - snow planets
+		// Corresponds to 375 K and 226 K for an orbit with no eccentricity
 		this.habitableZoneMin = Math.sqrt(this.luminosity * 0.6 / Constant.STEFAN_BOLTZMANN_PI) / (4 * 330 * 330);
 		this.habitableZoneMax = Math.sqrt(this.luminosity * 0.9 / Constant.STEFAN_BOLTZMANN_PI) / (4 * 220 * 220);
 		
@@ -78,6 +80,16 @@ public class Star extends StellarObject {
 		return planet;
 	}
 	
+	// Resonance distances (for gaps)
+	// Strong - 2:1, 3:1
+	private final double RESONANCE_2_1 = Math.pow(2.0, -2.0/3.0);
+	private final double RESONANCE_3_1 = Math.pow(3.0, -2.0/3.0);
+	// Medium - 4:1, 5:2, 7:3
+	private final double RESONANCE_4_1 = Math.pow(4.0, -2.0/3.0);
+	private final double RESONANCE_5_2 = Math.pow(5.0/2.0, -2.0/3.0);
+	private final double RESONANCE_7_3 = Math.pow(7.0/3.0, -2.0/3.0);
+	// Weak - 9:2, 7:2, 10:3, 8:3, 5:3, 9:4, 11:5, 11:6 (not sure if we need to bother)
+	
 	/**
 	 * Goes through the current planet list and checks if the orbit is "free" to house another planet.
 	 */
@@ -95,6 +107,20 @@ public class Star extends StellarObject {
 		
 		for(Planet p : planets) {
 			if( apo >= p.orbit.pericenter - p.exclusionZone && peri <= p.orbit.apocenter + p.exclusionZone ) {
+				return false;
+			}
+			// Kirkwood gaps
+			// Strong resonance gaps: 3:1 and 2:1
+			double resDist = Math.abs(p.orbit.radius * RESONANCE_2_1 - radius);
+			resDist = Math.min(resDist, Math.abs(p.orbit.radius * RESONANCE_3_1 - radius));
+			if( resDist < p.orbit.radius / 1000.0 )  {
+				return false;
+			}
+			// Weak resonance gaps
+			resDist = Math.abs(p.orbit.radius * RESONANCE_4_1 - radius);
+			resDist = Math.min(resDist, Math.abs(p.orbit.radius * RESONANCE_5_2 - radius));
+			resDist = Math.min(resDist, Math.abs(p.orbit.radius * RESONANCE_7_3 - radius));
+			if( resDist < p.orbit.radius / 5000.0 )  {
 				return false;
 			}
 		}

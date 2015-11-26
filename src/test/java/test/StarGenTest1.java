@@ -66,6 +66,11 @@ public final class StarGenTest1 {
 				+ String.format(Locale.ROOT, "%.4f", star.habitableZoneMax / Constant.AU) + " AU, frost line "
 				+ String.format(Locale.ROOT, "%.4f", star.frostLine / Constant.AU) + " AU, outer planet limit "
 				+ String.format(Locale.ROOT, "%.4f", star.outerPlanetLimit / Constant.AU) + " AU");
+		System.out.println("     blackbody temperatures "
+				+ String.format(Locale.ROOT, "%.0f K, %.0f K, %.0f K, %.0f K, %.0f K, %.0f K",
+					star.blackbodyTemp(star.boilingLine), star.blackbodyTemp(star.innerPlanetLimit),
+					star.blackbodyTemp(star.habitableZoneMin), star.blackbodyTemp(star.habitableZoneMax),
+					star.blackbodyTemp(star.frostLine), star.blackbodyTemp(star.outerPlanetLimit)));
 	}
 	
 	private static void printPlanet(Planet p)
