@@ -11,6 +11,7 @@ import de.vernideas.space.data.Pair;
 import de.vernideas.space.data.Planet;
 import de.vernideas.space.data.Planet.PlanetBuilder;
 import de.vernideas.space.data.Star;
+import de.vernideas.space.data.planetaryclass.PlanetaryClass;
 
 public final class PlanetGenerator {
 	private static double between(double min, double max, double val) {
@@ -65,7 +66,7 @@ public final class PlanetGenerator {
 			OrbitalZone orbitalZone = planetaryOrbit.orbitalZone(star);
 
 			// Create planetary material
-			Material material = newPlanetaryMaterial(star.random, mass, orbitalZone);
+			Material material = PlanetaryClass.DESERT.newMaterial(star.random, planetaryOrbit.blackbodyTemp(star)); //newPlanetaryMaterial(star.random, mass, orbitalZone);
 			builder.compressibility(material.compressibility);
 			double density = Planet.estimateCompressedDensity(mass, material);
 			builder.diameter(Math.pow(6 * mass / (Math.PI * density), 1.0 / 3.0));
@@ -173,7 +174,11 @@ public final class PlanetGenerator {
 		return planet(star, mass, planetName, 0);
 	}
 	
-	public static Planet planetoid(Star star, double mass)
+	public static Planet newPlanetoid(Star star, double mass) {
+		return newPlanetoid(star, mass, null);
+	}
+	
+	public static Planet newPlanetoid(Star star, double mass, String name)
 	{
 		double orbit = 0.0;
 		float eccentrity;
@@ -200,7 +205,7 @@ public final class PlanetGenerator {
 		// Rayleigh distribution, sigma = 5°
 		float inclination = (float)Math.toRadians(5.0 * Math.sqrt(-2.0 * Math.log(star.random.nextDouble())));
 		Orbit planetoidOrbit = new Orbit(orbit, eccentrity, inclination);
-		String planetoidName = planetoidName(star.random);
+		String planetoidName = null != name ? name : planetoidName(star.random);
 
 		// Create planetary material
 		Material material = newPlanetaryMaterial(star.random, mass, planetoidOrbit.orbitalZone(star));
@@ -362,4 +367,6 @@ public final class PlanetGenerator {
 		
 		return name;
 	}
+	
+	
 }

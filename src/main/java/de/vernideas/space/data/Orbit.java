@@ -54,6 +54,11 @@ public class Orbit {
 		return OrbitalZone.FROZEN;
 	}
 	
+	public double blackbodyTemp(Star star) {
+		return Math.max(Math.pow(star.luminosity / (16 * Constant.STEFAN_BOLTZMANN_PI * radius * radius), 0.25),
+				Constant.UNIVERSE_TEMPERATURE);
+	}
+	
 	// for @Wither
 	private Orbit(double r, float e, float i, double _ignore1, double _ignore2)
 	{

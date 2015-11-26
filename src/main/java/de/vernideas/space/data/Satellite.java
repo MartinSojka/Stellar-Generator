@@ -88,7 +88,7 @@ public abstract class Satellite extends StellarObject {
 			Star mainStar = (Star)mainBody.parent;
 
 			// Calculate the (blackbody, albedo = 0) temperature of the planet
-			this.blackbodyTemperature = Math.max(Math.pow(mainStar.luminosity / (16 * Constant.STEFAN_BOLTZMANN_PI * mainBody.orbit.radius * mainBody.orbit.radius), 0.25), Constant.UNIVERSE_TEMPERATURE);
+			this.blackbodyTemperature = mainBody.orbit.blackbodyTemp(mainStar);
 			this.criticalMass = 1.2e-5 * Constant.SOLAR_MASS * Math.pow(mainBody.orbit.pericenter / Constant.AU * Math.sqrt(mainStar.originalLuminosity / Constant.SOLAR_LUM), -0.75);
 		}
 		else
@@ -133,10 +133,11 @@ public abstract class Satellite extends StellarObject {
 	
 	private static double compression(double mass, double compressibility) {
 		double c = Math.log(compressibility);
-		double compression = -0.000000370257402642426 * mass * c
-				+ -0.0000945990465920971 *  mass
-				+ -0.0279169422082733 * c
-				+ 0.000559849969002507 * c * c;
+		double compression = -0.00000794181233235453 * mass * c
+				+ 0.0000220753829612755 *  mass
+				+ -0.0895616181274319 * c
+				+ 0.0148607527093062 * c * c
+				+ -0.00616550736971977 * Math.sqrt(mass);
 		return compression * compression + 1.0;
 	}
 	

@@ -11,8 +11,6 @@ import de.vernideas.space.data.Constant;
 import de.vernideas.space.data.Moon;
 import de.vernideas.space.data.Orbit;
 import de.vernideas.space.data.Planet;
-import de.vernideas.space.data.Satellite;
-import de.vernideas.space.data.Material;
 import de.vernideas.space.data.Star;
 import de.vernideas.space.data.Universe;
 import de.vernideas.space.data.VectorI3D;
@@ -21,7 +19,7 @@ import de.vernideas.space.data.starclass.StarClassHelper;
 public final class StarGenTest1 {
 
 	public static void main(String[] args) {
-		Universe u = new Universe(-7569710373925279195L);
+		Universe u = new Universe();
 		System.err.println("UNIVERSE SEED " + u.seed);
 		Star s = SystemGenerator.star(u);
 
