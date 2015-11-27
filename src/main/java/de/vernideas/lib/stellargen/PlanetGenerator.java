@@ -86,58 +86,6 @@ public final class PlanetGenerator {
 			-- habitableRetries;
 		} while( habitableRetries >= 0 && !planet.habitable() );
 
-		return planet;
-	}
-	
-	public static Planet planet(Star star, double mass, String planetName, int habitableRetries) {
-		PlanetBuilder builder = Planet.builder().parent(star).name(planetName).mass(mass).minor(false);
-		Planet planet = null;
-		do
-		{
-			double orbit = 0;
-			float eccentrity = 0.0f;
-			int errCount = 0;
-			do {
-				orbit = Math.pow(Math.min(star.random.nextDouble(), star.random.nextDouble()), 2.0) * (star.outerPlanetLimit - star.innerPlanetLimit) + star.innerPlanetLimit;
-				eccentrity = (float)Math.pow(star.random.nextDouble(), 6.0) / 2.0f;
-				// We try to keep the planets with less than about 50000 Yg weight in the "inside" of the frost zone,
-				// and gas giants outside
-				if( orbit > star.frostLine && mass < star.random.nextDouble() * Constant.MAX_TERRESTRIAL_MASS ) {
-					orbit = Math.max(Math.min(orbit, star.random.nextDouble() * star.outerPlanetLimit), star.innerPlanetLimit);
-				} else if( orbit < star.frostLine && mass * star.random.nextDouble() > Constant.MAX_TERRESTRIAL_MASS ) {
-					orbit = Math.pow(Math.min(star.random.nextDouble(), star.random.nextDouble()), 1.5) * (star.outerPlanetLimit - star.frostLine) + star.frostLine;
-				}
-				if( !star.orbitFree(orbit, eccentrity) )
-				{
-					++ errCount;
-					if( errCount > 20 )
-					{
-						// We give up on that one
-						return null;
-					}
-				}
-			} while( !star.orbitFree(orbit, eccentrity) );
-			float rotationPeriod = (float)star.random.nextGaussian() * 60000 + 72000;
-			// Flatten out the eccentrity for low-lying orbits (below 1.99 AU for the Sun)
-			if( orbit / Constant.AU < star.mass / 1e29 )
-			{
-				eccentrity *= (orbit / Constant.AU * 1e29 / star.mass);
-			}
-			// Rayleigh distribution, sigma = 1° (see arXiv:1207.5250 [astro-ph.EP])
-			float inclination = (float)Math.toRadians(Math.sqrt(-2.0 * Math.log(star.random.nextDouble())));
-			Orbit planetOrbit = new Orbit(orbit, eccentrity, inclination);
-			Pair<Double, Double> radiusCompressibility = newPlanetRadiusCompressibility(star.random, mass, planetOrbit.orbitalZone(star));
-			builder.orbit(planetOrbit)
-					.rotationPeriod(rotationPeriod)
-					.diameter(radiusCompressibility.first * 2)
-					.material(new Material("", 200, radiusCompressibility.second));
-					//.compressibility(radiusCompressibility.second);
-			planet = builder.build();
-			// Try to make the planet habitable (for humans) if possible ...
-			-- habitableRetries;
-		}
-		while( habitableRetries >= 0 && !planet.habitable() );
-		
 		// Moon generation
 		// Estimated amount of major moons
 		double moonEstimate = 8.5 * Math.exp(-65000.0 / planet.mass * Constant.YOTTAGRAM) + planet.random.nextGaussian() * 0.4 * Math.pow(planet.mass / Constant.YOTTAGRAM, 0.135);
@@ -154,30 +102,9 @@ public final class PlanetGenerator {
 			{
 				moonMass = (planet.random.nextDouble() * 999.0 + 1.0 ) * Constant.MIN_MOON_MASS;
 			}
-			Pair<Double, Double> radiusCompressibility = newPlanetRadiusCompressibility(planet.random, moonMass, planet.orbit.orbitalZone(star));
-			double moonRadius = radiusCompressibility.first;
-			// Make sure we don't get too near to the Roche limit (rough estimate for fluid moon).
-			// This is almost never more than 1.0 and practically never more than 2.0
-			double rocheLimit = Math.max(1.0, Math.ceil(3.0 * moonRadius * Math.pow(planet.mass / moonMass, 1.0 / 3.0) / Constant.DISTANCE_UNIT));
-			double moonOrbit = Math.pow(planet.random.nextDouble(), 3.0) * (planet.hillsRadius - rocheLimit) + rocheLimit;
-			float moonRotationPeriod = (float)planet.random.nextGaussian() * 1000 + 1200;
-			float moonEccentrity = (float)Math.pow(planet.random.nextDouble(), 6.0) / 1.01f;
-			// Flatten out the eccentrity for low-lying orbits (below 1.99 AU for the Sun)
-			if( moonOrbit < planet.mass / (10000 * Constant.YOTTAGRAM) )
-			{
-				moonEccentrity *= (moonOrbit * 10000.0 * Constant.YOTTAGRAM / planet.mass);
-			}
-			Moon newMoon = Moon.builder().name(planetName + " " + GenUtil.romanNumber(m +1))
-					.mass(moonMass)
-					.orbit(new Orbit(moonOrbit, moonEccentrity, (float)Math.abs(planet.random.nextGaussian() / 6 / Math.PI)))
-					.parent(planet)
-					.rotationPeriod(moonRotationPeriod)
-					.diameter(moonRadius * 2)
-					.material(Material.ROCK)
-					//.compressibility(radiusCompressibility.second * 2.0)
-					.build();
-			planet.moons.add(newMoon);
+			planet.moons.add(newMoon(star, planet, moonMass, name + " " + GenUtil.romanNumber(m + 1)));
 		}
+
 		return planet;
 	}
 	
@@ -235,12 +162,63 @@ public final class PlanetGenerator {
 
 		planet = builder.build();
 		System.out.println(planetName + ": " + pClass.name + " -> " + planet.planetaryClass.name);
+		
+		// Moon generation
+		// Estimated amount of major moons
+		double moonEstimate = 8.5 * Math.exp(-65000.0 / planet.mass * Constant.YOTTAGRAM) + planet.random.nextGaussian() * 0.4 * Math.pow(planet.mass / Constant.YOTTAGRAM, 0.135);
+		// Lower the chances for small Hill radii
+		if( planet.hillsRadius < 0.1 * Constant.AU )
+		{
+			moonEstimate *= Math.pow(planet.hillsRadius * 10.0 / Constant.AU, 0.4);
+		}
+		int majorMoons = (int)Math.min(moonEstimate, planet.hillsRadius);
+		for( int m = 0; m < majorMoons; ++ m )
+		{
+			double moonMass = Math.pow(planet.random.nextDouble(), 12.0) * Math.min(planet.mass / 25.0, Constant.MAX_TERRESTRIAL_MASS * 2.0);
+			if( moonMass < Constant.MIN_MOON_MASS )
+			{
+				moonMass = (planet.random.nextDouble() * 999.0 + 1.0 ) * Constant.MIN_MOON_MASS;
+			}
+			planet.moons.add(newMoon(star, planet, moonMass, planetName + " " + GenUtil.romanNumber(m + 1)));
+		}
+		
 		return planet;
 	}
 	
-	public static Planet planet(Star star, double mass, String planetName)
-	{
-		return planet(star, mass, planetName, 0);
+	public static Moon newMoon(Star star, Planet planet, double mass, String name) {
+		// Pick planetary model
+		boolean minor = mass < Constant.MIN_TERRESTRIAL_MASS;
+		PlanetaryClass pClass = minor ? newPlanetoidClass(planet.random) : newTerrestialClass(planet.random);
+		while( !pClass.validTemperature(star, planet.orbit) ) {
+			pClass = minor ? newPlanetoidClass(planet.random) : newTerrestialClass(planet.random);
+		}
+
+		// Create planetary material
+		Material material = pClass.newMaterial(star.random, planet.orbit.blackbodyTemp(star));
+		double density = material.estimateCompressedDensity(mass);
+		double diameter = Math.pow(6 * mass / (Math.PI * density), 1.0 / 3.0);
+		
+		// Make sure we don't get too near to the Roche limit (rough estimate for fluid moon).
+		// This is almost never more than 1.0 and practically never more than 2.0
+		double rocheLimit = Math.max(1.0, Math.ceil(1.5 * diameter * Math.pow(planet.mass / mass, 1.0 / 3.0) / Constant.DISTANCE_UNIT));
+		double orbit = Math.pow(planet.random.nextDouble(), 3.0) * (planet.hillsRadius - rocheLimit) + rocheLimit;
+		float rotationPeriod = (float)planet.random.nextGaussian() * 1000 + 1200;
+		float eccentrity = (float)Math.pow(planet.random.nextDouble(), 6.0) / 1.01f;
+		// Flatten out the eccentrity for low-lying orbits (below 1.99 AU for the Sun)
+		if( orbit < planet.mass / (10000 * Constant.YOTTAGRAM) )
+		{
+			eccentrity *= (orbit * 10000.0 * Constant.YOTTAGRAM / planet.mass);
+		}
+		Moon newMoon = Moon.builder().name(name)
+				.mass(mass)
+				.orbit(new Orbit(orbit, eccentrity, (float)Math.abs(planet.random.nextGaussian() / 6 / Math.PI)))
+				.parent(planet)
+				.rotationPeriod(rotationPeriod)
+				.diameter(diameter)
+				.material(Material.ROCK)
+				.planetaryClass(pClass)
+				.build();
+		return newMoon;
 	}
 	
 	public static Planet newPlanetoid(Star star, double mass) {

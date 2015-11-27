@@ -35,6 +35,9 @@ public final class StarGenTest1 {
 		for( Planet p : planets )
 		{
 			printPlanet(p);
+			for( Moon m : p.moons ) {
+				printMoon(m);
+			}
 		}
 		
 		// Generate a bunch more to test for bugs and outliers
@@ -105,16 +108,14 @@ public final class StarGenTest1 {
 	
 	private static void printMoon(Moon m)
 	{
-		System.out.println(String.format("\"%s\"\t\"%s\"\t%.3f\t%.0f\t%.0f\t%.0f\t%.2f\t%d",
-				m.name, m.planetaryClass.name, m.mass, m.diameter / 1000, m.density, m.uncompressedDensity, m.molecularLimit, m.blackbodyTemperature));
-		/*
-		System.out.println("         " + m.name + ", mass: " + String.format("%.3f", m.mass)
-				+ " Yg, radius (Earth radii) " + String.format("%.2f", m.planetRadius / 6371000)
+		System.out.println("         " + m.name + ", type: " + m.planetaryClass.name
+				+ ", mass: " + String.format("%.3f", m.mass / Constant.YOTTAGRAM)
+				+ " Yg, radius (Earth radii) " + String.format("%.2f", m.diameter / Constant.EARTH_DIAMETER)
 				+ ", gravity: " + String.format("%.3f", m.surfaceGravity)
-				+ " m/s², density: " + String.format("%.0f", m.density) + " kg/m³, orbit " + m.orbit
+				+ " m/s²\n"
+				+"           density: " + String.format("%.0f", m.density) + " kg/m³, orbit " + m.orbit.printablePlanetString()
 				+ ", escape V: " + String.format("%.0f", m.escapeVelocity)
 				+ " m/s, mol. limit: " + String.format("%.2f", m.molecularLimit));
-		*/
 	}
 
 }
