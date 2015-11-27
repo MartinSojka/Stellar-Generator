@@ -38,7 +38,7 @@ public final class StarGenTest1 {
 		}
 		
 		// Generate a bunch more to test for bugs and outliers
-		for( int i = 2; i < 1000000; ++ i ) {
+		for( int i = 2; i < 1; ++ i ) {
 			printStar(SystemGenerator.star(u), i);
 		}
 		
@@ -51,7 +51,7 @@ public final class StarGenTest1 {
 				.material(new Material("", 4030, 7.64997739863382e-12)).build();
 		Planet jupiter = Planet.builder().name("Jupiter").diameter(69911000 * 2.0).mass(1.898e+27).parent(sol)
 				.rotationPeriod(24 * 3600 /* ignorable */).orbit(new Orbit(778547200000.0, 0.048775f, 0.0f))
-				.material(new Material("", 200, 100.0e-12)).build();
+				.material(new Material("", 1326, 1e-12)).build();
 		printStar(sol, 2);
 		printPlanet(earth);
 		printPlanet(jupiter);

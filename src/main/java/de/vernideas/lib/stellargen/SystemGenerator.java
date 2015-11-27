@@ -93,7 +93,7 @@ public class SystemGenerator {
 			if( planetMasses.get(i) > Constant.MIN_TERRESTRIAL_MASS && planetMasses.get(i) < Constant.MAX_TERRESTRIAL_MASS ) {
 				planet = PlanetGenerator.newTerrestialPlanet(star, planetMasses.get(i), star.name + " " + (char)('b' + generatedPlanets));
 			} else {
-				planet = PlanetGenerator.planet(star, planetMasses.get(i), star.name + " " + (char)('b' + generatedPlanets));
+				planet = PlanetGenerator.newGasgiant(star, planetMasses.get(i), star.name + " " + (char)('b' + generatedPlanets));
 			}
 			if( null != planet )
 			{

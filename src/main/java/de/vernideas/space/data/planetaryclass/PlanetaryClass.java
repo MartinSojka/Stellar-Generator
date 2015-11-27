@@ -33,30 +33,40 @@ public class PlanetaryClass {
 	 * Below 1.00 -> Hydrogen/Helium<br>
 	 * 1.00 to 4.00 -> Helium
 	 */
-	public static final PlanetaryClass GAS_GIANT_I = new GasGiant("Ammonia-clouded gas giant", null, 0.57, 1.0, 300, 1550)
+	public static final PlanetaryClass GAS_GIANT_I = new GasGiant("Ammonia-clouded gas giant", null, 0.57, 1.0)
+			.materialDensity(1000, 300, 300, 1500)
 			.validZones(OrbitalZone.COLD, OrbitalZone.FROZEN).temperatureLimits(20, 170);
 	/** Water clouds, max temperature 300 K; white */
-	public static final PlanetaryClass GAS_GIANT_II = new GasGiant("Water-clouded gas giant",null,  0.81, 1.0, 300, 1650)
+	public static final PlanetaryClass GAS_GIANT_II = new GasGiant("Water-clouded gas giant",null,  0.81, 1.0)
+			.materialDensity(1050, 300, 300, 1600)
 			.validZones(OrbitalZone.HOT, OrbitalZone.HABITABLE, OrbitalZone.COLD).temperatureLimits(150, 400);
 	/** No global cloud cover, temperatures between 300 K and 800 K; dark blue */
-	public static final PlanetaryClass GAS_GIANT_III = new GasGiant("Cloudless gas giant", null, 0.12, 1.0, 300, 1850)
+	public static final PlanetaryClass GAS_GIANT_III = new GasGiant("Cloudless gas giant", null, 0.12, 1.0)
+			.materialDensity(1100, 300, 300, 1700)
 			.validZones(OrbitalZone.HOT, OrbitalZone.HABITABLE).temperatureLimits(300, 900);
 	/** Deep cloud cover of silicates and iron, temperature range 800 to 1400 K; dark greenish grey */
-	public static final PlanetaryClass GAS_GIANT_IV = new GasGiant("Alkali gas giant", null, 0.03, 1.0, 300, 2100)
+	public static final PlanetaryClass GAS_GIANT_IV = new GasGiant("Alkali gas giant", null, 0.03, 1.0)
+			.materialDensity(1200, 300, 300, 1900)
 			.validZones(OrbitalZone.HOT).temperatureLimits(900, 1500);
 	/** High cloud cover of silicates and iron, temperatures above 1400 K; greenish grey */
-	public static final PlanetaryClass GAS_GIANT_V = new GasGiant("Silicate-clouded gas giant", null, 0.55, 1.0, 300, 2500)
+	public static final PlanetaryClass GAS_GIANT_V = new GasGiant("Silicate-clouded gas giant", null, 0.55, 1.0)
+			.materialDensity(1300, 300, 300, 2200)
 			.validZones(OrbitalZone.HOT).temperatureLimits(1500, 5000);
 	// Hellium-rich variants of the above
-	public static final PlanetaryClass HELLIUM_GIANT_I = new GasGiant("Ammonia-clouded gas giant (hydrogen-poor)", (planet) -> planet.molecularLimit > 1.00 || planet.blackbodyTemperature <= 20 || planet.density > 1500, 0.57, 4.0, 400, 1650)
+	public static final PlanetaryClass HELLIUM_GIANT_I = new GasGiant("Ammonia-clouded gas giant (hydrogen-poor)", (planet) -> planet.molecularLimit > 1.00 || planet.blackbodyTemperature <= 20 || planet.density > 1500, 0.57, 4.0)
+			.materialDensity(1000, 300, 400, 1500)
 			.validZones(OrbitalZone.COLD, OrbitalZone.FROZEN).temperatureLimits(0, 170);
-	public static final PlanetaryClass HELLIUM_GIANT_II = new GasGiant("Water-clouded gas giant (hydrogen-poor)", (planet) -> planet.molecularLimit > 1.00 || planet.blackbodyTemperature <= 20 || planet.density > 1500, 0.81, 4.0, 400, 1750)
+	public static final PlanetaryClass HELLIUM_GIANT_II = new GasGiant("Water-clouded gas giant (hydrogen-poor)", (planet) -> planet.molecularLimit > 1.00 || planet.blackbodyTemperature <= 20 || planet.density > 1500, 0.81, 4.0)
+			.materialDensity(1050, 300, 400, 1600)
 			.validZones(OrbitalZone.HOT, OrbitalZone.HABITABLE, OrbitalZone.COLD).temperatureLimits(150, 400);
-	public static final PlanetaryClass HELLIUM_GIANT_III = new GasGiant("Cloudless gas giant (hydrogen-poor)", (planet) -> planet.molecularLimit > 1.00 || planet.blackbodyTemperature <= 20 || planet.density > 1500, 0.12, 4.0, 400, 1950)
+	public static final PlanetaryClass HELLIUM_GIANT_III = new GasGiant("Cloudless gas giant (hydrogen-poor)", (planet) -> planet.molecularLimit > 1.00 || planet.blackbodyTemperature <= 20 || planet.density > 1500, 0.12, 4.0)
+			.materialDensity(1100, 300, 400, 1700)
 			.validZones(OrbitalZone.HOT, OrbitalZone.HABITABLE).temperatureLimits(300, 900);
-	public static final PlanetaryClass HELLIUM_GIANT_IV = new GasGiant("Alkali gas giant (hydrogen-poor)", (planet) -> planet.molecularLimit > 1.00 || planet.blackbodyTemperature <= 20 || planet.density > 1500, 0.03, 4.0, 400, 2200)
+	public static final PlanetaryClass HELLIUM_GIANT_IV = new GasGiant("Alkali gas giant (hydrogen-poor)", (planet) -> planet.molecularLimit > 1.00 || planet.blackbodyTemperature <= 20 || planet.density > 1500, 0.03, 4.0)
+			.materialDensity(1200, 300, 400, 1900)
 			.validZones(OrbitalZone.HOT).temperatureLimits(900, 1500);
-	public static final PlanetaryClass HELLIUM_GIANT_V = new GasGiant("Silicate-clouded gas giant (hydrogen-poor)", (planet) -> planet.molecularLimit > 1.00 || planet.blackbodyTemperature <= 20 || planet.density > 1500, 0.55, 4.0, 400, 2600)
+	public static final PlanetaryClass HELLIUM_GIANT_V = new GasGiant("Silicate-clouded gas giant (hydrogen-poor)", (planet) -> planet.molecularLimit > 1.00 || planet.blackbodyTemperature <= 20 || planet.density > 1500, 0.55, 4.0)
+			.materialDensity(1300, 300, 400, 2200)
 			.validZones(OrbitalZone.HOT).temperatureLimits(1500, 5000);
 	
 	/** Metallic core of a gas giant stripped of hydrogen and helium atmosphere due to close proximity to a star */
@@ -71,66 +81,69 @@ public class PlanetaryClass {
 	 * Below 1.00 -> Hydrogen/Helium<br>
 	 * 1.00 to 4.00 -> Helium
 	 */
-	public static final PlanetaryClass ICE_GIANT = new GasGiant("Ice giant", (planet) -> planet.blackbodyTemperature <= 80 + planet.density / 120, 0.3, 1.0, 1200, 3000)
+	public static final PlanetaryClass ICE_GIANT = new GasGiant("Ice giant", (planet) -> planet.blackbodyTemperature <= 80 + planet.density / 120, 0.3, 1.0)
+			.materialDensity(1600, 500, 1100, 3000)
 			.validZones(OrbitalZone.COLD).temperatureLimits(20, 105);
-	public static final PlanetaryClass HELLIUM_ICE_GIANT = new GasGiant("Ice giant (hydrogen-poor)", (planet) -> planet.blackbodyTemperature <= 80 + planet.density / 120 && (planet.molecularLimit > 1.00 || planet.blackbodyTemperature <= 20), 0.3, 4.0, 1200, 3000)
+	public static final PlanetaryClass HELLIUM_ICE_GIANT = new GasGiant("Ice giant (hydrogen-poor)", (planet) -> planet.blackbodyTemperature <= 80 + planet.density / 120 && (planet.molecularLimit > 1.00 || planet.blackbodyTemperature <= 20), 0.3, 4.0)
+			.materialDensity(1800, 500, 1100, 3000)
 			.validZones(OrbitalZone.COLD).temperatureLimits(0, 105);
 
 	/** Hot 'Puffy' giants, very hot and in transition to cthonian planets */
 	public static final PlanetaryClass HOT_PUFFY_GIANT = new PlanetaryClass("Hot 'puffy' gas giant",
 			(planet) -> planet.molecularLimit > Math.min(1.00, planet.density / 2000.0)
-			&& planet.mass >= Constant.MAX_TERRESTRIAL_MASS
-			&& planet.density < 1000, 0.55)
+			&& planet.mass >= Constant.MAX_TERRESTRIAL_MASS, 0.55)
+			.materialDensity(500, 250, 200, 1000)
 			.validZones(OrbitalZone.HOT).temperatureLimits(1000, 5000);
 
 	/** Cold "puffy" giant, implies internal heating and strong magnetic fields */
 	public static final PlanetaryClass COLD_PUFFY_GIANT = new PlanetaryClass("'Puffy' gas giant", 
 			(planet) -> planet.molecularLimit <= 1.00
-			&& planet.mass >= Constant.MAX_TERRESTRIAL_MASS
-			&& planet.density < 500, 0.55)
+			&& planet.mass >= Constant.MAX_TERRESTRIAL_MASS, 0.55)
+			.materialDensity(350, 100, 200, 500)
 			.temperatureLimits(20, 1000);
 
 	/** Cold "puffy" giant with little hydrogen, implies internal heating and strong magnetic fields */
 	public static final PlanetaryClass HELLIUM_COLD_PUFFY_GIANT = new PlanetaryClass("'Puffy' gas giant (hydrogen-poor)",
 			(planet) -> (planet.molecularLimit <= 4.00 && planet.molecularLimit > 1.00 || planet.blackbodyTemperature <= 20)
-			&& planet.mass >= Constant.MAX_TERRESTRIAL_MASS
-			&& planet.density < 700, 0.55)
+			&& planet.mass >= Constant.MAX_TERRESTRIAL_MASS, 0.55)
+			.materialDensity(400, 100, 200, 700)
 			.temperatureLimits(0, 1000);
 
 	/** Rocky core, thick hydrogen/hellium atmosphere */
 	public static final PlanetaryClass GAS_DWARF = new PlanetaryClass("Gas dwarf",
 			(planet) -> planet.molecularLimit <= 1.00
 			&& planet.mass >= Constant.MAX_TERRESTRIAL_MASS * 0.5
-			&& planet.density > 1500 && planet.density < 3700 + planet.blackbodyTemperature, 0.3)
+			&& planet.density < 3700 + planet.blackbodyTemperature, 0.3)
+			.materialDensity(2000, 500, 1500, 5000)
 			.temperatureLimits(80, 1700);
 
 	/** Rocky core, thick hellium atmosphere */
 	public static final PlanetaryClass HELLIUM_GAS_DWARF = new PlanetaryClass("Gas dwarf (hydrogen-poor)",
 			(planet) -> planet.molecularLimit > 1.00 && planet.molecularLimit <= 4.00
 			&& planet.mass >= Constant.MAX_TERRESTRIAL_MASS * 0.5
-			&& planet.density > 1500 && planet.density < 4000 + planet.blackbodyTemperature, 0.3)
+			&& planet.density < 4000 + planet.blackbodyTemperature, 0.3)
+			.materialDensity(2000, 500, 1500, 5000)
 			.temperatureLimits(80, 1700);
 	
 	/** Rocky core, thick hydrogen/hellium atmosphere */
 	public static final PlanetaryClass FROZEN_GAS_DWARF = new PlanetaryClass("Frozen gas dwarf",
 			(planet) -> planet.molecularLimit <= 4.00
-			&& planet.mass >= Constant.MAX_TERRESTRIAL_MASS
-			&& planet.density >= 2500 && planet.density < 4000, 0.55)
+			&& planet.mass >= Constant.MAX_TERRESTRIAL_MASS, 0.55)
+			.materialDensity(2800, 500, 2500, 4000)
 			.validZones(OrbitalZone.COLD).temperatureLimits(0, 80);
 
 	/** Late-stage hot "puffy" gas giant with atmosphere boiling away and a comet-like trail */
 	public static final PlanetaryClass BOILING_GIANT = new PlanetaryClass("Boiling Giant",
 			(planet) -> planet.molecularLimit > 4.00
-			&& planet.mass >= Constant.MAX_TERRESTRIAL_MASS * 0.9
-			&& planet.density < 2200, 0.3)
+			&& planet.mass >= Constant.MAX_TERRESTRIAL_MASS * 0.9, 0.3)
+			.materialDensity(700, 300, 200, 2200)
 			.validZones(OrbitalZone.HOT, OrbitalZone.HABITABLE, OrbitalZone.COLD).temperatureLimits(200, 5000);
 
 	// Terrestial planets
 	
 	/** Low-water variant on Earth-sized planet */
 	public static final PlanetaryClass DESERT = new Terrestrial("Desert planet",
-			(planet) -> planet.uncompressedDensity >= 3500 && planet.uncompressedDensity <= 5000
-			&& planet.molecularLimit > 18.00 /* water vapour */, 0.27, 0.16)
+			(planet) -> planet.molecularLimit > 18.00 /* water vapour */, 0.27, 0.16)
 			.materialDensity(4200, 1000, 3500, 5000)
 			.materialCompressibility(250e-12, 2500e-12, 2.0)
 			.validZones(OrbitalZone.HOT, OrbitalZone.HABITABLE)
@@ -138,8 +151,7 @@ public class PlanetaryClass {
 
 	/** Earth-sized planet with oceans and water clouds, but without much hellium in the atmosphere */
 	public static final PlanetaryClass EARTH_LIKE = new Terrestrial("Earth-like planet",
-			(planet) -> planet.uncompressedDensity >= 3500 && planet.uncompressedDensity <= 5000
-			&& planet.molecularLimit <= 18.00 /* water vapour */ && planet.molecularLimit > 4.00, 0.29, 0.16)
+			(planet) -> planet.molecularLimit <= 18.00 /* water vapour */ && planet.molecularLimit > 4.00, 0.29, 0.16)
 			.materialDensity(4200, 1000, 3500, 5000)
 			.materialCompressibility(250e-12, 2500e-12, 2.0)
 			.validZones(OrbitalZone.HABITABLE)
@@ -147,8 +159,7 @@ public class PlanetaryClass {
 
 	/** Variant of an Earth-like planet with a runaway greenhouse effect. See: Venus */
 	public static final PlanetaryClass GREENHOUSE = new Terrestrial("Greenhouse planet",
-			(planet) -> planet.uncompressedDensity <= 5000
-			&& planet.molecularLimit <= 18.00 /* water vapour */ && planet.molecularLimit > 4.00, 0.65, 2.0)
+			(planet) -> planet.molecularLimit <= 18.00 /* water vapour */ && planet.molecularLimit > 4.00, 0.65, 2.0)
 			.materialDensity(4000, 1000, 1200, 5000)
 			.materialCompressibility(250e-12, 2500e-12, 2.0)
 			.validZones(OrbitalZone.HOT, OrbitalZone.HABITABLE)
@@ -157,8 +168,7 @@ public class PlanetaryClass {
 	/** Hot planets still retaining a substantial atmosphere (CO2 molar mass = 44), but not liquid water;
 	 * also likely lacking a strong magnetic field */
 	public static final PlanetaryClass HELL = new Terrestrial("Hell planet",
-			(planet) -> planet.uncompressedDensity < 5000
-			&& (planet.blackbodyTemperature >= 500 || planet.molecularLimit > 18.00)
+			(planet) -> (planet.blackbodyTemperature >= 500 || planet.molecularLimit > 18.00)
 			&& planet.molecularLimit <= 44.00, 0.4, 0.5)
 			.materialDensity(4000, 1000, 1200, 5000)
 			.materialCompressibility(250e-12, 2500e-12, 2.0)
@@ -167,8 +177,7 @@ public class PlanetaryClass {
 
 	/** Cold planet lacking a magnetic field, consisting mostly of rock */
 	public static final PlanetaryClass FROZEN_ROCK = new Terrestrial("Frozen rock planet",
-			(planet) -> planet.uncompressedDensity < 5000 && planet.uncompressedDensity >= 3000
-			&& planet.molecularLimit <= 44.00 /* carbon dioxide */, 0.4, 0.2)
+			(planet) -> planet.molecularLimit <= 44.00 /* carbon dioxide */, 0.4, 0.2)
 			.materialDensity(3900, 1000, 3000, 5000)
 			.materialCompressibility(1000e-12, 2500e-12, 2.0)
 			.validZones(OrbitalZone.HABITABLE, OrbitalZone.COLD, OrbitalZone.FROZEN)
@@ -176,16 +185,14 @@ public class PlanetaryClass {
 
 	/** Airless rock, mostly relatively warm */
 	public static final PlanetaryClass AIRLESS = new Terrestrial("Airless rock planet",
-			(planet) -> planet.uncompressedDensity < 5000
-			&& (planet.uncompressedDensity >= 2600 || planet.blackbodyTemperature >= 260)
+			(planet) -> (planet.uncompressedDensity >= 2600 || planet.blackbodyTemperature >= 260)
 			&& planet.molecularLimit > 44.00 /* carbon dioxide */, 0.4, 0.0)
 			.materialDensity(3600, 1000, 2600, 5000)
 			.materialCompressibility(1000e-12, 2500e-12, 2.0);
 
 	/** Small rocky worlds with carbon dioxide atmosphere (mostly) */
 	public static final PlanetaryClass DRY_ROCK = new Terrestrial("Dry rocky planet",
-			(planet) -> planet.uncompressedDensity <= 3500 && planet.uncompressedDensity >= 2600
-			&& planet.molecularLimit > 18.00 && planet.molecularLimit <= 44.00, 0.2, 0.2)
+			(planet) -> planet.molecularLimit > 18.00 && planet.molecularLimit <= 44.00, 0.2, 0.2)
 			.materialDensity(3000, 500, 2600, 3500)
 			.materialCompressibility(1000e-12, 2500e-12, 2.0)
 			.validZones(OrbitalZone.HABITABLE)
@@ -193,8 +200,7 @@ public class PlanetaryClass {
 
 	/** Earth-like conditions, including fluid water, but no notable magnetic field */
 	public static final PlanetaryClass ROCKY = new Terrestrial("Rocky planet",
-			(planet) -> planet.uncompressedDensity <= 3500 && planet.uncompressedDensity >= 2600
-			&& planet.molecularLimit <= 18.00 /* water vapour */, 0.2, 0.16)
+			(planet) -> planet.molecularLimit <= 18.00 /* water vapour */, 0.2, 0.16)
 			.materialDensity(3000, 500, 2600, 3500)
 			.materialCompressibility(1000e-12, 2500e-12, 2.0)
 			.validZones(OrbitalZone.HABITABLE)
@@ -202,8 +208,7 @@ public class PlanetaryClass {
 
 	/** Earth-sized planet with oceans and water clouds, thick hellium-rich atmosphere */
 	public static final PlanetaryClass HIGH_PRESSURE = new Terrestrial("Earth-like planet (hellium-rich)",
-			(planet) -> planet.uncompressedDensity >= 3500 && planet.uncompressedDensity <= 5000
-			&& planet.molecularLimit <= 4.00, 0.29, 0.16)
+			(planet) -> planet.molecularLimit <= 4.00, 0.29, 0.16)
 			.materialDensity(4200, 1000, 3500, 5000)
 			.materialCompressibility(250e-12, 2500e-12, 2.0)
 			.validZones(OrbitalZone.HABITABLE)
@@ -211,8 +216,7 @@ public class PlanetaryClass {
 
 	/** Variant of an Earth-like planet with a runaway greenhouse effect and extremly thick hellium-rich atmosphere */
 	public static final PlanetaryClass EXTREME_GREENHOUSE = new Terrestrial("Greenhouse planet (hellium-rich)",
-			(planet) -> planet.uncompressedDensity <= 5000
-			&& planet.molecularLimit <= 4.00, 0.65, 2.0)
+			(planet) -> planet.molecularLimit <= 4.00, 0.65, 2.0)
 			.materialDensity(4000, 1000, 1200, 5000)
 			.materialCompressibility(250e-12, 2500e-12, 2.0)
 			.validZones(OrbitalZone.HOT, OrbitalZone.HABITABLE)
@@ -225,22 +229,19 @@ public class PlanetaryClass {
 	 *           Europa [CO2/NH3] (mass 48, density 3014, temp 102, blackbody 138, albedo 0.67, mollimit 108.68)
 	 *           Eris [methane] (mass 17, density 2580, temp 43, blackbody 38, albedo 0.97, mollimit 62.96)
 	 */
-	public static final PlanetaryClass WATER_ICE = new Terrestrial("Ice planet",
-			(planet) -> planet.uncompressedDensity < 3000, 0.65, 0.2)
+	public static final PlanetaryClass WATER_ICE = new Terrestrial("Ice planet", null, 0.65, 0.2)
 			.materialDensity(2000, 700, 800, 3000)
 			.materialCompressibility(1000e-12, 5000e-12)
 			.validZones(OrbitalZone.HABITABLE, OrbitalZone.COLD)
 			.temperatureLimits(170, 260);
 
-	public static final PlanetaryClass AMMONIA_ICE = new Terrestrial("CO₂/ammonia ice planet",
-			(planet) -> planet.uncompressedDensity < 3000, 0.65, 0.2)
+	public static final PlanetaryClass AMMONIA_ICE = new Terrestrial("CO₂/ammonia ice planet", null, 0.65, 0.2)
 			.materialDensity(2000, 700, 1000, 3000)
 			.materialCompressibility(1000e-12, 5000e-12)
 			.validZones(OrbitalZone.COLD, OrbitalZone.FROZEN)
 			.temperatureLimits(70, 180);
 
-	public static final PlanetaryClass METHANE_ICE = new Terrestrial("Methane ice planet",
-			(planet) -> planet.uncompressedDensity < 3000, 0.65, 0.2)
+	public static final PlanetaryClass METHANE_ICE = new Terrestrial("Methane ice planet", null, 0.65, 0.2)
 			.materialDensity(2000, 700, 800, 3000)
 			.materialCompressibility(1000e-12, 5000e-12)
 			.validZones(OrbitalZone.FROZEN)
@@ -251,14 +252,12 @@ public class PlanetaryClass {
 	 * <p>
 	 * Examples: Mercury (mass 330, density 5425, temp 340, blackbody 508, albedo 0.07, mollimit 90.96)
 	 */
-	public static final PlanetaryClass IRON = new Terrestrial("Iron planet",
-			(planet) -> planet.uncompressedDensity >= 5000, 0.07, 0.08)
+	public static final PlanetaryClass IRON = new Terrestrial("Iron planet", null, 0.07, 0.08)
 			.materialDensity(5500, 1000, 5000)
 			.materialCompressibility(100e-12, 1000e-12, 2.0);
 
 	/** Very hot rocky planets. Zone HOT only. */
-	public static final PlanetaryClass LAVA = new Terrestrial("Lava planet",
-			(planet) -> planet.uncompressedDensity <= 5000, 0.07, 0.06)
+	public static final PlanetaryClass LAVA = new Terrestrial("Lava planet", null, 0.07, 0.06)
 			.materialDensity(4000, 1000, 2600, 5000)
 			.materialCompressibility(250e-12, 2500e-12, 2.0)
 			.validZones(OrbitalZone.HOT)
@@ -270,8 +269,7 @@ public class PlanetaryClass {
 	 * Zone HABITABLE only.
 	 */
 	public static final PlanetaryClass OCEAN = new Terrestrial("Ocean planet",
-			(planet) -> planet.uncompressedDensity <= 3800
-			&& planet.molecularLimit <= 18.00 /* water vapour */, 0.2, 1.5)
+			(planet) -> planet.molecularLimit <= 18.00 /* water vapour */, 0.2, 1.5)
 			.materialDensity(2800, 1000, 1200, 3800)
 			.materialCompressibility(500e-12, 10000e-12, 2.0)
 			.validZones(OrbitalZone.HABITABLE)
@@ -282,8 +280,7 @@ public class PlanetaryClass {
 	 * These need special calculations to appear, and can only appear as moons of gas giants.
 	 * Zones HABITABLE, COLD and FROZEN.
 	 */
-	public static final PlanetaryClass SULFUR = new Terrestrial("Tidally-flexed planet",
-			(planet) -> planet.uncompressedDensity < 3000, 0.65, 0)
+	public static final PlanetaryClass SULFUR = new Terrestrial("Tidally-flexed planet", null, 0.65, 0)
 			.materialDensity(2000, 700, 800, 3000)
 			.materialCompressibility(1000e-12, 5000e-12)
 			.validZones(OrbitalZone.HABITABLE, OrbitalZone.COLD, OrbitalZone.FROZEN)
@@ -292,36 +289,31 @@ public class PlanetaryClass {
 	// Planetoid classes
 	
 	/** Very dark, consisting mostly of carbonaceous chondite. Zones HOT, HABITABLE and COLD. */
-	public static final PlanetaryClass CARBONACEOUS_PLANETOID = new Planetoid("Carbonaceous planetoid",
-			(planet) -> planet.uncompressedDensity >= 2000 && planet.uncompressedDensity < 4000, 0.1)
+	public static final PlanetaryClass CARBONACEOUS_PLANETOID = new Planetoid("Carbonaceous planetoid", null, 0.1)
 			.materialDensity(2800, 1500, 2000, 4000)
 			.materialCompressibility(100e-12, 25000e-12, 1.0)
 			.validZones(OrbitalZone.HOT, OrbitalZone.HABITABLE, OrbitalZone.COLD)
 			.temperatureLimits(200, 5000);
 
 	/** Mostly packed ice/gravel. Zones HABITABLE, COLD and FROZEN. */
-	public static final PlanetaryClass ICE_PLANETOID = new Planetoid("Ice planetoid",
-			(planet) -> planet.uncompressedDensity < 3500, 0.6)
+	public static final PlanetaryClass ICE_PLANETOID = new Planetoid("Ice planetoid", null, 0.6)
 			.materialDensity(1400, 800, 700, 3500)
 			.materialCompressibility(100e-12, 25000e-12, 1.0)
 			.validZones(OrbitalZone.HABITABLE, OrbitalZone.COLD, OrbitalZone.FROZEN)
 			.temperatureLimits(0, 260);
 
 	/** Rock; the most common type */
-	public static final PlanetaryClass SILICATE_PLANETOID = new Planetoid("Silicate planetoid",
-			(planet) -> planet.uncompressedDensity >= 3000 && planet.uncompressedDensity <= 5000, 0.35)
+	public static final PlanetaryClass SILICATE_PLANETOID = new Planetoid("Silicate planetoid", null, 0.35)
 			.materialDensity(3800, 1500, 3000, 5000)
 			.materialCompressibility(100e-12, 25000e-12, 1.0);
 
 	/** Metal (resource-rich) */
-	public static final PlanetaryClass METALLIC_PLANETOID = new Planetoid("Metallic planetoid",
-			(planet) -> planet.uncompressedDensity >= 4000, 0.2)
+	public static final PlanetaryClass METALLIC_PLANETOID = new Planetoid("Metallic planetoid", null, 0.2)
 			.materialDensity(5000, 1500, 4000, 15000)
 			.materialCompressibility(100e-12, 25000e-12, 1.0);
 
 	/** Loose gravel stuff, but not frozen. Zones HOT and HABITABLE. */
-	public static final PlanetaryClass GRAVEL_PLANETOID = new Planetoid("Gravel planetoid",
-			(planet) -> planet.uncompressedDensity < 2000, 0.2)
+	public static final PlanetaryClass GRAVEL_PLANETOID = new Planetoid("Gravel planetoid", null, 0.2)
 			.materialDensity(1200, 1000, 600, 2000)
 			.materialCompressibility(100e-12, 25000e-12, 1.0)
 			.validZones(OrbitalZone.HOT, OrbitalZone.HABITABLE, OrbitalZone.COLD)
@@ -347,7 +339,8 @@ public class PlanetaryClass {
 	/** Is this planet a possible candidate for this planetary class? */
 	public boolean validClass(Satellite planet) {
 		return (null == predicate || predicate.test(planet))
-				&& validTemperature(planet.blackbodyTemperature);
+				&& validTemperature(planet.blackbodyTemperature)
+				&& validDensity(planet.uncompressedDensity);
 	}
 	
 	/** Average greenhouse factor (only important for terrestial planets) */
@@ -453,6 +446,10 @@ public class PlanetaryClass {
 		this.compressibilityScale = compressibilityScale;
 		this.compressibilityDensityScale = compressibilityDensityScale;
 		return this;
+	}
+	
+	public boolean validDensity(double density) {
+		return density >= minDensity && density <= maxDensity;
 	}
 	
 	/** Get a random material for the given planet class */

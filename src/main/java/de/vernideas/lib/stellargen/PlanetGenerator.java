@@ -181,6 +181,63 @@ public final class PlanetGenerator {
 		return planet;
 	}
 	
+	public static Planet newGasgiant(Star star, double mass, String planetName) {
+		PlanetBuilder builder = Planet.builder().parent(star).name(planetName).mass(mass).minor(false);
+		Planet planet = null;
+		
+		// Trying to get a free orbit
+		double orbit = 0;
+		float eccentrity = 0.0f;
+		int errCount = 0;
+		do {
+			orbit = between(star.innerPlanetLimit, star.outerPlanetLimit, Math.pow(Math.min(star.random.nextDouble(), star.random.nextDouble()), 2.0));
+			eccentrity = (float)Math.pow(star.random.nextDouble(), 6.0) / 2.0f;
+			// Flatten out the eccentrity for low-lying orbits (below 1.99 AU for the Sun)
+			if( orbit / Constant.AU < star.mass / 1e29 )
+			{
+				eccentrity *= (orbit / Constant.AU * 1e29 / star.mass);
+			}
+			// We try to keep the gas giants "outside" of the frost zone.
+			if( orbit < star.frostLine && mass * star.random.nextDouble() > Constant.MAX_TERRESTRIAL_MASS ) {
+				orbit = between(star.frostLine, star.outerPlanetLimit, Math.pow(Math.min(star.random.nextDouble(), star.random.nextDouble()), 1.5));
+			}
+			if( !star.orbitFree(orbit, eccentrity) )
+			{
+				++ errCount;
+				if( errCount > 20 )
+				{
+					// We give up on that one
+					return null;
+				}
+			}
+		} while( !star.orbitFree(orbit, eccentrity) );
+		// Rayleigh distribution, sigma = 1° (see arXiv:1207.5250 [astro-ph.EP])
+		float inclination = (float)Math.toRadians(Math.sqrt(-2.0 * Math.log(star.random.nextDouble())));
+		float rotationPeriod = (float)star.random.nextGaussian() * 60000 + 72000;
+		
+		Orbit planetaryOrbit = new Orbit(orbit, eccentrity, inclination);
+		builder.orbit(planetaryOrbit).rotationPeriod(rotationPeriod);
+		OrbitalZone orbitalZone = planetaryOrbit.orbitalZone(star);
+
+		// Pick planetary model
+		PlanetaryClass pClass = newGasgiantClass(star.random);
+		while( !pClass.validTemperature(star, planetaryOrbit) ) {
+			pClass = newGasgiantClass(star.random);
+		}
+
+		// Create planetary material
+		Material material = pClass.newMaterial(star.random, planetaryOrbit.blackbodyTemp(star));
+		builder.material(material);
+		// We need a proper estimate for gas giants here
+		// double density = material.estimateCompressedDensity(mass);
+		builder.diameter(Math.pow(6 * mass / (Math.PI * material.uncompressedDensity), 1.0 / 3.0));
+		builder.planetaryClass(pClass);
+
+		planet = builder.build();
+		System.out.println(planetName + ": " + pClass.name + " -> " + planet.planetaryClass.name);
+		return planet;
+	}
+	
 	public static Planet planet(Star star, double mass, String planetName)
 	{
 		return planet(star, mass, planetName, 0);
@@ -333,6 +390,45 @@ public final class PlanetGenerator {
 		}
 		
 		return name;
+	}
+	
+	private static PlanetaryClass newGasgiantClass(Random rnd) {
+		int randomSC = rnd.nextInt(maxGasgiantClasses) + 1;
+		return gasgiantClassesDistribution.lowerEntry(randomSC).getValue();
+	}
+	
+	private static final List<Pair<PlanetaryClass, Integer>> gasgiantClassesList = new ArrayList<Pair<PlanetaryClass,Integer>>(5);
+	private static final TreeMap<Integer, PlanetaryClass> gasgiantClassesDistribution = new TreeMap<Integer, PlanetaryClass>();
+	private static final int maxGasgiantClasses;
+
+	static {
+		// Weights for gas giant classes
+		gasgiantClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.GAS_GIANT_I, 30));
+		gasgiantClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.GAS_GIANT_II, 20));
+		gasgiantClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.GAS_GIANT_III, 10));
+		gasgiantClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.GAS_GIANT_IV, 5));
+		gasgiantClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.GAS_GIANT_V, 2));
+		gasgiantClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.HELLIUM_GIANT_I, 20));
+		gasgiantClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.HELLIUM_GIANT_II, 10));
+		gasgiantClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.HELLIUM_GIANT_III, 5));
+		gasgiantClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.HELLIUM_GIANT_IV, 2));
+		gasgiantClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.HELLIUM_GIANT_V, 1));
+		gasgiantClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.ICE_GIANT, 40));
+		gasgiantClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.HELLIUM_ICE_GIANT, 20));
+		gasgiantClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.HOT_PUFFY_GIANT, 7));
+		gasgiantClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.COLD_PUFFY_GIANT, 4));
+		gasgiantClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.HELLIUM_COLD_PUFFY_GIANT, 2));
+		gasgiantClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.GAS_DWARF, 50));
+		gasgiantClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.HELLIUM_GAS_DWARF, 20));
+		gasgiantClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.FROZEN_GAS_DWARF, 15));
+		gasgiantClassesList.add(Pair.<PlanetaryClass, Integer>of(PlanetaryClass.BOILING_GIANT, 1));
+
+		int count = 0;
+		for( Pair<PlanetaryClass, Integer> spectral : gasgiantClassesList) {
+			gasgiantClassesDistribution.put(count, spectral.first);
+			count += spectral.second;
+		}
+		maxGasgiantClasses = count;
 	}
 	
 	private static PlanetaryClass newTerrestialClass(Random rnd) {
