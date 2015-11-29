@@ -38,5 +38,10 @@ public class Planet extends Satellite implements Location {
 	}
 	
 	public static Planet byID(int id) { return null; }
+	
+	/** If > 100, this is a planet, else a planetoid and didn't manage to clean up its space */
+	public double sternLevisonParameter() {
+		return Constant.STERN_LEVISON_CONSTANT * this.mass * this.mass / this.siderealPeriod / Math.sqrt(this.parent.mass);
+	}
 
 }

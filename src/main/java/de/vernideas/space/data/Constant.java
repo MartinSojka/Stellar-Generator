@@ -105,4 +105,8 @@ public final class Constant {
 	// Earth - estimated radius of core and mantle (crust = planet radius) in m
 	public static final double EARTH_CORE_RADIUS = 3400000.0 / DISTANCE_UNIT;
 	public static final double EARTH_MANTLE_RADIUS = 6335000.0 / DISTANCE_UNIT;
+	
+	/** For calculation of the Stern-Levison parameter */
+	public static final double STERN_LEVISON_CONSTANT = 1.53e5 * Math.pow(AU, 1.5) * 2 * Math.PI / Math.sqrt(G) / EARTH_MASS / EARTH_MASS;
+	
 }

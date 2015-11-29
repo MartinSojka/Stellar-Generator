@@ -91,7 +91,8 @@ public final class StarGenTest1 {
 				+ ", exclusion zone "
 				+ String.format(Locale.ROOT, "%.3f", p.exclusionZone / Constant.AU)
 				+ " AU, blackbody temp. " + String.format(Locale.ROOT, "%.1f", p.blackbodyTemperature) + " K");
-		System.out.println("       orbit " + p.orbit.printablePlanetString());
+		System.out.println("       orbit " + p.orbit.printablePlanetString() + ", S-L param "
+				+ String.format(Locale.ROOT, "%.1f", p.sternLevisonParameter()));
 		System.out.println("       diameter (Earth) "
 				+ String.format(Locale.ROOT, "%.2f", p.diameter / 6371000.8 / 2) + ", gravity: "
 				+ String.format(Locale.ROOT, "%.3f", p.surfaceGravity)
