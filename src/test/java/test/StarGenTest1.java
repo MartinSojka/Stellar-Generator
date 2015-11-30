@@ -20,7 +20,7 @@ import de.vernideas.space.data.starclass.StarClassHelper;
 public final class StarGenTest1 {
 
 	public static void main(String[] args) {
-		Universe u = new Universe();
+		Universe u = new Universe(-8490043065526211405L);
 		System.err.println("UNIVERSE SEED " + u.seed);
 		Star s = SystemGenerator.star(u, "M4V");
 

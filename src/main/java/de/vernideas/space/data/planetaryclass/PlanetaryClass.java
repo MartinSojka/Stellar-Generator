@@ -485,12 +485,14 @@ public class PlanetaryClass {
 		
 		if( possibleClasses.size() > 1 )
 		{
+			/*
 			System.out.print("Multiple classification possible for \"" + planet.name + "\": ");
 			for( PlanetaryClass pc : possibleClasses )
 			{
 				System.out.print(pc.name + " ");
 			}
 			System.out.println("");
+			*/
 		}
 		return possibleClasses.get(planet.random.nextInt(possibleClasses.size()));
 	}

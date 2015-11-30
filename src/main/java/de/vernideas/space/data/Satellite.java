@@ -1,5 +1,7 @@
 package de.vernideas.space.data;
 
+import java.util.Random;
+
 import de.vernideas.space.data.planetaryclass.PlanetaryClass;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -197,5 +199,12 @@ public abstract class Satellite extends StellarObject {
 		double outerVal = (maxRadius * c * (maxRadius * c - 2) + 2) * Math.exp(maxRadius * c);
 		double innerVal = (minRadius * c * (minRadius * c - 2) + 2) * Math.exp(minRadius * c);
 		return v * (outerVal - innerVal) / c / c / c;
+	}
+	
+	/** Generate a random planetary mass */
+	public static double newMass(Random random) {
+		double rnd = random.nextDouble();
+		double mass = 0.0001814813990910743 * Math.exp(25.647952850461436 * rnd) + 19765.338232060116 * rnd;
+		return mass * Constant.YOTTAGRAM;
 	}
 }

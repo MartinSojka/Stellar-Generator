@@ -3,9 +3,12 @@ package de.vernideas.lib.stellargen;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import de.vernideas.space.data.Constant;
+import de.vernideas.space.data.Pair;
 import de.vernideas.space.data.Planet;
+import de.vernideas.space.data.Satellite;
 import de.vernideas.space.data.Star;
 import de.vernideas.space.data.Universe;
 import de.vernideas.space.data.starclass.StarClassHelper;
@@ -63,14 +66,12 @@ public class SystemGenerator {
 				{
 					// Try generating gas giants first
 					double minMass = Math.max(Constant.MAX_TERRESTRIAL_MASS, stellarDust / 2.0);
-					randomMass = planetMass(u, minMass, Math.min(maxPlanetaryMass, stellarDust));
-					// System.err.println(star.name + " generated gas giant of " + randomMass + " [" + minMass + ", " + Math.min(maxPlanetaryMass, stellarDust) + "]");
+					randomMass = planetMass(u, minMass, Math.min(maxPlanetaryMass, stellarDust)).first;
 				}
 				else
 				{
 					double maxMass = Math.min(maxPlanetaryMass, stellarDust * (0.5 + (planetNum - curPlanetNum) / (2.0 * planetNum)));
-					randomMass = planetMass(u, 1e23, maxMass);
-					// System.err.println(star.name + " generated rocky planet of " + randomMass + " [100.0, " +maxMass + "]");
+					randomMass = planetMass(u, 1e23, maxMass).first;
 				}
 				if( randomMass <= stellarDust )
 				{
@@ -94,13 +95,15 @@ public class SystemGenerator {
 		double smallestPlanetMass = Constant.MAX_TERRESTRIAL_MASS;
 		for( int i = 0; i < planetNum; ++ i ) {
 			Planet planet = null;
+			boolean habitable = false;
 			if( planetMasses.get(i) > Constant.MIN_TERRESTRIAL_MASS && planetMasses.get(i) < Constant.MAX_TERRESTRIAL_MASS ) {
-				planet = PlanetGenerator.newTerrestialPlanet(star, planetMasses.get(i), star.name + " " + (char)('b' + generatedPlanets), 1000);
+				planet = PlanetGenerator.newTerrestialPlanet(star, planetMasses.get(i), star.name + " " + (char)('b' + generatedPlanets), habitable ? 0 : 1000);
 			} else {
 				planet = PlanetGenerator.newGasgiant(star, planetMasses.get(i), star.name + " " + (char)('b' + generatedPlanets));
 			}
 			if( null != planet )
 			{
+				habitable = habitable || planet.habitable();
 				star.planets.add(planet);
 				++ generatedPlanets;
 				if( planet.mass < smallestPlanetMass )
@@ -138,20 +141,15 @@ public class SystemGenerator {
 		return Math.sqrt(3 * Constant.MOLAR_GAS * temperature / molWeight * 1000);
 	}
 	
-	
-	private static double planetMass(Universe u, double maxMass)
-	{
-		return planetMass(u, 0.0, maxMass);
-	}
-
-	private static double planetMass(Universe u, double minMass, double maxMass)
+	/** Returns a pair of mass (in kG) and random seed used to create the mass */
+	private static Pair<Double, Long> planetMass(Universe u, double minMass, double maxMass)
 	{
 		double mass;
+		long seed;
 		do {
-			double rnd = u.random.nextDouble();
-			mass = 0.0001814813990910743 * Math.exp(25.647952850461436 * rnd) + 19765.338232060116 * rnd;
-			mass *= Constant.YOTTAGRAM;
+			seed = u.random.nextLong();
+			mass = Satellite.newMass(new Random(seed));
 		} while( mass > maxMass || mass < minMass );
-		return mass;
+		return Pair.<Double, Long>of(mass, seed);
 	}
 }
