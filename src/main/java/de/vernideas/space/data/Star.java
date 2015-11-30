@@ -139,4 +139,16 @@ public class Star extends StellarObject {
 		return Math.pow(luminosity / (Constant.STEFAN_BOLTZMANN_PI * distance * distance), 0.25) / 2.0;
 	}
 	
+	/**
+	 * Calculate the Stern-Levison parameter for the given planet mass and orbital distance.
+	 * <p>
+	 * If it's 100 or more, this is definitively a planet.
+	 * If it's 0.01 or less, it's definitively NOT a planet (didn't clean its neighbourhood).
+	 * <p>
+	 * During filtering, this removes biggest minor planets from the low orbits and the small planets
+	 * from far away orbits.
+	 */
+	public double sternLevisonParameter(double planetMass, double orbitalRadius) {
+		return Constant.STERN_LEVISON_CONSTANT * planetMass * planetMass / Math.sqrt(Math.pow(orbitalRadius, 3)) * Math.sqrt(this.mass);
+	}
 }

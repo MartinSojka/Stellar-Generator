@@ -14,9 +14,9 @@ public abstract class Satellite extends StellarObject {
 	@NonNull public final StellarObject parent;
 	@NonNull public final Orbit orbit;
 	/** In minutes. Negative numbers mean the parent planet goes up in the west. */
-	public final float rotationPeriod;
+	public final double rotationPeriod;
 	/** Rotation time around the parent. In minutes, calculated field */
-	public final float siderealPeriod;
+	public final double siderealPeriod;
 	/** Day length in minutes, rounded to be useful in game terms. For comparison, Moon = 42524. Can be negative. */
 	public final double dayLength;
 	/** Hill's sphere radius of this satellite in m. Will be almost too small for moons. */
@@ -45,7 +45,7 @@ public abstract class Satellite extends StellarObject {
 	
 	public final PlanetaryClass planetaryClass;
 
-	protected Satellite(String name, double mass, double diameter, StellarObject parent, Orbit orbit, float rotationPeriod, Material material, PlanetaryClass planetaryClass)
+	protected Satellite(String name, double mass, double diameter, StellarObject parent, Orbit orbit, double rotationPeriod, Material material, PlanetaryClass planetaryClass)
 	{
 		super(name, mass, diameter, Math.round(parent.seed + 79L * orbit.radius));
 		
@@ -54,7 +54,7 @@ public abstract class Satellite extends StellarObject {
 		this.rotationPeriod = rotationPeriod;
 		
 		// Calculate other values
-		this.siderealPeriod = (float)(Constant.TWO_PI_SQRT_INV_G * Math.sqrt(Math.pow(orbit.radius, 3) / parent.mass));
+		this.siderealPeriod = Constant.TWO_PI_SQRT_INV_G * Math.sqrt(Math.pow(orbit.radius, 3) / parent.mass);
 		// Day length depends on if our parent is a satellite or not
 		if( parent instanceof Satellite )
 		{

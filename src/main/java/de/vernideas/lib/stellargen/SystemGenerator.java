@@ -18,14 +18,18 @@ public class SystemGenerator {
 		return min + (max - min) * val;
 	}
 	
+	public static Star star(Universe u) {
+		return star(u, null);
+	}
+	
 	/**
 	 * Generate a random star in the specified universe
 	 * 
 	 * @param u
 	 */
-	public static Star star(Universe u) {
+	public static Star star(Universe u, String scDef) {
 		// Build the star first
-		Star star = StarGenerator.star(u);
+		Star star = null == scDef ? StarGenerator.star(u) : StarGenerator.star(u, scDef);
 		double maxPlanetaryMass = Math.min(25e28, star.mass / 25.0);
 		
 		// Planet building phase
@@ -91,7 +95,7 @@ public class SystemGenerator {
 		for( int i = 0; i < planetNum; ++ i ) {
 			Planet planet = null;
 			if( planetMasses.get(i) > Constant.MIN_TERRESTRIAL_MASS && planetMasses.get(i) < Constant.MAX_TERRESTRIAL_MASS ) {
-				planet = PlanetGenerator.newTerrestialPlanet(star, planetMasses.get(i), star.name + " " + (char)('b' + generatedPlanets));
+				planet = PlanetGenerator.newTerrestialPlanet(star, planetMasses.get(i), star.name + " " + (char)('b' + generatedPlanets), 1000);
 			} else {
 				planet = PlanetGenerator.newGasgiant(star, planetMasses.get(i), star.name + " " + (char)('b' + generatedPlanets));
 			}

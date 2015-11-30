@@ -25,12 +25,14 @@ public final class StarGenerator {
 	 * @param u
 	 */
 	public static Star star(Universe u) {
+		return star(u, spectralDistribution.lowerEntry(u.random.nextInt(maxSpectralVal) + 1).getValue());
+	}
+	
+	public static Star star(Universe u, String scDef) {
 		StarBuilder builder = Star.builder();
 		
 		builder.position(new VectorI3D(u.random.nextInt(256000), u.random.nextInt(256000), u.random.nextInt(256000))).seed(u.seed);
 		
-		int randomSC = u.random.nextInt(maxSpectralVal) + 1;
-		String scDef = spectralDistribution.lowerEntry(randomSC).getValue();
 		String scClass = scDef.substring(0, 1);
 		StarClass sc = StarClassHelper.parse(scDef);
 		builder.starClass(sc);

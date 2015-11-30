@@ -50,7 +50,7 @@ public final class PlanetGenerator {
 				if( orbit > star.frostLine && mass < star.random.nextDouble() * Constant.MAX_TERRESTRIAL_MASS ) {
 					orbit = Math.max(Math.min(orbit, star.random.nextDouble() * star.outerPlanetLimit), star.innerPlanetLimit);
 				}
-				if( !star.orbitFree(orbit, eccentrity) )
+				if( !star.orbitFree(orbit, eccentrity) || star.sternLevisonParameter(mass, orbit) < 100.0 )
 				{
 					++ errCount;
 					if( errCount > 20 )
@@ -59,7 +59,7 @@ public final class PlanetGenerator {
 						return null;
 					}
 				}
-			} while( !star.orbitFree(orbit, eccentrity) );
+			} while( !star.orbitFree(orbit, eccentrity) || star.sternLevisonParameter(mass, orbit) < 100.0 );
 			// Rayleigh distribution, sigma = 1° (see arXiv:1207.5250 [astro-ph.EP])
 			float inclination = (float)Math.toRadians(Math.sqrt(-2.0 * Math.log(star.random.nextDouble())));
 			float rotationPeriod = (float)star.random.nextGaussian() * 60000 + 72000;
@@ -128,7 +128,7 @@ public final class PlanetGenerator {
 			if( orbit < star.frostLine && mass * star.random.nextDouble() > Constant.MAX_TERRESTRIAL_MASS ) {
 				orbit = between(star.frostLine, star.outerPlanetLimit, Math.pow(Math.min(star.random.nextDouble(), star.random.nextDouble()), 1.5));
 			}
-			if( !star.orbitFree(orbit, eccentrity) )
+			if( !star.orbitFree(orbit, eccentrity) || star.sternLevisonParameter(mass, orbit) < 100.0 )
 			{
 				++ errCount;
 				if( errCount > 20 )
@@ -137,7 +137,7 @@ public final class PlanetGenerator {
 					return null;
 				}
 			}
-		} while( !star.orbitFree(orbit, eccentrity) );
+		} while( !star.orbitFree(orbit, eccentrity) || star.sternLevisonParameter(mass, orbit) < 100.0 );
 		// Rayleigh distribution, sigma = 1° (see arXiv:1207.5250 [astro-ph.EP])
 		float inclination = (float)Math.toRadians(Math.sqrt(-2.0 * Math.log(star.random.nextDouble())));
 		float rotationPeriod = (float)star.random.nextGaussian() * 60000 + 72000;
@@ -233,7 +233,7 @@ public final class PlanetGenerator {
 		do {
 			orbit = star.random.nextDouble() * (star.outerPlanetLimit - star.boilingLine) + star.boilingLine;
 			eccentrity = (float)Math.pow(star.random.nextDouble(), 2.5) / 1.01f;
-			if( !star.orbitFree(orbit, eccentrity) )
+			if( !star.orbitFree(orbit, eccentrity) || star.sternLevisonParameter(mass, orbit) > 0.01 )
 			{
 				++ errCount;
 				if( errCount > 20 )
@@ -242,7 +242,7 @@ public final class PlanetGenerator {
 					return null;
 				}
 			}
-		} while( !star.orbitFree(orbit, eccentrity) );
+		} while( !star.orbitFree(orbit, eccentrity) || star.sternLevisonParameter(mass, orbit) > 0.01 );
 		float rotationPeriod = (float)star.random.nextGaussian() * 60000 + 72000;
 		// Flatten out the eccentrity for low-lying orbits (below 1.99 AU for the Sun)
 		if( orbit / Constant.AU < star.mass / 1e29 )

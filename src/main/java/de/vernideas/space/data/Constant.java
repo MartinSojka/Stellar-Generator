@@ -107,6 +107,6 @@ public final class Constant {
 	public static final double EARTH_MANTLE_RADIUS = 6335000.0 / DISTANCE_UNIT;
 	
 	/** For calculation of the Stern-Levison parameter */
-	public static final double STERN_LEVISON_CONSTANT = 1.53e5 * Math.pow(AU, 1.5) * 2 * Math.PI / Math.sqrt(G) / EARTH_MASS / EARTH_MASS;
+	public static final double STERN_LEVISON_CONSTANT = 1.53e5 * Math.pow(AU, 1.5) / EARTH_MASS / EARTH_MASS / Math.sqrt(SOLAR_MASS);
 	
 }

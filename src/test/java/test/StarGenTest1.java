@@ -22,11 +22,11 @@ public final class StarGenTest1 {
 	public static void main(String[] args) {
 		Universe u = new Universe();
 		System.err.println("UNIVERSE SEED " + u.seed);
-		Star s = SystemGenerator.star(u);
+		Star s = SystemGenerator.star(u, "M4V");
 
 		printStar(s, 1);
 		List<Planet> planets = new ArrayList<Planet>(s.planets);
-		//planets.addAll(s.planetoids);
+		planets.addAll(s.planetoids);
 		Collections.sort(planets, new Comparator<Planet>(){
 			@Override public int compare(Planet o1, Planet o2) {
 				return (o1.orbit.radius < o2.orbit.radius ? -1 : o1.orbit.radius > o2.orbit.radius ? 1 : 0);
@@ -92,7 +92,7 @@ public final class StarGenTest1 {
 				+ String.format(Locale.ROOT, "%.3f", p.exclusionZone / Constant.AU)
 				+ " AU, blackbody temp. " + String.format(Locale.ROOT, "%.1f", p.blackbodyTemperature) + " K");
 		System.out.println("       orbit " + p.orbit.printablePlanetString() + ", S-L param "
-				+ String.format(Locale.ROOT, "%.1f", p.sternLevisonParameter()));
+				+ String.format(Locale.ROOT, "%.1f", ((Star)p.parent).sternLevisonParameter(p.mass, p.orbit.radius)));
 		System.out.println("       diameter (Earth) "
 				+ String.format(Locale.ROOT, "%.2f", p.diameter / 6371000.8 / 2) + ", gravity: "
 				+ String.format(Locale.ROOT, "%.3f", p.surfaceGravity)
