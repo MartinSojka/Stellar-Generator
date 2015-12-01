@@ -35,7 +35,14 @@ public final class StarGenTest1 {
 		for( Planet p : planets )
 		{
 			printPlanet(p);
-			for( Moon m : p.moons ) {
+			List<Moon> moons = new ArrayList<Moon>(p.moons);
+			Collections.sort(moons, new Comparator<Moon>(){
+				@Override public int compare(Moon o1, Moon o2) {
+					return (o1.orbit.radius < o2.orbit.radius ? -1 : o1.orbit.radius > o2.orbit.radius ? 1 : 0);
+				}
+				
+			});
+			for( Moon m : moons ) {
 				printMoon(m);
 			}
 		}

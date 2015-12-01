@@ -2,9 +2,9 @@ package de.vernideas.lib.stellargen;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Random;
 import java.util.TreeMap;
+import java.util.function.DoubleUnaryOperator;
 
 import org.apache.commons.math3.distribution.BetaDistribution;
 import org.apache.commons.math3.distribution.RealDistribution;
@@ -19,6 +19,7 @@ import de.vernideas.space.data.Planet;
 import de.vernideas.space.data.Planet.PlanetBuilder;
 import de.vernideas.space.data.Star;
 import de.vernideas.space.data.planetaryclass.PlanetaryClass;
+import lombok.NonNull;
 
 public final class PlanetGenerator {
 	public static Planet newTerrestialPlanet(Star star, double mass, String name) {
@@ -26,13 +27,55 @@ public final class PlanetGenerator {
 	}
 	
 	private static int estimateMajorMoons(Planet planet) {
-		double moonEstimate = 8.5 * Math.exp(-65000.0 / planet.mass * Constant.YOTTAGRAM) + planet.random.nextGaussian() * 0.4 * Math.pow(planet.mass / Constant.YOTTAGRAM, 0.135);
+		double moonEstimate = 8.5 * Math.exp(-65000.0 / planet.mass * Constant.YOTTAGRAM) + planet.random.nextGaussian() * 0.5 * Math.pow(planet.mass / Constant.YOTTAGRAM, 0.135);
 		// Lower the chances for small Hill radii
 		if( planet.hillsRadius < 0.01 * Constant.AU )
 		{
 			moonEstimate *= Math.pow(planet.hillsRadius * 100.0 / Constant.AU, 0.4);
 		}
 		return Long.valueOf(Math.round(Math.min(moonEstimate, planet.hillsRadius * 1e3 / Constant.AU))).intValue();
+	}
+	
+	private static void generateMoons(Planet planet) {
+		if( planet.mass / 25.0 > Constant.MIN_MOON_MASS ) {
+			int majorMoons = estimateMajorMoons(planet);
+			double maxMass = Math.min(planet.mass / 25.0, Constant.MAX_TERRESTRIAL_MASS * 2.0);
+			for( int m = 0; m < majorMoons; ++ m )
+			{
+				double moonMass = GenUtil.lerp(Constant.MIN_MOON_MASS, maxMass, Math.pow(planet.random.nextDouble(), 9.0));
+				planet.moons.add(newMoon((Star)planet.parent, planet, moonMass, planet.name + " " + GenUtil.romanNumber(m + 1)));
+			}
+		}
+	}
+	
+	private static Orbit genOrbitEccetrity(@NonNull Star star, OrbitFilter filter, @NonNull OrbitValidator validator, double inclinationMult) {
+		int errCount = 0;
+		double orbit = 0.0;
+		double eccentrity = 0.0;
+		do {
+			orbit = GenUtil.lerp(star.innerPlanetLimit, star.outerPlanetLimit, Math.pow(Math.min(star.random.nextDouble(), star.random.nextDouble()), 2.0));
+			eccentrity = Math.pow(star.random.nextDouble(), 6.0) / 2.0;
+			// Flatten out the eccentrity for low-lying orbits (below 1.99 AU for the Sun)
+			if( orbit / Constant.AU < star.mass / 1e29 )
+			{
+				eccentrity *= (orbit / Constant.AU * 1e29 / star.mass);
+			}
+			// Filter if needed
+			if( null != filter ) {
+				orbit = filter.filter(orbit);
+			}
+			if( !validator.validate(orbit, eccentrity) ) {
+				++ errCount;
+				if( errCount > 20 )
+				{
+					// We give up on that one
+					return null;
+				}
+			}
+		} while( !validator.validate(orbit, eccentrity) );
+		// Rayleigh distribution, sigma = 1° * multiplier (see arXiv:1207.5250 [astro-ph.EP])
+		double inclination = Math.toRadians(inclinationMult * Math.sqrt(-2.0 * Math.log(star.random.nextDouble())));
+		return new Orbit(orbit, eccentrity, inclination);
 	}
 	
 	/** Try to generate a new terrestial planet */
@@ -45,36 +88,20 @@ public final class PlanetGenerator {
 		
 		do {
 			// Trying to get a free orbit
-			double orbit = 0;
-			double eccentrity = 0.0;
-			int errCount = 0;
-			do {
-				orbit = GenUtil.lerp(star.innerPlanetLimit, star.outerPlanetLimit, Math.pow(Math.min(star.random.nextDouble(), star.random.nextDouble()), 2.0));
-				eccentrity = Math.pow(star.random.nextDouble(), 6.0) / 2.0;
-				// Flatten out the eccentrity for low-lying orbits (below 1.99 AU for the Sun)
-				if( orbit / Constant.AU < star.mass / 1e29 )
-				{
-					eccentrity *= (orbit / Constant.AU * 1e29 / star.mass);
-				}
-				// We try to keep the terrestial planets in the "inside" of the frost zone.
-				if( orbit > star.frostLine && mass < star.random.nextDouble() * Constant.MAX_TERRESTRIAL_MASS ) {
-					orbit = Math.max(Math.min(orbit, star.random.nextDouble() * star.outerPlanetLimit), star.innerPlanetLimit);
-				}
-				if( !star.orbitFree(orbit, eccentrity) || star.sternLevisonParameter(mass, orbit) < 100.0 )
-				{
-					++ errCount;
-					if( errCount > 20 )
-					{
-						// We give up on that one
-						return null;
-					}
-				}
-			} while( !star.orbitFree(orbit, eccentrity) || star.sternLevisonParameter(mass, orbit) < 100.0 );
-			// Rayleigh distribution, sigma = 1° (see arXiv:1207.5250 [astro-ph.EP])
-			double inclination = Math.toRadians(Math.sqrt(-2.0 * Math.log(star.random.nextDouble())));
+			Orbit planetaryOrbit = genOrbitEccetrity(star,
+					(orbit) -> {
+						if( orbit > star.frostLine && mass < star.random.nextDouble() * Constant.MAX_TERRESTRIAL_MASS ) {
+							return Math.max(Math.min(orbit, star.random.nextDouble() * star.outerPlanetLimit), star.innerPlanetLimit);
+						} else {
+							return orbit;
+						}
+					},
+					(orbit, eccentrity) -> star.orbitFree(orbit, eccentrity) && star.sternLevisonParameter(mass, orbit) >= 100.0, 1.0);
+			if( null == planetaryOrbit ) {
+				return null;
+			}
 			double rotationPeriod = star.random.nextGaussian() * 60000 + 72000;
 			
-			Orbit planetaryOrbit = new Orbit(orbit, eccentrity, inclination);
 			builder.orbit(planetaryOrbit).rotationPeriod(rotationPeriod);
 			OrbitalZone orbitalZone = planetaryOrbit.orbitalZone(star);
 
@@ -96,17 +123,7 @@ public final class PlanetGenerator {
 			-- habitableRetries;
 		} while( habitableRetries >= 0 && !planet.habitable() );
 
-		// Moon generation
-		int majorMoons = estimateMajorMoons(planet);
-		for( int m = 0; m < majorMoons; ++ m )
-		{
-			double moonMass = Math.pow(planet.random.nextDouble(), 12.0) * Math.min(planet.mass / 25.0, Constant.MAX_TERRESTRIAL_MASS * 2.0);
-			if( moonMass < Constant.MIN_MOON_MASS )
-			{
-				moonMass = (planet.random.nextDouble() * 999.0 + 1.0 ) * Constant.MIN_MOON_MASS;
-			}
-			planet.moons.add(newMoon(star, planet, moonMass, name + " " + GenUtil.romanNumber(m + 1)));
-		}
+		generateMoons(planet);
 
 		return planet;
 	}
@@ -116,36 +133,20 @@ public final class PlanetGenerator {
 		Planet planet = null;
 		
 		// Trying to get a free orbit
-		double orbit = 0;
-		double eccentrity = 0.0;
-		int errCount = 0;
-		do {
-			orbit = GenUtil.lerp(star.innerPlanetLimit, star.outerPlanetLimit, Math.pow(Math.min(star.random.nextDouble(), star.random.nextDouble()), 2.0));
-			eccentrity = Math.pow(star.random.nextDouble(), 6.0) / 2.0;
-			// Flatten out the eccentrity for low-lying orbits (below 1.99 AU for the Sun)
-			if( orbit / Constant.AU < star.mass / 1e29 )
-			{
-				eccentrity *= (orbit / Constant.AU * 1e29 / star.mass);
-			}
-			// We try to keep the gas giants "outside" of the frost zone.
-			if( orbit < star.frostLine && mass * star.random.nextDouble() > Constant.MAX_TERRESTRIAL_MASS ) {
-				orbit = GenUtil.lerp(star.frostLine, star.outerPlanetLimit, Math.pow(Math.min(star.random.nextDouble(), star.random.nextDouble()), 1.5));
-			}
-			if( !star.orbitFree(orbit, eccentrity) || star.sternLevisonParameter(mass, orbit) < 100.0 )
-			{
-				++ errCount;
-				if( errCount > 20 )
-				{
-					// We give up on that one
-					return null;
-				}
-			}
-		} while( !star.orbitFree(orbit, eccentrity) || star.sternLevisonParameter(mass, orbit) < 100.0 );
-		// Rayleigh distribution, sigma = 1° (see arXiv:1207.5250 [astro-ph.EP])
-		double inclination = Math.toRadians(Math.sqrt(-2.0 * Math.log(star.random.nextDouble())));
+		Orbit planetaryOrbit = genOrbitEccetrity(star,
+				(orbit) -> {
+					if( orbit < star.frostLine && mass * star.random.nextDouble() > Constant.MAX_TERRESTRIAL_MASS ) {
+						return GenUtil.lerp(star.frostLine, star.outerPlanetLimit, Math.pow(Math.min(star.random.nextDouble(), star.random.nextDouble()), 1.5));
+					} else {
+						return orbit;
+					}
+				},
+				(orbit, eccentrity) -> star.orbitFree(orbit, eccentrity) && star.sternLevisonParameter(mass, orbit) >= 100.0, 1.0);
+		if( null == planetaryOrbit ) {
+			return null;
+		}
 		double rotationPeriod = star.random.nextGaussian() * 60000 + 72000;
 		
-		Orbit planetaryOrbit = new Orbit(orbit, eccentrity, inclination);
 		builder.orbit(planetaryOrbit).rotationPeriod(rotationPeriod);
 		OrbitalZone orbitalZone = planetaryOrbit.orbitalZone(star);
 
@@ -165,17 +166,7 @@ public final class PlanetGenerator {
 
 		planet = builder.build();
 		
-		// Moon generation
-		int majorMoons = estimateMajorMoons(planet);
-		for( int m = 0; m < majorMoons; ++ m )
-		{
-			double moonMass = Math.pow(planet.random.nextDouble(), 12.0) * Math.min(planet.mass / 25.0, Constant.MAX_TERRESTRIAL_MASS * 2.0);
-			if( moonMass < Constant.MIN_MOON_MASS )
-			{
-				moonMass = (planet.random.nextDouble() * 999.0 + 1.0 ) * Constant.MIN_MOON_MASS;
-			}
-			planet.moons.add(newMoon(star, planet, moonMass, planetName + " " + GenUtil.romanNumber(m + 1)));
-		}
+		generateMoons(planet);
 		
 		return planet;
 	}
@@ -227,31 +218,13 @@ public final class PlanetGenerator {
 	
 	public static Planet newPlanetoid(Star star, double mass, String name)
 	{
-		double orbit = 0.0;
-		double eccentrity;
-		int errCount = 0;
-		do {
-			orbit = star.random.nextDouble() * (star.outerPlanetLimit - star.boilingLine) + star.boilingLine;
-			eccentrity = Math.pow(star.random.nextDouble(), 2.5) / 1.01;
-			if( !star.orbitFree(orbit, eccentrity) || star.sternLevisonParameter(mass, orbit) > 0.01 )
-			{
-				++ errCount;
-				if( errCount > 20 )
-				{
-					// We give up on that one
-					return null;
-				}
-			}
-		} while( !star.orbitFree(orbit, eccentrity) || star.sternLevisonParameter(mass, orbit) > 0.01 );
-		double rotationPeriod = star.random.nextGaussian() * 60000 + 72000;
-		// Flatten out the eccentrity for low-lying orbits (below 1.99 AU for the Sun)
-		if( orbit / Constant.AU < star.mass / 1e29 )
-		{
-			eccentrity *= (orbit / Constant.AU * 1e29 / star.mass);
+		// Trying to get a free orbit
+		Orbit planetoidOrbit = genOrbitEccetrity(star, null,
+				(orbit, eccentrity) -> star.orbitFree(orbit, eccentrity) && star.sternLevisonParameter(mass, orbit) <= 0.01, 5.0);
+		if( null == planetoidOrbit ) {
+			return null;
 		}
-		// Rayleigh distribution, sigma = 5°
-		double inclination = Math.toRadians(5.0 * Math.sqrt(-2.0 * Math.log(star.random.nextDouble())));
-		Orbit planetoidOrbit = new Orbit(orbit, eccentrity, inclination);
+		double rotationPeriod = star.random.nextGaussian() * 60000 + 72000;
 		String planetoidName = null != name ? name : planetoidName(star.random);
 
 		// Create planetary material
@@ -275,21 +248,7 @@ public final class PlanetGenerator {
 				.minor(true).build();
 		assert mass >= Constant.MIN_TERRESTRIAL_MASS || pClass.validClass(planet);
 		
-		// Moon generation
-		if( planet.mass / 25.0 > Constant.MIN_MOON_MASS ) {
-			int majorMoons = estimateMajorMoons(planet);
-			double maxMass = Math.min(planet.mass / 25.0, Constant.MAX_TERRESTRIAL_MASS * 2.0);
-			for( int m = 0; m < majorMoons; ++ m )
-			{
-				double moonMass = Math.pow(planet.random.nextDouble(), 12.0) * maxMass;
-				while( moonMass < Constant.MIN_MOON_MASS )
-				{
-					// Retry
-					moonMass = Math.pow(planet.random.nextDouble(), 12.0) * maxMass;
-				}
-				planet.moons.add(newMoon(star, planet, moonMass, planetoidName + " " + GenUtil.romanNumber(m + 1)));
-			}
-		}
+		generateMoons(planet);
 		
 		return planet;
 	}
@@ -408,5 +367,15 @@ public final class PlanetGenerator {
 			count += spectral.second;
 		}
 		maxPlanetoidClasses = count;
+	}
+	
+	@FunctionalInterface
+	private static interface OrbitFilter {
+		public double filter(double orbit);
+	}
+
+	@FunctionalInterface
+	private static interface OrbitValidator {
+		public boolean validate(double orbit, double eccentrity);
 	}
 }
