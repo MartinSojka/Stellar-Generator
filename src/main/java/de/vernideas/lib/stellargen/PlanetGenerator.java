@@ -215,7 +215,7 @@ public final class PlanetGenerator {
 				.parent(planet)
 				.rotationPeriod(rotationPeriod)
 				.diameter(diameter)
-				.material(Material.ROCK)
+				.material(material)
 				.planetaryClass(pClass)
 				.build();
 		return newMoon;
