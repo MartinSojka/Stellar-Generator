@@ -16,17 +16,17 @@ public class Orbit {
 	/**
 	 * 0.0 for perfectly round orbits, below 1.0 for all the other (elliptical) ones.
 	 */
-	@Wither public final float eccentricity;
+	@Wither public final double eccentricity;
 	/**
 	 * In radians to the main body's equator
 	 */
-	@Wither public final float inclination;
+	@Wither public final double inclination;
 	public final double pericenter;
 	public final double apocenter;
 	
-	public Orbit(double r, float e, float i)
+	public Orbit(double r, double e, double i)
 	{
-		if( r < 0.0 || e < 0.0f || e >= 1.0f )
+		if( r < 0.0 || e < 0.0 || e >= 1.0 )
 		{
 			throw new IllegalArgumentException("Illegal orbital parameters (r=" + r + ", e=" + e + ", i=" + i + ")");
 		}
@@ -43,8 +43,8 @@ public class Orbit {
 		eccentricity = e;
 		inclination = i;
 		
-		pericenter = (1.0f - e) * r;
-		apocenter = (1.0f + e) * r;
+		pericenter = (1.0 - e) * r;
+		apocenter = (1.0 + e) * r;
 	}
 	
 	public OrbitalZone orbitalZone(Star star) {
@@ -60,7 +60,7 @@ public class Orbit {
 	}
 	
 	// for @Wither
-	private Orbit(double r, float e, float i, double _ignore1, double _ignore2)
+	private Orbit(double r, double e, double i, double _ignore1, double _ignore2)
 	{
 		this(r, e, i);
 	}

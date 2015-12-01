@@ -83,6 +83,10 @@ public final class Constant {
 	public static final double TIDAL_LOCKING_ROCKY = 6e10 * 3e10 / GALACTIC_YEAR;
 	public static final double TIDAL_LOCKING_ICY = 6e10 * 4e9 / GALACTIC_YEAR;
 	
+	// Roche limit constants for rigid and fluid satellites
+	public static final double ROCHE_LIMIT_RIGID = 1.442;
+	public static final double ROCHE_LIMIT_FLUID = 2.423;
+	
 	/** 8.3144621 m^2 kg s^-2 K^-1 mol^-1  */
 	public static final double MOLAR_GAS = 8.314459848 / ENERGY_UNIT;
 	

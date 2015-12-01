@@ -93,9 +93,9 @@ public class Star extends StellarObject {
 	/**
 	 * Goes through the current planet list and checks if the orbit is "free" to house another planet.
 	 */
-	public boolean orbitFree(double radius, float eccentricity) {
-		double peri = (1.0f - eccentricity) * radius;
-		double apo = (1.0f + eccentricity) * radius;
+	public boolean orbitFree(double radius, double eccentrity) {
+		double peri = (1.0 - eccentrity) * radius;
+		double apo = (1.0 + eccentrity) * radius;
 		
 		// Check for star radius first
 		if( peri < diameter || peri < boilingLine ) {
