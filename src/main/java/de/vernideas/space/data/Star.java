@@ -31,15 +31,15 @@ public class Star extends StellarObject {
 	public final double habitableZoneMax;
 	public final double innerPlanetLimit;
 	public final double outerPlanetLimit;
-	@NonNull public final VectorI3D position;
+	@NonNull public final VectorD3D position;
 	
 	@Builder
 	private Star(@NonNull String name, double mass, double diameter,
-			VectorI3D position, @NonNull StarClass starClass, double temperature, double luminosity,
+			VectorD3D position, @NonNull StarClass starClass, double temperature, double luminosity,
 			double originalLuminosity,
 			long seed)
 	{
-		super(name, mass, diameter, seed + 37L * position.hashCode());
+		super(name, mass, diameter, seed);
 		this.starClass = starClass;
 		this.temperature = temperature;
 		

@@ -38,4 +38,28 @@ public final class GenUtil {
 		}
 		return result.toString();
 	}
+
+	/** Linear interpolation */
+	public static double lerp(double min, double max, double val) {
+		return (1.0 - val) * min + val * max;
+	}
+	
+	/** Linear interpolation */
+	public static int lerp(int min, int max, double val) {
+		return Long.valueOf(Math.round((1.0 - val) * min + val * max)).intValue();
+	}
+
+	/** Cubic Hermite spline interpolation with tangents = 0 ("flat") at both ends */
+	public static double cspline(double min, double max, double val) {
+		return lerp(min, max, -2.0 * val * val * val + 3.0 * val * val);
+	}
+	
+	/** Cubic Hermite spline interpolation with tangents specified */
+	public static double cspline(double min, double max, double minTangent, double maxTangent, double val) {
+		double val2 = val * val;
+		double val3 = val * val * val;
+		return lerp(min, max, -2.0 * val3 + 3.0 * val2)
+				+ (val3 - 2.0 * val2 + val) * minTangent + (val3 - val2) * maxTangent;
+	}
+
 }

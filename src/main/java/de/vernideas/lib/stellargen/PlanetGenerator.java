@@ -17,10 +17,6 @@ import de.vernideas.space.data.Star;
 import de.vernideas.space.data.planetaryclass.PlanetaryClass;
 
 public final class PlanetGenerator {
-	private static double between(double min, double max, double val) {
-		return min + (max - min) * val;
-	}
-	
 	public static Planet newTerrestialPlanet(Star star, double mass, String name) {
 		return newTerrestialPlanet(star, mass, name, 0);
 	}
@@ -39,7 +35,7 @@ public final class PlanetGenerator {
 			float eccentrity = 0.0f;
 			int errCount = 0;
 			do {
-				orbit = between(star.innerPlanetLimit, star.outerPlanetLimit, Math.pow(Math.min(star.random.nextDouble(), star.random.nextDouble()), 2.0));
+				orbit = GenUtil.lerp(star.innerPlanetLimit, star.outerPlanetLimit, Math.pow(Math.min(star.random.nextDouble(), star.random.nextDouble()), 2.0));
 				eccentrity = (float)Math.pow(star.random.nextDouble(), 6.0) / 2.0f;
 				// Flatten out the eccentrity for low-lying orbits (below 1.99 AU for the Sun)
 				if( orbit / Constant.AU < star.mass / 1e29 )
@@ -90,11 +86,13 @@ public final class PlanetGenerator {
 		// Estimated amount of major moons
 		double moonEstimate = 8.5 * Math.exp(-65000.0 / planet.mass * Constant.YOTTAGRAM) + planet.random.nextGaussian() * 0.4 * Math.pow(planet.mass / Constant.YOTTAGRAM, 0.135);
 		// Lower the chances for small Hill radii
-		if( planet.hillsRadius < 0.1 * Constant.AU )
+		System.err.println("Moon estimate (original) for " + name + ": " + moonEstimate);
+		if( planet.hillsRadius < 0.01 * Constant.AU )
 		{
-			moonEstimate *= Math.pow(planet.hillsRadius * 10.0 / Constant.AU, 0.4);
+			moonEstimate *= Math.pow(planet.hillsRadius * 100.0 / Constant.AU, 0.4);
 		}
-		int majorMoons = (int)Math.min(moonEstimate, planet.hillsRadius);
+		System.err.println("Moon estimate (final) for " + name + ": " + moonEstimate);
+		int majorMoons = Long.valueOf(Math.round(Math.min(moonEstimate, planet.hillsRadius * 1e3 / Constant.AU))).intValue();
 		for( int m = 0; m < majorMoons; ++ m )
 		{
 			double moonMass = Math.pow(planet.random.nextDouble(), 12.0) * Math.min(planet.mass / 25.0, Constant.MAX_TERRESTRIAL_MASS * 2.0);
@@ -117,7 +115,7 @@ public final class PlanetGenerator {
 		float eccentrity = 0.0f;
 		int errCount = 0;
 		do {
-			orbit = between(star.innerPlanetLimit, star.outerPlanetLimit, Math.pow(Math.min(star.random.nextDouble(), star.random.nextDouble()), 2.0));
+			orbit = GenUtil.lerp(star.innerPlanetLimit, star.outerPlanetLimit, Math.pow(Math.min(star.random.nextDouble(), star.random.nextDouble()), 2.0));
 			eccentrity = (float)Math.pow(star.random.nextDouble(), 6.0) / 2.0f;
 			// Flatten out the eccentrity for low-lying orbits (below 1.99 AU for the Sun)
 			if( orbit / Constant.AU < star.mass / 1e29 )
@@ -126,7 +124,7 @@ public final class PlanetGenerator {
 			}
 			// We try to keep the gas giants "outside" of the frost zone.
 			if( orbit < star.frostLine && mass * star.random.nextDouble() > Constant.MAX_TERRESTRIAL_MASS ) {
-				orbit = between(star.frostLine, star.outerPlanetLimit, Math.pow(Math.min(star.random.nextDouble(), star.random.nextDouble()), 1.5));
+				orbit = GenUtil.lerp(star.frostLine, star.outerPlanetLimit, Math.pow(Math.min(star.random.nextDouble(), star.random.nextDouble()), 1.5));
 			}
 			if( !star.orbitFree(orbit, eccentrity) || star.sternLevisonParameter(mass, orbit) < 100.0 )
 			{
@@ -167,9 +165,9 @@ public final class PlanetGenerator {
 		// Estimated amount of major moons
 		double moonEstimate = 8.5 * Math.exp(-65000.0 / planet.mass * Constant.YOTTAGRAM) + planet.random.nextGaussian() * 0.4 * Math.pow(planet.mass / Constant.YOTTAGRAM, 0.135);
 		// Lower the chances for small Hill radii
-		if( planet.hillsRadius < 0.1 * Constant.AU )
+		if( planet.hillsRadius < 0.01 * Constant.AU )
 		{
-			moonEstimate *= Math.pow(planet.hillsRadius * 10.0 / Constant.AU, 0.4);
+			moonEstimate *= Math.pow(planet.hillsRadius * 100.0 / Constant.AU, 0.4);
 		}
 		int majorMoons = (int)Math.min(moonEstimate, planet.hillsRadius);
 		for( int m = 0; m < majorMoons; ++ m )
@@ -200,10 +198,12 @@ public final class PlanetGenerator {
 		
 		// Make sure we don't get too near to the Roche limit (rough estimate for fluid moon).
 		// This is almost never more than 1.0 and practically never more than 2.0
-		double rocheLimit = Math.max(1.0, Math.ceil(1.5 * diameter * Math.pow(planet.mass / mass, 1.0 / 3.0) / Constant.DISTANCE_UNIT));
-		double orbit = Math.pow(planet.random.nextDouble(), 3.0) * (planet.hillsRadius - rocheLimit) + rocheLimit;
+		double rocheLimit = Math.max(Constant.AU / 1000000, 1.5 * diameter * Math.pow(planet.mass / mass, 1.0 / 3.0) / Constant.DISTANCE_UNIT);
+		double orbit = GenUtil.lerp(rocheLimit, planet.hillsRadius, Math.pow(planet.random.nextDouble(), 3.0));
 		float rotationPeriod = (float)planet.random.nextGaussian() * 1000 + 1200;
 		float eccentrity = (float)Math.pow(planet.random.nextDouble(), 6.0) / 1.01f;
+		// Limit eccentrity for anything which would dip below the Roche limit
+		eccentrity = Math.min(eccentrity, 1.0f - (float)(rocheLimit / orbit));
 		// Flatten out the eccentrity for low-lying orbits (below 1.99 AU for the Sun)
 		if( orbit < planet.mass / (10000 * Constant.YOTTAGRAM) )
 		{

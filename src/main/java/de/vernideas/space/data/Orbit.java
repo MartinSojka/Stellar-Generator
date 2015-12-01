@@ -69,4 +69,10 @@ public class Orbit {
 		return String.format(Locale.ROOT, "radius %.3f AU, eccentricity %.4f, inclination %.2f°",
 				radius / Constant.AU, eccentricity, Math.toDegrees(inclination));
 	}
+	
+	public String printableMoonString() {
+		return String.format(Locale.ROOT, "radius %.0f km, eccentricity %.4f, inclination %.2f°",
+				radius / 1000, eccentricity, Math.toDegrees(inclination));
+	}
+
 }

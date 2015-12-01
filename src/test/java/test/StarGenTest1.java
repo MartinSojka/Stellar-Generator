@@ -14,15 +14,15 @@ import de.vernideas.space.data.Orbit;
 import de.vernideas.space.data.Planet;
 import de.vernideas.space.data.Star;
 import de.vernideas.space.data.Universe;
-import de.vernideas.space.data.VectorI3D;
+import de.vernideas.space.data.VectorD3D;
 import de.vernideas.space.data.starclass.StarClassHelper;
 
 public final class StarGenTest1 {
 
 	public static void main(String[] args) {
-		Universe u = new Universe(-8490043065526211405L);
+		Universe u = new Universe(-5638973688361399781L);
 		System.err.println("UNIVERSE SEED " + u.seed);
-		Star s = SystemGenerator.star(u, "M4V");
+		Star s = SystemGenerator.star(u);
 
 		printStar(s, 1);
 		List<Planet> planets = new ArrayList<Planet>(s.planets);
@@ -48,7 +48,7 @@ public final class StarGenTest1 {
 		// Test for Earth
 		
 		Star sol = Star.builder().name("Sol").diameter(Constant.SOLAR_DIAMETER).luminosity(Constant.SOLAR_LUM).mass(Constant.SOLAR_MASS)
-				.temperature(Constant.SOLAR_TEMPERATURE).starClass(StarClassHelper.parse("G2V")).position(new VectorI3D(0, 0, 0)).build();
+				.temperature(Constant.SOLAR_TEMPERATURE).starClass(StarClassHelper.parse("G2V")).position(new VectorD3D(0, 0, 0)).build();
 		Planet earth = Planet.builder().name("Earth").diameter(Constant.EARTH_DIAMETER).mass(Constant.EARTH_MASS).parent(sol)
 				.rotationPeriod(24 * 3600 * 364.0f / 365.0f).orbit(new Orbit(Constant.AU, 0.0167086f, 0.0f))
 				.material(new Material("", 4030, 7.64997739863382e-12)).build();
@@ -92,7 +92,8 @@ public final class StarGenTest1 {
 				+ String.format(Locale.ROOT, "%.3f", p.exclusionZone / Constant.AU)
 				+ " AU, blackbody temp. " + String.format(Locale.ROOT, "%.1f", p.blackbodyTemperature) + " K");
 		System.out.println("       orbit " + p.orbit.printablePlanetString() + ", S-L param "
-				+ String.format(Locale.ROOT, "%.1f", ((Star)p.parent).sternLevisonParameter(p.mass, p.orbit.radius)));
+				+ String.format(Locale.ROOT, "%.1f", ((Star)p.parent).sternLevisonParameter(p.mass, p.orbit.radius))
+				+ String.format(Locale.ROOT, ", hills radius %.3f AU", p.hillsRadius / Constant.AU));
 		System.out.println("       diameter (Earth) "
 				+ String.format(Locale.ROOT, "%.2f", p.diameter / 6371000.8 / 2) + ", gravity: "
 				+ String.format(Locale.ROOT, "%.3f", p.surfaceGravity)
@@ -114,7 +115,7 @@ public final class StarGenTest1 {
 				+ " Yg, radius (Earth radii) " + String.format("%.2f", m.diameter / Constant.EARTH_DIAMETER)
 				+ ", gravity: " + String.format("%.3f", m.surfaceGravity)
 				+ " m/s²\n"
-				+"           density: " + String.format("%.0f", m.density) + " kg/m³, orbit " + m.orbit.printablePlanetString()
+				+"           density: " + String.format("%.0f", m.density) + " kg/m³, orbit " + m.orbit.printableMoonString()
 				+ ", escape V: " + String.format("%.0f", m.escapeVelocity)
 				+ " m/s, mol. limit: " + String.format("%.2f", m.molecularLimit));
 	}

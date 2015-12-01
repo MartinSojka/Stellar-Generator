@@ -14,7 +14,7 @@ import de.vernideas.space.data.Pair;
 import de.vernideas.space.data.Star;
 import de.vernideas.space.data.Star.StarBuilder;
 import de.vernideas.space.data.Universe;
-import de.vernideas.space.data.VectorI3D;
+import de.vernideas.space.data.VectorD3D;
 import de.vernideas.space.data.starclass.StarClass;
 import de.vernideas.space.data.starclass.StarClassHelper;
 
@@ -31,7 +31,9 @@ public final class StarGenerator {
 	public static Star star(Universe u, String scDef) {
 		StarBuilder builder = Star.builder();
 		
-		builder.position(new VectorI3D(u.random.nextInt(256000), u.random.nextInt(256000), u.random.nextInt(256000))).seed(u.seed);
+		VectorD3D position = newPosition(u);
+		long seed = u.seed + 37L * position.hashCode();
+		builder.position(position).seed(seed);
 		
 		String scClass = scDef.substring(0, 1);
 		StarClass sc = StarClassHelper.parse(scDef);
@@ -66,14 +68,10 @@ public final class StarGenerator {
 	
 	private static final List<String> durchmusterungNames;
 	
-	private static void addSC(String base, int minDist, int maxDist)
-	{
-		for( int i = 0; i <= 9; ++ i )
-		{
-			scList.add(Pair.<String,Integer>of(base + String.valueOf(i), (minDist * (9 - i) + maxDist * i) / 10));
-		}
+	private static VectorD3D newPosition(Universe u) {
+		return new VectorD3D(u.random.nextDouble()*256000.0, u.random.nextDouble()*256000, u.random.nextDouble()*256000);
 	}
-
+	
 	/**
 	 * Generate a random star name
 	 */
@@ -112,6 +110,14 @@ public final class StarGenerator {
 				+ (u.random.nextBoolean() ? "+" : "-") + String.format("%02d", u.random.nextInt(90)) + "°" + (u.random.nextInt(19900) + 100);
 	}
 	
+	private static void addSC(String base, int minDist, int maxDist)
+	{
+		for( int i = 0; i <= 9; ++ i )
+		{
+			scList.add(Pair.<String,Integer>of(base + String.valueOf(i), GenUtil.lerp(minDist, maxDist, i / 9.0)));
+		}
+	}
+
 	static {
 		addSC("O", 1, 12);
 		addSC("B", 13, 20);

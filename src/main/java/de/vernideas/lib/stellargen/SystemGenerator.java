@@ -14,13 +14,27 @@ import de.vernideas.space.data.Universe;
 import de.vernideas.space.data.starclass.StarClassHelper;
 
 /**
- * Random stateless star generator
+ * Random stateless star generator.
+ * <p>
+ * Seed hierarchy:
+ * <dl>
+ * <dt>Universe seed</dt>
+ * <dd>Used to determine<ul><li>Star positions</li><li>Star seeds</li>
+ *     <li>Stellar generation (clusters, ...)</li><li>Star names</li></ul>
+ * <dt>Star seed</dt>
+ * <dd>Used to determine<ul><li>Stellar class</li><li>Stellar mass</li><li>Stellar luminosity</li>
+ *     <li>Stellar diameter</li><li>Planet and planetoid seeds</li><li>Planet and planetoid masses</li>
+ *     <li>Planet and planetoid (original) classes</li><li>Planet and planetoid densities</li>
+ *     <li>Planet and planetoid orbits</li></ul></dd>
+ * <dt>Planet seed</dt>
+ * <dd>Used to determine<ul><li>Planet class</li><li>Albedo</li><li>Greenhouse effect</li>
+ *     <li>Atmosphere</li>
+ *     <li>Moon seeds</li>
+ *     <li>Moon masses</li><li>Moon (original) classes</li><li>Moon densities</li>
+ *     <li>Moon orbits</li></ul></dd>
+ * </dl>
  */
 public class SystemGenerator {
-	private static double between(double min, double max, double val) {
-		return min + (max - min) * val;
-	}
-	
 	public static Star star(Universe u) {
 		return star(u, null);
 	}
@@ -119,7 +133,7 @@ public class SystemGenerator {
 		
 		for( int i = 0; i < planetoids; ++ i )
 		{
-			double planetoidMass = between(Constant.MIN_TERRESTRIAL_MASS / 1000, Math.min(smallestPlanetMass / 10, Constant.MIN_TERRESTRIAL_MASS * 10), Math.pow(Math.min(star.random.nextDouble(), star.random.nextDouble()), 6.0));
+			double planetoidMass = GenUtil.lerp(Constant.MIN_TERRESTRIAL_MASS / 1000, Math.min(smallestPlanetMass / 10, Constant.MIN_TERRESTRIAL_MASS * 10), Math.pow(Math.min(star.random.nextDouble(), star.random.nextDouble()), 6.0));
 			Planet planet = PlanetGenerator.newPlanetoid(star, planetoidMass);
 			if( null != planet )
 			{

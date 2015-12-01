@@ -5,16 +5,16 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.Wither;
 
-/** Integer vector class */
+/** Double vector class */
 @ToString
 @EqualsAndHashCode
 @AllArgsConstructor
-public class VectorI3D {
-	@Wither public final int x;
-	@Wither public final int y;
-	@Wither public final int z;
+public class VectorD3D {
+	@Wither public final double x;
+	@Wither public final double y;
+	@Wither public final double z;
 	
-	public double rightAscension(VectorI3D from)
+	public double rightAscension(VectorD3D from)
 	{
 		if( y == from.y && x == from.x )
 		{
@@ -25,7 +25,7 @@ public class VectorI3D {
 		return result;
 	}
 
-	public double declination(VectorI3D from)
+	public double declination(VectorD3D from)
 	{
 		if( x == from.x && y == from.y && z == from.z )
 		{
@@ -34,7 +34,7 @@ public class VectorI3D {
 		return Math.atan2(z - from.z, Math.sqrt(Math.pow(x - from.x, 2.0) + Math.pow(y - from.y, 2.0)));
 	}
 	
-	public double distance(VectorI3D to)
+	public double distance(VectorD3D to)
 	{
 		return Math.sqrt(Math.pow(x - to.x, 2.0) + Math.pow(y - to.y, 2.0) + Math.pow(z - to.z, 2.0));
 	}
