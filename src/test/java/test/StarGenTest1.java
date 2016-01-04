@@ -46,8 +46,10 @@ public final class StarGenTest1 {
 		
 		// Test for Earth
 		
-		Star sol = Star.builder().name("Sol").diameter(Constant.SOLAR_DIAMETER).luminosity(Constant.SOLAR_LUM).mass(Constant.SOLAR_MASS)
-				.temperature(Constant.SOLAR_TEMPERATURE).starClass(StarClassHelper.parse("G2V")).position(new VectorD3D(0, 0, 0)).build();
+		Star sol = new Star("Sol", StarClassHelper.parse("G2V"));
+		sol.diameter(Constant.SOLAR_DIAMETER);
+		sol.luminosity(Constant.SOLAR_LUM).mass(Constant.SOLAR_MASS);
+		sol.temperature(Constant.SOLAR_TEMPERATURE).position(new VectorD3D());
 		Planet earth = Planet.builder().name("Earth").diameter(Constant.EARTH_DIAMETER).mass(Constant.EARTH_MASS).parent(sol)
 				.rotationPeriod(24 * 3600 * 364.0f / 365.0f).orbit(new Orbit(Constant.AU, 0.0167086f, 0.0f))
 				.material(new Material("", 4030, 7.64997739863382e-12)).build();

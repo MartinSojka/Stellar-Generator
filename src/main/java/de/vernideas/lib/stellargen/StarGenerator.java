@@ -7,12 +7,12 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.TreeMap;
 
 import de.vernideas.space.data.Constant;
 import de.vernideas.space.data.Pair;
 import de.vernideas.space.data.Star;
-import de.vernideas.space.data.Star.StarBuilder;
 import de.vernideas.space.data.Universe;
 import de.vernideas.space.data.VectorD3D;
 import de.vernideas.space.data.starclass.StarClass;
@@ -37,28 +37,28 @@ public final class StarGenerator {
 	}
 	
 	public static Star star(Universe u, String scDef, long seed) {
-		StarBuilder builder = Star.builder();
-		
-		VectorD3D position = newPosition(u);
-		builder.position(position).seed(seed);
-		
+		Random starRnd = new Random(seed);
 		String scClass = scDef.substring(0, 1);
 		StarClass sc = StarClassHelper.parse(scDef);
-		builder.starClass(sc);
+		String name = starName(starRnd, scClass);
+		Star star = new Star(name, sc);
 		
-		double effTemp = StarClassHelper.randomTemp(sc, u.random);
-		double luminosity = StarClassHelper.randomLuminosity(sc, u.random);
+		star.seed(seed);
+		star.random(starRnd);
+		star.position(newPosition(u));
+		
+		double effTemp = StarClassHelper.randomTemp(sc, starRnd);
+		double luminosity = StarClassHelper.randomLuminosity(sc, starRnd);
 		// Calculate diameter out of temperature and luminosity
 		double diameter = Math.sqrt(luminosity) / effTemp / effTemp * Constant.SOLAR_TEMPERATURE * Constant.SOLAR_TEMPERATURE;
 		
-		builder.temperature(effTemp);
-		builder.diameter(diameter * Constant.SOLAR_DIAMETER);
-		builder.luminosity(luminosity * Constant.SOLAR_LUM);
-		builder.originalLuminosity(StarClassHelper.randomOriginalLuminosity(sc, luminosity * Constant.SOLAR_LUM, u.random));
-		builder.mass(StarClassHelper.randomMass(sc, u.random) * Constant.SOLAR_MASS);
-		builder.name(starName(u, scClass));
+		star.temperature(effTemp);
+		star.diameter(diameter * Constant.SOLAR_DIAMETER);
+		star.luminosity(luminosity * Constant.SOLAR_LUM);
+		star.originalLuminosity(StarClassHelper.randomOriginalLuminosity(sc, luminosity * Constant.SOLAR_LUM, u.random));
+		star.mass(StarClassHelper.randomMass(sc, u.random) * Constant.SOLAR_MASS);
 
-		return builder.build();
+		return star;
 	}
 	
 	// Constant tables
@@ -82,39 +82,39 @@ public final class StarGenerator {
 	/**
 	 * Generate a random star name
 	 */
-	private static String starName(Universe u, String specClass)
+	public static String starName(Random rnd, String specClass)
 	{
-		if( specClass.equals("O") || specClass.equals("B") || specClass.equals("A") || specClass.equals("F") || (specClass.equals("G") && u.random.nextBoolean()) )
+		if( specClass.equals("O") || specClass.equals("B") || specClass.equals("A") || specClass.equals("F") || (specClass.equals("G") && rnd.nextBoolean()) )
 		{
 			int maxPrefix = starPrefixes.size();
-			int prefixNum = u.random.nextInt(maxPrefix);
+			int prefixNum = rnd.nextInt(maxPrefix);
 			// Shift to the lower numbers if a bigger star
 			switch( specClass )
 			{
 				case "O":
-					prefixNum = Math.min(u.random.nextInt(maxPrefix), prefixNum);
+					prefixNum = Math.min(rnd.nextInt(maxPrefix), prefixNum);
 				case "B":
-					prefixNum = Math.min(u.random.nextInt(maxPrefix), prefixNum);
+					prefixNum = Math.min(rnd.nextInt(maxPrefix), prefixNum);
 				case "A":
-					prefixNum = Math.min(u.random.nextInt(maxPrefix), prefixNum);
+					prefixNum = Math.min(rnd.nextInt(maxPrefix), prefixNum);
 				default:
 					break;
 			}
-			return starPrefixes.get(prefixNum) + " " + constellationNames.get(u.random.nextInt(constellationNames.size()));
+			return starPrefixes.get(prefixNum) + " " + constellationNames.get(rnd.nextInt(constellationNames.size()));
 		}
 		
 		// Flamsteed-like designations
-		if( specClass.equals("G") || (specClass.equals("K") && u.random.nextInt(4) > 0) || (specClass.equals("M") && u.random.nextInt(5) == 0) )
+		if( specClass.equals("G") || (specClass.equals("K") && rnd.nextInt(4) > 0) || (specClass.equals("M") && rnd.nextInt(5) == 0) )
 		{
-			return (Math.max(u.random.nextInt(99), u.random.nextInt(99)) + 1) + " " + constellationNames.get(u.random.nextInt(constellationNames.size()));
+			return (Math.max(rnd.nextInt(99), rnd.nextInt(99)) + 1) + " " + constellationNames.get(rnd.nextInt(constellationNames.size()));
 		}
 		
 		// Random catalogue name
 		int catalogueMax = durchmusterungNames.size();
 		
 		// TODO: First number should depend on position relative to the origin
-		return durchmusterungNames.get(Math.min(u.random.nextInt(catalogueMax), u.random.nextInt(catalogueMax)))
-				+ (u.random.nextBoolean() ? "+" : "-") + String.format("%02d", u.random.nextInt(90)) + "°" + (u.random.nextInt(19900) + 100);
+		return durchmusterungNames.get(Math.min(rnd.nextInt(catalogueMax), rnd.nextInt(catalogueMax)))
+				+ (rnd.nextBoolean() ? "+" : "-") + String.format("%02d", rnd.nextInt(90)) + "°" + (rnd.nextInt(19900) + 100);
 	}
 	
 	private static void addSC(String base, int minDist, int maxDist)

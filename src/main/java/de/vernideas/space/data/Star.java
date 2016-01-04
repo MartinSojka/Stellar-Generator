@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.vernideas.space.data.starclass.StarClass;
-import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
@@ -20,10 +20,10 @@ public class Star extends StellarObject {
 	@NonNull public final List<Planet> planets;
 	@NonNull public final List<Planet> planetoids;
 	/** Effective temperature in Kelvin; used for luminosity and colour */
-	@Getter protected double temperature;
+	@Getter @Setter protected double temperature;
 	/** Luminosity in W */
 	@Getter protected double luminosity;
-	@Getter protected double originalLuminosity;
+	@Getter protected double originalLuminosity = -1.0;
 	/** 3200K cut-off distance in m */
 	@Getter protected double boilingLine;
 	/** Frost line distance in m */
@@ -32,28 +32,17 @@ public class Star extends StellarObject {
 	@Getter protected double habitableZoneMax;
 	@Getter protected double innerPlanetLimit;
 	@Getter protected double outerPlanetLimit;
-	@NonNull public final VectorD3D position;
+	@NonNull @Getter @Setter protected VectorD3D position;
 	
-	@Builder
-	private Star(@NonNull String name, double mass, double diameter,
-			VectorD3D position, @NonNull StarClass starClass, double temperature, double luminosity,
-			double originalLuminosity,
-			long seed)
+	public Star(@NonNull String name, @NonNull StarClass starClass)
 	{
 		super(name);
 		this.starClass = starClass;
-		this.temperature = temperature;
 		
 		this.planets = new ArrayList<Planet>();
 		this.planetoids = new ArrayList<Planet>();
 		
-		mass(mass);
-		diameter(diameter);
-		seed(seed);
-		luminosity(luminosity);
-		originalLuminosity(originalLuminosity > 0.0 ? originalLuminosity : luminosity);
-		
-		this.position = position;	
+		this.position = new VectorD3D();
 	}
 	
 	public Star luminosity(double luminosity) {
@@ -65,6 +54,10 @@ public class Star extends StellarObject {
 		// Corresponds to 375 K and 226 K for an orbit with no eccentricity
 		this.habitableZoneMin = Math.sqrt(this.luminosity * 0.6 / Constant.STEFAN_BOLTZMANN_PI) / (4 * 330 * 330);
 		this.habitableZoneMax = Math.sqrt(this.luminosity * 0.9 / Constant.STEFAN_BOLTZMANN_PI) / (4 * 220 * 220);
+		
+		if( this.originalLuminosity < 0.0 ) {
+			originalLuminosity(luminosity);
+		}
 		
 		return this;
 	}
