@@ -25,15 +25,15 @@ public final class StarGenerator {
 	 * @param u
 	 */
 	public static Star star(Universe u) {
-		return star(u, spectralDistribution.lowerEntry(u.random.nextInt(maxSpectralVal) + 1).getValue(), u.seed + u.random.nextInt());
+		return star(u, spectralDistribution.lowerEntry(u.random().nextInt(maxSpectralVal) + 1).getValue(), u.seed + u.random().nextInt());
 	}
 	
 	public static Star star(Universe u, long seed) {
-		return star(u, spectralDistribution.lowerEntry(u.random.nextInt(maxSpectralVal) + 1).getValue(), seed);
+		return star(u, spectralDistribution.lowerEntry(u.random().nextInt(maxSpectralVal) + 1).getValue(), seed);
 	}
 	
 	public static Star star(Universe u, String scDef) {
-		return star(u, scDef, u.seed + u.random.nextInt());
+		return star(u, scDef, u.seed + u.random().nextInt());
 	}
 	
 	public static Star star(Universe u, String scDef, long seed) {
@@ -76,7 +76,7 @@ public final class StarGenerator {
 	private static final List<String> durchmusterungNames;
 	
 	private static VectorD3D newPosition(Universe u) {
-		return new VectorD3D(u.random.nextDouble()*256000.0, u.random.nextDouble()*256000, u.random.nextDouble()*256000);
+		return new VectorD3D(u.random().nextDouble()*256000.0, u.random().nextDouble()*256000, u.random().nextDouble()*256000);
 	}
 	
 	/**
