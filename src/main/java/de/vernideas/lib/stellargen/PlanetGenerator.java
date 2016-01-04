@@ -170,7 +170,7 @@ public final class PlanetGenerator {
 		}
 
 		// Create planetary material
-		Material material = pClass.newMaterial(star.random(), planet.orbit().blackbodyTemp(star));
+		Material material = pClass.newMaterial(planet.random(), planet.orbit().blackbodyTemp(star));
 		double density = material.estimateCompressedDensity(mass);
 		double diameter = Math.pow(6 * mass / (Math.PI * density), 1.0 / 3.0);
 		
