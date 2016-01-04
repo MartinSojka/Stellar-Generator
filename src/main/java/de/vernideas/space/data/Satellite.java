@@ -60,20 +60,21 @@ public abstract class Satellite extends StellarObject {
 	
 	@Getter protected PlanetaryClass planetaryClass;
 
-	protected Satellite(String name, double mass, double diameter, StellarObject parent, Orbit orbit, double rotationPeriod, Material material, PlanetaryClass planetaryClass)
+	protected Satellite(String name)
 	{
 		super(name);
-		
-		mass(mass);
-		diameter(diameter);
-		
-		orbit(parent, orbit);
-		rotationPeriod(rotationPeriod);
-		
+	}
+	
+	public Satellite material(Material material) {
 		this.compressibility = material.compressibility;
 		this.uncompressedDensity = material.uncompressedDensity;
-
+		return this;
+	}
+	
+	/** Triggers a recalc */
+	public Satellite planetaryClass(PlanetaryClass planetaryClass) {
 		this.planetaryClass = null != planetaryClass && planetaryClass.validClass(this) ? planetaryClass : PlanetaryClass.classify(this);
+		return this;
 	}
 	
 	@Override public StellarObject mass(double mass) {

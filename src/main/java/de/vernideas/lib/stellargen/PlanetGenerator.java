@@ -14,7 +14,6 @@ import de.vernideas.space.data.Moon;
 import de.vernideas.space.data.Orbit;
 import de.vernideas.space.data.Pair;
 import de.vernideas.space.data.Planet;
-import de.vernideas.space.data.Planet.PlanetBuilder;
 import de.vernideas.space.data.Star;
 import de.vernideas.space.data.planetaryclass.PlanetaryClass;
 import lombok.NonNull;
@@ -73,8 +72,9 @@ public final class PlanetGenerator {
 		if( mass > Constant.MAX_TERRESTRIAL_MASS || mass < Constant.MIN_TERRESTRIAL_MASS || null == star ) {
 			return null;
 		}
-		PlanetBuilder builder = Planet.builder().parent(star).name(name).mass(mass).minor(false);
-		Planet planet = null;
+		Planet planet = new Planet(name, false);
+		planet.mass(mass);
+		planet.seed(star.seed() + 47L * star.random().nextInt());
 		
 		do {
 			// Trying to get a free orbit
@@ -90,24 +90,23 @@ public final class PlanetGenerator {
 			if( null == planetaryOrbit ) {
 				return null;
 			}
-			double rotationPeriod = star.random().nextGaussian() * 60000 + 72000;
-			
-			builder.orbit(planetaryOrbit).rotationPeriod(rotationPeriod);
+			double rotationPeriod = planet.random().nextGaussian() * 60000 + 72000;
+
+			planet.orbit(star, planetaryOrbit).rotationPeriod(rotationPeriod);
 
 			// Pick planetary model
-			PlanetaryClass pClass = newTerrestialClass(star.random());
+			PlanetaryClass pClass = newTerrestialClass(planet.random());
 			while( !pClass.validTemperature(star, planetaryOrbit) ) {
-				pClass = newTerrestialClass(star.random());
+				pClass = newTerrestialClass(planet.random());
 			}
 
 			// Create planetary material
-			Material material = pClass.newMaterial(star.random(), planetaryOrbit.blackbodyTemp(star));
-			builder.material(material);
+			Material material = pClass.newMaterial(planet.random(), planetaryOrbit.blackbodyTemp(star));
+			planet.material(material);
 			double density = material.estimateCompressedDensity(mass);
-			builder.diameter(Math.pow(6 * mass / (Math.PI * density), 1.0 / 3.0));
-			builder.planetaryClass(pClass);
+			planet.diameter(Math.pow(6 * mass / (Math.PI * density), 1.0 / 3.0));
+			planet.planetaryClass(pClass);
 			
-			planet = builder.build();
 			// Try to make the planet habitable (for humans) if possible ...
 			-- habitableRetries;
 		} while( habitableRetries >= 0 && !planet.habitable() );
@@ -118,9 +117,10 @@ public final class PlanetGenerator {
 	}
 	
 	public static Planet newGasgiant(Star star, double mass, String planetName) {
-		PlanetBuilder builder = Planet.builder().parent(star).name(planetName).mass(mass).minor(false);
-		Planet planet = null;
-		
+		Planet planet = new Planet(planetName, false);
+		planet.mass(mass);
+		planet.seed(star.seed() + 47L * star.random().nextInt());
+
 		// Trying to get a free orbit
 		Orbit planetaryOrbit = newPlanetaryOrbit(star,
 				(orbit) -> {
@@ -134,26 +134,24 @@ public final class PlanetGenerator {
 		if( null == planetaryOrbit ) {
 			return null;
 		}
-		double rotationPeriod = star.random().nextGaussian() * 60000 + 72000;
+		double rotationPeriod = planet.random().nextGaussian() * 60000 + 72000;
 		
-		builder.orbit(planetaryOrbit).rotationPeriod(rotationPeriod);
+		planet.orbit(star, planetaryOrbit).rotationPeriod(rotationPeriod);
 
 		// Pick planetary model
-		PlanetaryClass pClass = newGasgiantClass(star.random());
+		PlanetaryClass pClass = newGasgiantClass(planet.random());
 		while( !pClass.validTemperature(star, planetaryOrbit) ) {
-			pClass = newGasgiantClass(star.random());
+			pClass = newGasgiantClass(planet.random());
 		}
 
 		// Create planetary material
-		Material material = pClass.newMaterial(star.random(), planetaryOrbit.blackbodyTemp(star));
-		builder.material(material);
+		Material material = pClass.newMaterial(planet.random(), planetaryOrbit.blackbodyTemp(star));
+		planet.material(material);
 		// We need a proper estimate for gas giants here
 		// double density = material.estimateCompressedDensity(mass);
-		builder.diameter(Math.pow(6 * mass / (Math.PI * material.uncompressedDensity), 1.0 / 3.0));
-		builder.planetaryClass(pClass);
+		planet.diameter(Math.pow(6 * mass / (Math.PI * material.uncompressedDensity), 1.0 / 3.0));
+		planet.planetaryClass(pClass);
 
-		planet = builder.build();
-		
 		generateMoons(planet);
 		
 		return planet;
@@ -162,15 +160,19 @@ public final class PlanetGenerator {
 	private static final RealDistribution moonDistribution = new BetaDistribution(3.0, 9.0);
 	
 	public static Moon newMoon(Star star, Planet planet, double mass, String name) {
+		Moon moon = new Moon(name);
+		moon.mass(mass);
+		moon.seed(planet.seed() + planet.random().nextInt());
+		
 		// Pick planetary model
 		boolean minor = mass < Constant.MIN_TERRESTRIAL_MASS;
-		PlanetaryClass pClass = minor ? newPlanetoidClass(planet.random()) : newTerrestialClass(planet.random());
+		PlanetaryClass pClass = minor ? newPlanetoidClass(moon.random()) : newTerrestialClass(moon.random());
 		while( !pClass.validTemperature(star, planet.orbit()) ) {
-			pClass = minor ? newPlanetoidClass(planet.random()) : newTerrestialClass(planet.random());
+			pClass = minor ? newPlanetoidClass(moon.random()) : newTerrestialClass(moon.random());
 		}
 
 		// Create planetary material
-		Material material = pClass.newMaterial(planet.random(), planet.orbit().blackbodyTemp(star));
+		Material material = pClass.newMaterial(moon.random(), planet.orbit().blackbodyTemp(star));
 		double density = material.estimateCompressedDensity(mass);
 		double diameter = Math.pow(6 * mass / (Math.PI * density), 1.0 / 3.0);
 		
@@ -179,7 +181,7 @@ public final class PlanetGenerator {
 		double rocheLimit = Math.max(planet.diameter() * 0.55, Constant.ROCHE_LIMIT_RIGID * diameter / 2.0 * Math.pow(planet.mass() / mass, 1.0 / 3.0));
 		// beta distribution with a=3, b=9 between the Roche limit and Hill's radius
 		double orbit = GenUtil.lerp(rocheLimit, planet.hillsRadius(), moonDistribution.inverseCumulativeProbability(planet.random().nextDouble()));
-		double rotationPeriod = planet.random().nextGaussian() * 1000 + 1200;
+		double rotationPeriod = moon.random().nextGaussian() * 1000 + 1200;
 		double eccentrity = Math.pow(planet.random().nextDouble(), 6.0) / 1.01;
 		// Limit eccentrity for anything which would dip below the Roche limit
 		eccentrity = Math.min(eccentrity, 1.0 - rocheLimit / orbit);
@@ -188,16 +190,14 @@ public final class PlanetGenerator {
 		{
 			eccentrity *= (orbit * 10000.0 * Constant.YOTTAGRAM / planet.mass());
 		}
-		Moon newMoon = Moon.builder().name(name)
-				.mass(mass)
-				.orbit(new Orbit(orbit, eccentrity, Math.abs(planet.random().nextGaussian() / 6 / Math.PI)))
-				.parent(planet)
-				.rotationPeriod(rotationPeriod)
-				.diameter(diameter)
-				.material(material)
-				.planetaryClass(pClass)
-				.build();
-		return newMoon;
+		
+		moon.orbit(planet, new Orbit(orbit, eccentrity, Math.abs(moon.random().nextGaussian() / 6 / Math.PI)));
+		moon.rotationPeriod(rotationPeriod);
+		moon.diameter(diameter);
+		moon.material(material);
+		moon.planetaryClass(pClass);
+		
+		return moon;
 	}
 	
 	public static Planet newPlanetoid(Star star, double mass) {
@@ -212,28 +212,29 @@ public final class PlanetGenerator {
 		if( null == planetoidOrbit ) {
 			return null;
 		}
-		double rotationPeriod = star.random().nextGaussian() * 60000 + 72000;
-		String planetoidName = null != name ? name : planetoidName(star.random());
+		Planet planet = new Planet(name, true);
+		planet.seed(star.seed() + 47L * star.random().nextInt());
+
+		double rotationPeriod = planet.random().nextGaussian() * 60000 + 72000;
+		String planetoidName = null != name ? name : planetoidName(planet.random());
 
 		// Create planetary material
-		PlanetaryClass pClass = newPlanetoidClass(star.random());
+		PlanetaryClass pClass = newPlanetoidClass(planet.random());
 		while( !pClass.validTemperature(star, planetoidOrbit) ) {
-			pClass = newPlanetoidClass(star.random());
+			pClass = newPlanetoidClass(planet.random());
 		}
 		
-		Material material = pClass.newMaterial(star.random(), planetoidOrbit.blackbodyTemp(star));
+		Material material = pClass.newMaterial(planet.random(), planetoidOrbit.blackbodyTemp(star));
 		double density = material.estimateCompressedDensity(mass);
 		double diameter = Math.pow(6 * mass / (Math.PI * density), 1.0 / 3.0);
 
-		Planet planet = Planet.builder()
-				.parent(star)
-				.name(planetoidName).mass(mass)
-				.orbit(planetoidOrbit)
-				.rotationPeriod(rotationPeriod)
-				.diameter(diameter)
-				.material(material)
-				.planetaryClass(pClass)
-				.minor(true).build();
+		planet.orbit(star, planetoidOrbit);
+		planet.mass(mass);
+		planet.rotationPeriod(rotationPeriod);
+		planet.diameter(diameter);
+		planet.material(material);
+		planet.planetaryClass(pClass);
+		
 		assert mass >= Constant.MIN_TERRESTRIAL_MASS || pClass.validClass(planet);
 		
 		generateMoons(planet);

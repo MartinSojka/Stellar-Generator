@@ -50,15 +50,17 @@ public final class StarGenTest1 {
 		sol.diameter(Constant.SOLAR_DIAMETER);
 		sol.luminosity(Constant.SOLAR_LUM).mass(Constant.SOLAR_MASS);
 		sol.temperature(Constant.SOLAR_TEMPERATURE).position(new VectorD3D());
+		/*
 		Planet earth = Planet.builder().name("Earth").diameter(Constant.EARTH_DIAMETER).mass(Constant.EARTH_MASS).parent(sol)
 				.rotationPeriod(24 * 3600 * 364.0f / 365.0f).orbit(new Orbit(Constant.AU, 0.0167086f, 0.0f))
 				.material(new Material("", 4030, 7.64997739863382e-12)).build();
 		Planet jupiter = Planet.builder().name("Jupiter").diameter(69911000 * 2.0).mass(1.898e+27).parent(sol)
-				.rotationPeriod(24 * 3600 /* ignorable */).orbit(new Orbit(778547200000.0, 0.048775f, 0.0f))
+				.rotationPeriod(24 * 3600 /* ignorable *//*).orbit(new Orbit(778547200000.0, 0.048775f, 0.0f))
 				.material(new Material("", 1326, 1e-12)).build();
+				*/
 		printStar(sol, 2);
-		printPlanet(earth);
-		printPlanet(jupiter);
+		//printPlanet(earth);
+		//printPlanet(jupiter);
 
 		System.exit(0);
 	}
@@ -105,7 +107,7 @@ public final class StarGenTest1 {
 				+ " compressibility: " + String.format(Locale.ROOT, "%.2f TPa^-1", p.compressibility() * 1e12));
 		System.out.println("       day length: "
 				+ String.format(Locale.ROOT, "%.2f",  p.dayLength() / 3600.0) + " hours, year length: "
-				+ String.format(Locale.ROOT, "%.2f", p.yearLength / 90000.0) + " galactic days, moons: "
+				+ String.format(Locale.ROOT, "%.2f", p.siderealPeriod() / 90000.0) + " galactic days, moons: "
 				+ p.moons.size());
 	}
 	
