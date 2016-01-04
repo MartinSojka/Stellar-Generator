@@ -21,7 +21,7 @@ import de.vernideas.space.data.starclass.StarClassHelper;
 public final class StarGenTest1 {
 
 	public static void main(String[] args) {
-		Universe u = new Universe(-5638973688361399781L);
+		Universe u = new Universe(/*-5638973688361399781L*/);
 		System.err.println("UNIVERSE SEED " + u.seed);
 		Star s = SystemGenerator.star(u, "F6V", -5638973690006251588L);
 

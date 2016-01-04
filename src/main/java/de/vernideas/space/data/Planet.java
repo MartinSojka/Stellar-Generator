@@ -37,5 +37,9 @@ public class Planet extends Satellite implements Location {
 		yearLength = Math.round(siderealPeriod);
 	}
 	
+	@Override public Star parent() {
+		return (Star)this.parent;
+	};
+	
 	public static Planet byID(int id) { return null; }
 }

@@ -17,4 +17,8 @@ public class Moon extends Satellite implements Location {
 	{
 		super(name, mass, diameter, parent, orbit, rotationPeriod, material, planetaryClass);
 	}
+	
+	@Override public Planet parent() {
+		return (Planet)this.parent;
+	};
 }

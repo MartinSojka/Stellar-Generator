@@ -41,7 +41,7 @@ public class SystemGenerator {
 	
 	public static Star star(Universe u, String scDef) {
 		// Build the star first
-		Star star = null == scDef ? StarGenerator.star(u) : StarGenerator.star(u, scDef);
+		Star star = (null == scDef ? StarGenerator.star(u) : StarGenerator.star(u, scDef));
 		
 		addPlanetarySystem(star);
 		
@@ -50,7 +50,7 @@ public class SystemGenerator {
 	
 	public static Star star(Universe u, String scDef, long starSeed) {
 		// Build the star first
-		Star star = null == scDef ? StarGenerator.star(u, starSeed) : StarGenerator.star(u, scDef, starSeed);
+		Star star = (null == scDef ? StarGenerator.star(u, starSeed) : StarGenerator.star(u, scDef, starSeed));
 		
 		addPlanetarySystem(star);
 		

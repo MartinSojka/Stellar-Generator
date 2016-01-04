@@ -55,8 +55,8 @@ public final class StarGenerator {
 		star.temperature(effTemp);
 		star.diameter(diameter * Constant.SOLAR_DIAMETER);
 		star.luminosity(luminosity * Constant.SOLAR_LUM);
-		star.originalLuminosity(StarClassHelper.randomOriginalLuminosity(sc, luminosity * Constant.SOLAR_LUM, u.random));
-		star.mass(StarClassHelper.randomMass(sc, u.random) * Constant.SOLAR_MASS);
+		star.originalLuminosity(StarClassHelper.randomOriginalLuminosity(sc, luminosity * Constant.SOLAR_LUM, starRnd));
+		star.mass(StarClassHelper.randomMass(sc, starRnd) * Constant.SOLAR_MASS);
 
 		return star;
 	}
