@@ -55,7 +55,7 @@ public class Orbit {
 	}
 	
 	public double blackbodyTemp(Star star) {
-		return Math.max(Math.pow(star.luminosity / (16 * Constant.STEFAN_BOLTZMANN_PI * radius * radius), 0.25),
+		return Math.max(Math.pow(star.luminosity() / (16 * Constant.STEFAN_BOLTZMANN_PI * radius * radius), 0.25),
 				Constant.UNIVERSE_TEMPERATURE);
 	}
 	

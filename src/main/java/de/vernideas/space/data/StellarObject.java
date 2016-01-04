@@ -16,22 +16,33 @@ public abstract class StellarObject {
 
 	@NonNull public final String name;
 	/** Mass in Yg (10^21 kg) */
-	public final double mass;
+	@Getter @Setter protected double mass;
 	/** Diameter in m */
-	public final double diameter;
+	@Getter @Setter protected double diameter;
 
 	/** Randomiser data for consistent object building */
-	public final long seed;
-	public final Random random;
+	@Getter private long seed;
+	@Getter private Random random;
 
 	@Getter @Setter protected Person owner;
 	
-	protected StellarObject(String name, double mass, double diameter, long seed)
-	{
+	protected StellarObject(String name) {
 		this.name = name;
-		this.mass = mass;
-		this.diameter = diameter;
+		this.random = new Random();
+	}
+	
+	public double radius() {
+		return this.diameter / 2.0;
+	}
+	
+	public StellarObject seed(long seed) {
 		this.seed = seed;
-		this.random = new Random(seed);
+		this.random.setSeed(seed);
+		return this;
+	}
+	
+	public StellarObject random(@NonNull Random random) {
+		this.random = random;
+		return this;
 	}
 }

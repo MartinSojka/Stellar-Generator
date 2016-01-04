@@ -39,25 +39,36 @@ public class SystemGenerator {
 		return star(u, null);
 	}
 	
-	/**
-	 * Generate a random star in the specified universe
-	 * 
-	 * @param u
-	 */
 	public static Star star(Universe u, String scDef) {
 		// Build the star first
 		Star star = null == scDef ? StarGenerator.star(u) : StarGenerator.star(u, scDef);
-		double maxPlanetaryMass = Math.min(25e28, star.mass / 25.0);
+		
+		addPlanetarySystem(star);
+		
+		return star;
+	}
+	
+	public static Star star(Universe u, String scDef, long starSeed) {
+		// Build the star first
+		Star star = null == scDef ? StarGenerator.star(u, starSeed) : StarGenerator.star(u, scDef, starSeed);
+		
+		addPlanetarySystem(star);
+		
+		return star;
+	}
+	
+	private static void addPlanetarySystem(Star star) {
+		double maxPlanetaryMass = Math.min(25e28, star.mass() / 25.0);
 		
 		// Planet building phase
 		int gasgiantMod = StarClassHelper.gasgiantMod(star.starClass);
-		int planetNum = (int)Math.round(StarClassHelper.randomPlanets(star.starClass, star.random));
+		int planetNum = (int)Math.round(StarClassHelper.randomPlanets(star.starClass, star.random()));
 		if( planetNum < 0 ) { planetNum = 0; }
 		if( planetNum > 26 ) { planetNum = 26; } // Arbitrary, to not complicate the naming scheme
 
-		double stellarDustLimit = 1e13 * Math.pow(12 + gasgiantMod, 3.0) * Math.pow(star.mass, 1.0 / 3.0) * (1.0 + star.random.nextGaussian() * 0.1);
+		double stellarDustLimit = 1e13 * Math.pow(12 + gasgiantMod, 3.0) * Math.pow(star.mass(), 1.0 / 3.0) * (1.0 + star.random().nextGaussian() * 0.1);
 		if( stellarDustLimit < 0.0 ) {
-			stellarDustLimit = 1e13 *  Math.pow(star.mass, 1.0 / 3.0);
+			stellarDustLimit = 1e13 *  Math.pow(star.mass(), 1.0 / 3.0);
 		}
 		stellarDustLimit += planetNum * Constant.MIN_TERRESTRIAL_MASS;
 		
@@ -76,22 +87,22 @@ public class SystemGenerator {
 			while( stellarDust > 1000.0 * Constant.YOTTAGRAM && planetNum > curPlanetNum )
 			{
 				double randomMass = 0.0;
-				if( stellarDust > stellarDustLimit * 0.01 && stellarDust > Constant.MAX_TERRESTRIAL_MASS && star.random.nextInt(10) + gasgiantMod > 3 )
+				if( stellarDust > stellarDustLimit * 0.01 && stellarDust > Constant.MAX_TERRESTRIAL_MASS && star.random().nextInt(10) + gasgiantMod > 3 )
 				{
 					// Try generating gas giants first
 					double minMass = Math.max(Constant.MAX_TERRESTRIAL_MASS, stellarDust / 2.0);
-					randomMass = planetMass(u, minMass, Math.min(maxPlanetaryMass, stellarDust)).first;
+					randomMass = planetMass(star.random(), minMass, Math.min(maxPlanetaryMass, stellarDust)).first;
 				}
 				else
 				{
 					double maxMass = Math.min(maxPlanetaryMass, stellarDust * (0.5 + (planetNum - curPlanetNum) / (2.0 * planetNum)));
-					randomMass = planetMass(u, 1e23, maxMass).first;
+					randomMass = planetMass(star.random(), 1e23, maxMass).first;
 				}
 				if( randomMass <= stellarDust )
 				{
 					// Would be we left with a whole planet's worth of mass?
 					if( curPlanetNum >= planetNum - 1 && stellarDust - randomMass > Constant.MIN_TERRESTRIAL_MASS * 1.1 ) {
-						randomMass += (stellarDust - randomMass) * (1.0 - Math.abs(star.random.nextGaussian()) * 0.001);
+						randomMass += (stellarDust - randomMass) * (1.0 - Math.abs(star.random().nextGaussian()) * 0.001);
 					}
 					randomMass = Math.min(randomMass, maxPlanetaryMass);
 					planetMasses.add(randomMass);
@@ -120,27 +131,26 @@ public class SystemGenerator {
 				habitable = habitable || planet.habitable();
 				star.planets.add(planet);
 				++ generatedPlanets;
-				if( planet.mass < smallestPlanetMass )
+				if( planet.mass() < smallestPlanetMass )
 				{
-					smallestPlanetMass = planet.mass;
+					smallestPlanetMass = planet.mass();
 				}
 			}
 		}
 
 		// Add planetoids
-		double planetoidEstimate = Math.min(Math.pow(stellarDust / Constant.YOTTAGRAM, 0.3) * 20.0, 20.0 + Math.abs(star.random.nextGaussian() * 15.0));
+		double planetoidEstimate = Math.min(Math.pow(stellarDust / Constant.YOTTAGRAM, 0.3) * 20.0, 20.0 + Math.abs(star.random().nextGaussian() * 15.0));
 		int planetoids = (int)Math.round(planetoidEstimate);
 		
 		for( int i = 0; i < planetoids; ++ i )
 		{
-			double planetoidMass = GenUtil.lerp(Constant.MIN_TERRESTRIAL_MASS / 1000, Math.min(smallestPlanetMass / 10, Constant.MIN_TERRESTRIAL_MASS * 10), Math.pow(Math.min(star.random.nextDouble(), star.random.nextDouble()), 6.0));
+			double planetoidMass = GenUtil.lerp(Constant.MIN_TERRESTRIAL_MASS / 1000, Math.min(smallestPlanetMass / 10, Constant.MIN_TERRESTRIAL_MASS * 10), Math.pow(Math.min(star.random().nextDouble(), star.random().nextDouble()), 6.0));
 			Planet planet = PlanetGenerator.newPlanetoid(star, planetoidMass);
 			if( null != planet )
 			{
 				star.planetoids.add(planet);
 			}
 		}
-		return star;
 	}
 		
 	/**
@@ -156,12 +166,12 @@ public class SystemGenerator {
 	}
 	
 	/** Returns a pair of mass (in kG) and random seed used to create the mass */
-	private static Pair<Double, Long> planetMass(Universe u, double minMass, double maxMass)
+	private static Pair<Double, Long> planetMass(Random rnd, double minMass, double maxMass)
 	{
 		double mass;
 		long seed;
 		do {
-			seed = u.random.nextLong();
+			seed = rnd.nextLong();
 			mass = Satellite.newMass(new Random(seed));
 		} while( mass > maxMass || mass < minMass );
 		return Pair.<Double, Long>of(mass, seed);

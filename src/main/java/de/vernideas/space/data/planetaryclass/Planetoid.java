@@ -11,6 +11,6 @@ public class Planetoid extends PlanetaryClass {
 	}
 
 	@Override public boolean validClass(Satellite planet) {
-		return (super.validClass(planet) && planet.mass <= Constant.MIN_TERRESTRIAL_MASS);
+		return (super.validClass(planet) && planet.mass() <= Constant.MIN_TERRESTRIAL_MASS);
 	}
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import de.vernideas.space.data.starclass.StarClass;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.ToString;
 import lombok.experimental.Accessors;
@@ -19,18 +20,18 @@ public class Star extends StellarObject {
 	@NonNull public final List<Planet> planets;
 	@NonNull public final List<Planet> planetoids;
 	/** Effective temperature in Kelvin; used for luminosity and colour */
-	public final double temperature;
+	@Getter protected double temperature;
 	/** Luminosity in W */
-	public final double luminosity;
-	public final double originalLuminosity;
+	@Getter protected double luminosity;
+	@Getter protected double originalLuminosity;
 	/** 3200K cut-off distance in m */
-	public final double boilingLine;
+	@Getter protected double boilingLine;
 	/** Frost line distance in m */
-	public final double frostLine;
-	public final double habitableZoneMin;
-	public final double habitableZoneMax;
-	public final double innerPlanetLimit;
-	public final double outerPlanetLimit;
+	@Getter protected double frostLine;
+	@Getter protected double habitableZoneMin;
+	@Getter protected double habitableZoneMax;
+	@Getter protected double innerPlanetLimit;
+	@Getter protected double outerPlanetLimit;
 	@NonNull public final VectorD3D position;
 	
 	@Builder
@@ -39,36 +40,58 @@ public class Star extends StellarObject {
 			double originalLuminosity,
 			long seed)
 	{
-		super(name, mass, diameter, seed);
+		super(name);
 		this.starClass = starClass;
 		this.temperature = temperature;
 		
 		this.planets = new ArrayList<Planet>();
 		this.planetoids = new ArrayList<Planet>();
 		
+		mass(mass);
+		diameter(diameter);
+		seed(seed);
+		luminosity(luminosity);
+		originalLuminosity(originalLuminosity > 0.0 ? originalLuminosity : luminosity);
+		
+		this.position = position;	
+	}
+	
+	public Star luminosity(double luminosity) {
 		this.luminosity = luminosity;
-		this.originalLuminosity = (originalLuminosity > 0.0 ? originalLuminosity : luminosity);
 		
 		this.boilingLine = Math.sqrt(this.luminosity / Constant.STEFAN_BOLTZMANN_PI) / (4 * 3200 * 3200);
-		
-		// Calculate the frost line by assuming a black-body with temperature of 150K (water sublimation in vacuum)
-		this.frostLine = Math.sqrt(this.originalLuminosity / Constant.STEFAN_BOLTZMANN_PI) / (4 * 150 * 150);
-		
 		// Habitable zone for Earth-like planets: from 310 K at 0.4 albedo to 220 K at 0.1 albedo
 		// Below that - desert planet, above - snow planets
 		// Corresponds to 375 K and 226 K for an orbit with no eccentricity
 		this.habitableZoneMin = Math.sqrt(this.luminosity * 0.6 / Constant.STEFAN_BOLTZMANN_PI) / (4 * 330 * 330);
 		this.habitableZoneMax = Math.sqrt(this.luminosity * 0.9 / Constant.STEFAN_BOLTZMANN_PI) / (4 * 220 * 220);
 		
+		return this;
+	}
+	
+	public Star originalLuminosity(double originalLuminosity) {
+		this.originalLuminosity = originalLuminosity;
+		
+		// Calculate the frost line by assuming a black-body with temperature of 150K (water sublimation in vacuum)
+		this.frostLine = Math.sqrt(this.originalLuminosity / Constant.STEFAN_BOLTZMANN_PI) / (4 * 150 * 150);
+		
 		// Empirical data
 		// Inner planet limit : either mass in solar masses times 0.1 or original luminosity in solar lums
 		// times 0.01; whichever is bigger, in AU
 		this.innerPlanetLimit = Math.max(this.mass / Constant.SOLAR_MASS * 0.1, this.originalLuminosity / Constant.SOLAR_LUM * 0.01) * Constant.AU;
+		
+		return this;
+	}
+	
+	@Override public StellarObject mass(double mass) {
+		super.mass(mass);
+		
+		// Empirical data
 		// Outer planet limit : mass in solar masses times 40, as AU
 		this.outerPlanetLimit = this.mass / Constant.SOLAR_MASS * 40.0 * Constant.AU;
 		
-		this.position = position;	
-	}
+		return this;
+	};
 	
 	/** This method doesn't check for conflicting data, it just adds the planet to the right list */
 	public Planet addPlanet(String name, double mass, double diameter, @NonNull Orbit orbit, float rotationPeriod, boolean minor)

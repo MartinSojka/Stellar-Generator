@@ -13,8 +13,8 @@ public class Cthonian extends PlanetaryClass {
 
 	@Override public boolean validClass(Satellite planet) {
 		return (super.validClass(planet)
-				&& (planet.molecularLimit > 4.00 || planet.density + planet.blackbodyTemperature / 10 > 2500)
-				&& planet.mass >= Constant.MAX_TERRESTRIAL_MASS * 0.9
-				&& planet.density > 2000);
+				&& (planet.molecularLimit() > 4.00 || planet.density() + planet.blackbodyTemperature() / 10 > 2500)
+				&& planet.mass() >= Constant.MAX_TERRESTRIAL_MASS * 0.9
+				&& planet.density() > 2000);
 	}
 }

@@ -15,8 +15,8 @@ public class Terrestrial extends PlanetaryClass {
 
 	@Override public boolean validClass(Satellite planet) {
 		return (super.validClass(planet)
-				&& planet.mass <= Constant.MAX_TERRESTRIAL_MASS && planet.mass >= Constant.MIN_TERRESTRIAL_MASS
-				&& planet.density > 800);
+				&& planet.mass() <= Constant.MAX_TERRESTRIAL_MASS && planet.mass() >= Constant.MIN_TERRESTRIAL_MASS
+				&& planet.density() > 800);
 	}
 	
 	@Override public double avgGreenhouseFactor() {

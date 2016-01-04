@@ -22,7 +22,7 @@ public class GasGiant extends PlanetaryClass {
 	}
 	
 	@Override public boolean validClass(Satellite planet) {
-		return (super.validClass(planet) && planet.molecularLimit <= molLimit
-				&& planet.mass >= Constant.MAX_TERRESTRIAL_MASS);
+		return (super.validClass(planet) && planet.molecularLimit() <= molLimit
+				&& planet.mass() >= Constant.MAX_TERRESTRIAL_MASS);
 	}
 }

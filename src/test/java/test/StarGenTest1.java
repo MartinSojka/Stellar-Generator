@@ -12,6 +12,7 @@ import de.vernideas.space.data.Material;
 import de.vernideas.space.data.Moon;
 import de.vernideas.space.data.Orbit;
 import de.vernideas.space.data.Planet;
+import de.vernideas.space.data.Satellite;
 import de.vernideas.space.data.Star;
 import de.vernideas.space.data.Universe;
 import de.vernideas.space.data.VectorD3D;
@@ -22,26 +23,17 @@ public final class StarGenTest1 {
 	public static void main(String[] args) {
 		Universe u = new Universe(-5638973688361399781L);
 		System.err.println("UNIVERSE SEED " + u.seed);
-		Star s = SystemGenerator.star(u);
+		Star s = SystemGenerator.star(u, "F6V", -5638973690006251588L);
 
 		printStar(s, 1);
 		List<Planet> planets = new ArrayList<Planet>(s.planets);
 		planets.addAll(s.planetoids);
-		Collections.sort(planets, new Comparator<Planet>(){
-			@Override public int compare(Planet o1, Planet o2) {
-				return (o1.orbit.radius < o2.orbit.radius ? -1 : o1.orbit.radius > o2.orbit.radius ? 1 : 0);
-			}
-		});
+		Collections.sort(planets, Satellite.ORBITAL_COMPARATOR);
 		for( Planet p : planets )
 		{
 			printPlanet(p);
 			List<Moon> moons = new ArrayList<Moon>(p.moons);
-			Collections.sort(moons, new Comparator<Moon>(){
-				@Override public int compare(Moon o1, Moon o2) {
-					return (o1.orbit.radius < o2.orbit.radius ? -1 : o1.orbit.radius > o2.orbit.radius ? 1 : 0);
-				}
-				
-			});
+			Collections.sort(moons, Satellite.ORBITAL_COMPARATOR);
 			for( Moon m : moons ) {
 				printMoon(m);
 			}
@@ -71,60 +63,60 @@ public final class StarGenTest1 {
 
 	private static void printStar(Star star, int i)
 	{
-		System.out.println("[" + String.format("%02d", i) + "] " + star.name
+		System.out.println("[" + String.format("%02d", i) + "] (" + star.seed() + ") " + star.name
 				+ " (" + star.starClass.fullDeclaration() + "), mass "
-				+ String.format(Locale.ROOT, "%.3f", star.mass / Constant.SOLAR_MASS)
+				+ String.format(Locale.ROOT, "%.3f", star.mass() / Constant.SOLAR_MASS)
 				+ " M☉, "
 				+ "planets " + star.planets.size() + ", planetoids " + star.planetoids.size()
-				+ ", luminosity " + String.format(Locale.ROOT, "%f", star.luminosity / Constant.SOLAR_LUM) + " L☉");
+				+ ", luminosity " + String.format(Locale.ROOT, "%f", star.luminosity() / Constant.SOLAR_LUM) + " L☉");
 		System.out.println("     boiling line "
-				+ String.format(Locale.ROOT, "%.4f", star.boilingLine / Constant.AU) + " AU, inner planet limit "
-				+ String.format(Locale.ROOT, "%.4f", star.innerPlanetLimit / Constant.AU) + " AU, min habitable zone "
-				+ String.format(Locale.ROOT, "%.4f", star.habitableZoneMin / Constant.AU) + " AU, max habitable zone "
-				+ String.format(Locale.ROOT, "%.4f", star.habitableZoneMax / Constant.AU) + " AU, frost line "
-				+ String.format(Locale.ROOT, "%.4f", star.frostLine / Constant.AU) + " AU, outer planet limit "
-				+ String.format(Locale.ROOT, "%.4f", star.outerPlanetLimit / Constant.AU) + " AU");
+				+ String.format(Locale.ROOT, "%.4f", star.boilingLine() / Constant.AU) + " AU, inner planet limit "
+				+ String.format(Locale.ROOT, "%.4f", star.innerPlanetLimit() / Constant.AU) + " AU, min habitable zone "
+				+ String.format(Locale.ROOT, "%.4f", star.habitableZoneMin() / Constant.AU) + " AU, max habitable zone "
+				+ String.format(Locale.ROOT, "%.4f", star.habitableZoneMax() / Constant.AU) + " AU, frost line "
+				+ String.format(Locale.ROOT, "%.4f", star.frostLine() / Constant.AU) + " AU, outer planet limit "
+				+ String.format(Locale.ROOT, "%.4f", star.outerPlanetLimit() / Constant.AU) + " AU");
 		System.out.println("     blackbody temperatures "
 				+ String.format(Locale.ROOT, "%.0f K, %.0f K, %.0f K, %.0f K, %.0f K, %.0f K",
-					star.blackbodyTemp(star.boilingLine), star.blackbodyTemp(star.innerPlanetLimit),
-					star.blackbodyTemp(star.habitableZoneMin), star.blackbodyTemp(star.habitableZoneMax),
-					star.blackbodyTemp(star.frostLine), star.blackbodyTemp(star.outerPlanetLimit)));
+					star.blackbodyTemp(star.boilingLine()), star.blackbodyTemp(star.innerPlanetLimit()),
+					star.blackbodyTemp(star.habitableZoneMin()), star.blackbodyTemp(star.habitableZoneMax()),
+					star.blackbodyTemp(star.frostLine()), star.blackbodyTemp(star.outerPlanetLimit())));
 	}
 	
 	private static void printPlanet(Planet p)
 	{
-		System.out.println("     " + p.name + " [" + p.planetaryClass.name + "]"
-				+ ", mass: " + String.format(Locale.ROOT, "%.3f Yg [gas giant limit %.3f Yg]", p.mass / Constant.YOTTAGRAM, p.criticalMass / Constant.YOTTAGRAM)
+		System.out.println("     " + p.name + " [" + p.planetaryClass().name + "]"
+				+ ", mass: " + String.format(Locale.ROOT, "%.3f Yg [gas giant limit %.3f Yg]", p.mass() / Constant.YOTTAGRAM, p.criticalMass() / Constant.YOTTAGRAM)
 				+ ", exclusion zone "
-				+ String.format(Locale.ROOT, "%.3f", p.exclusionZone / Constant.AU)
-				+ " AU, blackbody temp. " + String.format(Locale.ROOT, "%.1f", p.blackbodyTemperature) + " K");
-		System.out.println("       orbit " + p.orbit.printablePlanetString() + ", S-L param "
-				+ String.format(Locale.ROOT, "%.1f", ((Star)p.parent).sternLevisonParameter(p.mass, p.orbit.radius))
-				+ String.format(Locale.ROOT, ", hills radius %.3f AU", p.hillsRadius / Constant.AU));
+				+ String.format(Locale.ROOT, "%.3f", p.exclusionZone() / Constant.AU)
+				+ " AU, blackbody temp. " + String.format(Locale.ROOT, "%.1f", p.blackbodyTemperature()) + " K");
+		System.out.println("       orbit " + p.orbit().printablePlanetString() + ", S-L param "
+				+ String.format(Locale.ROOT, "%.1f", ((Star)p.parent()).sternLevisonParameter(p.mass(), p.orbit().radius))
+				+ String.format(Locale.ROOT, ", hills radius %.3f AU", p.hillsRadius() / Constant.AU));
 		System.out.println("       diameter (Earth) "
-				+ String.format(Locale.ROOT, "%.2f", p.diameter / 6371000.8 / 2) + ", gravity: "
-				+ String.format(Locale.ROOT, "%.3f", p.surfaceGravity)
-				+ " m/s², density: " + String.format(Locale.ROOT, "%.0f [%.0f]", p.density, p.uncompressedDensity)
-				+ " kg/m³, escape V: " + String.format(Locale.ROOT, "%.0f", p.escapeVelocity)
-				+ " m/s, mol. limit: " + String.format(Locale.ROOT, "%.2f", p.molecularLimit));
+				+ String.format(Locale.ROOT, "%.2f", p.diameter() / 6371000.8 / 2) + ", gravity: "
+				+ String.format(Locale.ROOT, "%.3f", p.surfaceGravity())
+				+ " m/s², density: " + String.format(Locale.ROOT, "%.0f [%.0f]", p.density(), p.uncompressedDensity())
+				+ " kg/m³, escape V: " + String.format(Locale.ROOT, "%.0f", p.escapeVelocity())
+				+ " m/s, mol. limit: " + String.format(Locale.ROOT, "%.2f", p.molecularLimit()));
 		System.out.println("       core pressure (Earth) " + String.format(Locale.ROOT, "%.2f GPa", p.corePressure(13300, 2600) / 1e9)
-				+ " compressibility: " + String.format(Locale.ROOT, "%.2f TPa^-1", p.compressibility * 1e12));
+				+ " compressibility: " + String.format(Locale.ROOT, "%.2f TPa^-1", p.compressibility() * 1e12));
 		System.out.println("       day length: "
-				+ String.format(Locale.ROOT, "%.2f",  p.dayLength / 3600.0) + " hours, year length: "
+				+ String.format(Locale.ROOT, "%.2f",  p.dayLength() / 3600.0) + " hours, year length: "
 				+ String.format(Locale.ROOT, "%.2f", p.yearLength / 90000.0) + " galactic days, moons: "
 				+ p.moons.size());
 	}
 	
 	private static void printMoon(Moon m)
 	{
-		System.out.println("         " + m.name + ", type: " + m.planetaryClass.name
-				+ ", mass: " + String.format("%.3f", m.mass / Constant.YOTTAGRAM)
-				+ " Yg, radius (Earth radii) " + String.format("%.2f", m.diameter / Constant.EARTH_DIAMETER)
-				+ ", gravity: " + String.format("%.3f", m.surfaceGravity)
+		System.out.println("         " + m.name + ", type: " + m.planetaryClass().name
+				+ ", mass: " + String.format("%.3f", m.mass() / Constant.YOTTAGRAM)
+				+ " Yg, radius (Earth radii) " + String.format("%.2f", m.diameter() / Constant.EARTH_DIAMETER)
+				+ ", gravity: " + String.format("%.3f", m.surfaceGravity())
 				+ " m/s²\n"
-				+"           density: " + String.format("%.0f", m.density) + " kg/m³, orbit " + m.orbit.printableMoonString()
-				+ ", escape V: " + String.format("%.0f", m.escapeVelocity)
-				+ " m/s, mol. limit: " + String.format("%.2f", m.molecularLimit));
+				+"           density: " + String.format("%.0f", m.density()) + " kg/m³, orbit " + m.orbit().printableMoonString()
+				+ ", escape V: " + String.format("%.0f", m.escapeVelocity())
+				+ " m/s, mol. limit: " + String.format("%.2f", m.molecularLimit()));
 	}
 
 }
