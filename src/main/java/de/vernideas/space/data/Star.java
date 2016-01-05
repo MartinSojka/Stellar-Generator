@@ -160,6 +160,16 @@ public class Star extends StellarObject {
 	}
 	
 	/**
+	 * Orbital distance for the given blackbody temperature
+	 * 
+	 * @param blackbodyTemp
+	 * @return
+	 */
+	public double distanceForTemperature(double blackbodyTemp) {
+		return Math.sqrt(luminosity / Constant.STEFAN_BOLTZMANN_PI) / (4.0 * blackbodyTemp * blackbodyTemp);
+	}
+
+	/**
 	 * Calculate the Stern-Levison parameter for the given planet mass and orbital distance.
 	 * <p>
 	 * If it's 100 or more, this is definitively a planet.

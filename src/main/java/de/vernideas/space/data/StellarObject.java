@@ -27,7 +27,7 @@ public abstract class StellarObject {
 	@Getter @Setter protected Person owner;
 	
 	protected StellarObject(String name) {
-		this.name(name);
+		this.name = name;
 		this.random = new Random();
 	}
 	

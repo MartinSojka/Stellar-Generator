@@ -2,15 +2,13 @@ package test;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
+import de.vernideas.lib.stellargen.PlanetGenerator;
 import de.vernideas.lib.stellargen.SystemGenerator;
 import de.vernideas.space.data.Constant;
-import de.vernideas.space.data.Material;
 import de.vernideas.space.data.Moon;
-import de.vernideas.space.data.Orbit;
 import de.vernideas.space.data.Planet;
 import de.vernideas.space.data.Satellite;
 import de.vernideas.space.data.Star;
@@ -61,6 +59,8 @@ public final class StarGenTest1 {
 		printStar(sol, 2);
 		//printPlanet(earth);
 		//printPlanet(jupiter);
+		Planet test = PlanetGenerator.newPlanetoid(sol, 3.871 * Constant.YOTTAGRAM, null, -5638973679032511601L);
+		printPlanet(test);
 
 		System.exit(0);
 	}
@@ -89,7 +89,7 @@ public final class StarGenTest1 {
 	
 	private static void printPlanet(Planet p)
 	{
-		System.out.println("     " + p.name() + " [" + p.planetaryClass().name + "]"
+		System.out.println("     (" + p.seed() + ") " + p.name() + " [" + p.planetaryClass().name + "]"
 				+ ", mass: " + String.format(Locale.ROOT, "%.3f Yg [gas giant limit %.3f Yg]", p.mass() / Constant.YOTTAGRAM, p.criticalMass() / Constant.YOTTAGRAM)
 				+ ", exclusion zone "
 				+ String.format(Locale.ROOT, "%.3f", p.exclusionZone() / Constant.AU)

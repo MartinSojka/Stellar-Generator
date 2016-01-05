@@ -373,7 +373,7 @@ public class PlanetaryClass {
 	}
 	
 	public boolean validTemperature(Star star, Orbit orbit) {
-		return validTemperature(orbit.blackbodyTemp(star));
+		return null != orbit && null != star && validTemperature(orbit.blackbodyTemp(star));
 	}
 	
 	// Valid orbital zones

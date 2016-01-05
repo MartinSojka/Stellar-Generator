@@ -38,9 +38,45 @@ public final class PlanetGenerator {
 			{
 				planet.moons.add(newMoon((Star)planet.parent(), planet, 
 						(rnd) -> GenUtil.lerp(Constant.MIN_MOON_MASS, maxMass, Math.pow(rnd.nextDouble(), 9.0)),
-						null /*planet.name + " " + GenUtil.romanNumber(m + 1)*/));
+						null));
 			}
 		}
+	}
+	
+	// TODO: Rewrite this so it's using the planet's random instance, and get the orbital radius from
+	// generating a random blackbody temperature first.
+	// Max temperature (boiling line): 3200 K
+	// Min temperature (outer planet limit): 0 K
+	//   (it actually "only" goes down to 23 K for M-class, 18 K for L-class and 6 K for T-class stars)
+	
+	/**
+	 * This method tries <i>once</i> and returns null if it failed for the given star.
+	 * This lets the generator retry with a new planetary seed.
+	 * 
+	 * @param planet
+	 * @param star
+	 * @param filter
+	 * @param validator
+	 * @param inclinationMult
+	 * @return
+	 */
+	public static Orbit newPlanetaryOrbit(@NonNull Planet planet, @NonNull Star star, OrbitFilter filter, @NonNull OrbitValidator validator, double inclinationMult) {
+		double blackbodyTemp = GenUtil.lerp(3200.0, 0.0, Math.sqrt(Math.min(planet.random().nextDouble(), planet.random().nextDouble())));
+		double orbit = star.distanceForTemperature(blackbodyTemp);
+		double eccentrity = Math.pow(planet.random().nextDouble(), 6.0) / 2.0;
+		// Flatten out the eccentrity for low-lying planetary orbits (below 1.99 AU for the Sun)
+		if( orbit / Constant.AU < star.mass() / 1e29 ) {
+			eccentrity *= (orbit / Constant.AU * 1e29 / star.mass());
+		}
+		// Filter if needed
+		if( null != filter ) {
+			orbit = filter.filter(orbit);
+		}
+		if( validator.validate(orbit, eccentrity) ) {
+			double inclination = Math.toRadians(inclinationMult * Math.sqrt(-2.0 * Math.log(planet.random().nextDouble())));
+			return new Orbit(orbit, eccentrity, inclination);
+		}
+		return null;
 	}
 	
 	private static Orbit newPlanetaryOrbit(@NonNull Star star, OrbitFilter filter, @NonNull OrbitValidator validator, double inclinationMult) {
@@ -211,48 +247,91 @@ public final class PlanetGenerator {
 		return moon;
 	}
 	
+	/**
+	 * Reset the randomiser with a new seed, and apply all data that's generatable without
+	 * potential failure.
+	 * 
+	 * @param planetoid
+	 */
+	private static void seedPlanetoid(Planet planetoid, String name) {
+		planetoid.seed(planetoid.seed() + 27331L);
+		planetoid.name(null != name ? name : planetoidName(planetoid.random()));
+		planetoid.rotationPeriod(planetoid.random().nextGaussian() * 60000 + 72000);
+	}
+	
+	/**
+	 * Add remaining data to the planetoid after we got one with the right orbital params
+	 * and planetary class
+	 * 
+	 * @param planetoid
+	 */
+	private static void decoratePlanetoid(Planet planet, double mass, Star star, PlanetaryClass pClass, Orbit planetoidOrbit) {
+		Material material = pClass.newMaterial(planet.random(), planetoidOrbit.blackbodyTemp(star));
+		double density = material.estimateCompressedDensity(mass);
+		double diameter = Math.pow(6 * mass / (Math.PI * density), 1.0 / 3.0);
+
+		planet.orbit(star, planetoidOrbit);
+		planet.diameter(diameter);
+		planet.material(material);
+		planet.planetaryClass(pClass);
+		
+		
+		assert mass >= Constant.MIN_TERRESTRIAL_MASS || pClass.validClass(planet);
+		
+		generateMoons(planet);
+	}
+	
 	public static Planet newPlanetoid(Star star, double mass) {
 		return newPlanetoid(star, mass, null);
 	}
 	
 	public static Planet newPlanetoid(Star star, double mass, String name)
 	{
-		// Trying to get a free orbit
-		Orbit planetoidOrbit = newPlanetaryOrbit(star, null,
-				(orbit, eccentrity) -> star.orbitFree(orbit, eccentrity) && star.sternLevisonParameter(mass, orbit) <= 0.01, 5.0);
-		if( null == planetoidOrbit ) {
-			return null;
-		}
-		String planetoidName = null != name ? name : planetoidName(star.random());
-		Planet planet = new Planet(planetoidName, true);
+		Planet planet = new Planet(null, true);
+		planet.mass(mass);
 		planet.seed(star.seed() + 47L * star.random().nextInt());
-
-		double rotationPeriod = planet.random().nextGaussian() * 60000 + 72000;
-
-		// Create planetary material
+		seedPlanetoid(planet, name);
+		
+		// Trying to get a free orbit and a valid planetoid class for it
+		int orbitRetriesLeft = 30;
+		Orbit planetoidOrbit = newPlanetaryOrbit(planet, star, null,
+				(orbit, eccentrity) -> star.orbitFree(orbit, eccentrity)
+				&& star.sternLevisonParameter(mass, orbit) <= 0.01, 5.0);
 		PlanetaryClass pClass = newPlanetoidClass(planet.random());
-		while( !pClass.validTemperature(star, planetoidOrbit) ) {
+		
+		while( !pClass.validTemperature(star, planetoidOrbit) && orbitRetriesLeft > 0 ) {
+			-- orbitRetriesLeft;
+			seedPlanetoid(planet, name);
+			planetoidOrbit = newPlanetaryOrbit(planet, star, null,
+					(orbit, eccentrity) -> star.orbitFree(orbit, eccentrity)
+					&& star.sternLevisonParameter(mass, orbit) <= 0.01, 5.0);
 			pClass = newPlanetoidClass(planet.random());
 		}
+		if( !pClass.validTemperature(star, planetoidOrbit) ) {
+			return null;
+		}
 		
-		Material material = pClass.newMaterial(planet.random(), planetoidOrbit.blackbodyTemp(star));
-		double density = material.estimateCompressedDensity(mass);
-		double diameter = Math.pow(6 * mass / (Math.PI * density), 1.0 / 3.0);
-
-		planet.orbit(star, planetoidOrbit);
-		planet.mass(mass);
-		planet.rotationPeriod(rotationPeriod);
-		planet.diameter(diameter);
-		planet.material(material);
-		planet.planetaryClass(pClass);
-		
-		assert mass >= Constant.MIN_TERRESTRIAL_MASS || pClass.validClass(planet);
-		
-		generateMoons(planet);
+		decoratePlanetoid(planet, mass, star, pClass, planetoidOrbit);
 		
 		return planet;
 	}
 
+	public static Planet newPlanetoid(Star star, double mass, String name, long seed) {
+		Planet planet = new Planet(null, true);
+		planet.mass(mass);
+		planet.seed(seed);
+		planet.name(null != name ? name : planetoidName(planet.random()));
+		planet.rotationPeriod(planet.random().nextGaussian() * 60000 + 72000);
+		Orbit planetoidOrbit = newPlanetaryOrbit(planet, star, null,
+				(orbit, eccentrity) -> star.orbitFree(orbit, eccentrity)
+				&& star.sternLevisonParameter(mass, orbit) <= 0.01, 5.0);
+		PlanetaryClass pClass = newPlanetoidClass(planet.random());
+
+		decoratePlanetoid(planet, mass, star, pClass, planetoidOrbit);
+		
+		return planet;
+	}
+	
 	private static String firstPlanetoidPart[] = {"A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y"};
 	private static String secondPlanetoidPart[] = {"A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
 	private static String planetoidName(Random rnd)
