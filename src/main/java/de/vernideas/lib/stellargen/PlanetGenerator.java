@@ -266,6 +266,8 @@ public final class PlanetGenerator {
 	 * @param planetoid
 	 */
 	private static void decoratePlanetoid(Planet planet, double mass, Star star, PlanetaryClass pClass, Orbit planetoidOrbit) {
+		planet.mass(mass);
+		
 		Material material = pClass.newMaterial(planet.random(), planetoidOrbit.blackbodyTemp(star));
 		double density = material.estimateCompressedDensity(mass);
 		double diameter = Math.pow(6 * mass / (Math.PI * density), 1.0 / 3.0);
@@ -275,39 +277,51 @@ public final class PlanetGenerator {
 		planet.material(material);
 		planet.planetaryClass(pClass);
 		
-		
 		assert mass >= Constant.MIN_TERRESTRIAL_MASS || pClass.validClass(planet);
 		
 		generateMoons(planet);
 	}
 	
-	public static Planet newPlanetoid(Star star, double mass) {
-		return newPlanetoid(star, mass, null);
+	private static Function<Random, Double> DEFAULT_PLANETOID_MASSGENERATOR =
+			(rnd) -> GenUtil.lerp(Constant.MIN_TERRESTRIAL_MASS / 1000, Constant.MIN_TERRESTRIAL_MASS * 10,
+					Math.pow(Math.min(rnd.nextDouble(), rnd.nextDouble()), 6.0));
+	
+	public static Planet newPlanetoid(Star star, double maxMass) {
+		return newPlanetoid(star, DEFAULT_PLANETOID_MASSGENERATOR, maxMass, (String)null);
 	}
 	
-	public static Planet newPlanetoid(Star star, double mass, String name)
+	public static Planet newPlanetoid(Star star, Function<Random, Double> massGenerator, double maxMass) {
+		return newPlanetoid(star, massGenerator, maxMass, (String)null);
+	}
+	
+	public static Planet newPlanetoid(Star star, Function<Random, Double> massGenerator, double maxMass, String name)
 	{
 		Planet planet = new Planet(null, true);
-		planet.mass(mass);
 		planet.seed(star.seed() + 47L * star.random().nextInt());
 		seedPlanetoid(planet, name);
 		
 		// Trying to get a free orbit and a valid planetoid class for it
-		int orbitRetriesLeft = 30;
+		int orbitRetriesLeft = 100;
+		
+		// Initial data
+		double mass = massGenerator.apply(planet.random());
+		double initialMass = mass;
 		Orbit planetoidOrbit = newPlanetaryOrbit(planet, star, null,
 				(orbit, eccentrity) -> star.orbitFree(orbit, eccentrity)
-				&& star.sternLevisonParameter(mass, orbit) <= 0.01, 5.0);
+				&& star.sternLevisonParameter(initialMass, orbit) <= 0.01, 5.0);
 		PlanetaryClass pClass = newPlanetoidClass(planet.random());
 		
-		while( !pClass.validTemperature(star, planetoidOrbit) && orbitRetriesLeft > 0 ) {
+		while( (!pClass.validTemperature(star, planetoidOrbit) || mass > maxMass) && orbitRetriesLeft > 0 ) {
 			-- orbitRetriesLeft;
 			seedPlanetoid(planet, name);
+			mass = massGenerator.apply(planet.random());
+			double secondInitialMass = mass;
 			planetoidOrbit = newPlanetaryOrbit(planet, star, null,
 					(orbit, eccentrity) -> star.orbitFree(orbit, eccentrity)
-					&& star.sternLevisonParameter(mass, orbit) <= 0.01, 5.0);
+					&& star.sternLevisonParameter(secondInitialMass, orbit) <= 0.01, 5.0);
 			pClass = newPlanetoidClass(planet.random());
 		}
-		if( !pClass.validTemperature(star, planetoidOrbit) ) {
+		if( !pClass.validTemperature(star, planetoidOrbit) || mass > maxMass ) {
 			return null;
 		}
 		
@@ -316,12 +330,20 @@ public final class PlanetGenerator {
 		return planet;
 	}
 
-	public static Planet newPlanetoid(Star star, double mass, String name, long seed) {
+	public static Planet newPlanetoid(Star star, long seed) {
+		return newPlanetoid(star, DEFAULT_PLANETOID_MASSGENERATOR, (String)null, seed);
+	}
+	
+	public static Planet newPlanetoid(Star star, String name, long seed) {
+		return newPlanetoid(star, DEFAULT_PLANETOID_MASSGENERATOR, name, seed);
+	}
+	
+	public static Planet newPlanetoid(Star star, Function<Random, Double> massGenerator, String name, long seed) {
 		Planet planet = new Planet(null, true);
-		planet.mass(mass);
 		planet.seed(seed);
 		planet.name(null != name ? name : planetoidName(planet.random()));
 		planet.rotationPeriod(planet.random().nextGaussian() * 60000 + 72000);
+		double mass = massGenerator.apply(planet.random());
 		Orbit planetoidOrbit = newPlanetaryOrbit(planet, star, null,
 				(orbit, eccentrity) -> star.orbitFree(orbit, eccentrity)
 				&& star.sternLevisonParameter(mass, orbit) <= 0.01, 5.0);

@@ -21,11 +21,15 @@ public final class StarGenTest1 {
 	public static void main(String[] args) {
 		Universe u = new Universe(/*-5638973688361399781L*/);
 		System.err.println("UNIVERSE SEED " + u.seed);
-		Star s = SystemGenerator.star(u, "F6V", -5638973690006251588L);
+		Star s = SystemGenerator.star(u);
 
 		printStar(s, 1);
 		List<Planet> planets = new ArrayList<Planet>(s.planets);
 		planets.addAll(s.planetoids);
+		long pSeed = 0;
+		if( s.planetoids.size() > 0 ) {
+			pSeed = s.planetoids.get(s.planetoids.size() - 1).seed();
+		}
 		Collections.sort(planets, Satellite.ORBITAL_COMPARATOR);
 		for( Planet p : planets )
 		{
@@ -59,7 +63,7 @@ public final class StarGenTest1 {
 		printStar(sol, 2);
 		//printPlanet(earth);
 		//printPlanet(jupiter);
-		Planet test = PlanetGenerator.newPlanetoid(sol, 3.871 * Constant.YOTTAGRAM, null, -5638973679032511601L);
+		Planet test = PlanetGenerator.newPlanetoid(sol, pSeed);
 		printPlanet(test);
 
 		System.exit(0);
@@ -105,7 +109,8 @@ public final class StarGenTest1 {
 				+ " m/s, mol. limit: " + String.format(Locale.ROOT, "%.2f", p.molecularLimit()));
 		System.out.println("       core pressure (Earth) " + String.format(Locale.ROOT, "%.2f GPa", p.corePressure(13300, 2600) / 1e9)
 				+ " compressibility: " + String.format(Locale.ROOT, "%.2f TPa^-1", p.compressibility() * 1e12));
-		System.out.println("       day length: "
+		System.out.println("       rotational period: "
+				+ String.format(Locale.ROOT, "%.2f",  p.rotationPeriod() / 3600.0) + " hours, day length: "
 				+ String.format(Locale.ROOT, "%.2f",  p.dayLength() / 3600.0) + " hours, year length: "
 				+ String.format(Locale.ROOT, "%.2f", p.siderealPeriod() / 90000.0) + " galactic days, moons: "
 				+ p.moons.size());

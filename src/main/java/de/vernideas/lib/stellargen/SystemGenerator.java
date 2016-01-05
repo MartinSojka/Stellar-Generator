@@ -144,8 +144,7 @@ public class SystemGenerator {
 		
 		for( int i = 0; i < planetoids; ++ i )
 		{
-			double planetoidMass = GenUtil.lerp(Constant.MIN_TERRESTRIAL_MASS / 1000, Math.min(smallestPlanetMass / 10, Constant.MIN_TERRESTRIAL_MASS * 10), Math.pow(Math.min(star.random().nextDouble(), star.random().nextDouble()), 6.0));
-			Planet planet = PlanetGenerator.newPlanetoid(star, planetoidMass);
+			Planet planet = PlanetGenerator.newPlanetoid(star, smallestPlanetMass / 10);
 			if( null != planet )
 			{
 				star.planetoids.add(planet);
