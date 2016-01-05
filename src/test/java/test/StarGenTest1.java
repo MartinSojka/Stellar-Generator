@@ -21,14 +21,14 @@ public final class StarGenTest1 {
 	public static void main(String[] args) {
 		Universe u = new Universe(/*-5638973688361399781L*/);
 		System.err.println("UNIVERSE SEED " + u.seed);
-		Star s = SystemGenerator.star(u);
+		Star s = SystemGenerator.star(u, "G2V");
 
 		printStar(s, 1);
 		List<Planet> planets = new ArrayList<Planet>(s.planets);
-		planets.addAll(s.planetoids);
+		//planets.addAll(s.planetoids);
 		long pSeed = 0;
-		if( s.planetoids.size() > 0 ) {
-			pSeed = s.planetoids.get(s.planetoids.size() - 1).seed();
+		if( s.planets.size() > 0 ) {
+			pSeed = s.planets.get(0).seed();
 		}
 		Collections.sort(planets, Satellite.ORBITAL_COMPARATOR);
 		for( Planet p : planets )
@@ -63,8 +63,9 @@ public final class StarGenTest1 {
 		printStar(sol, 2);
 		//printPlanet(earth);
 		//printPlanet(jupiter);
-		Planet test = PlanetGenerator.newPlanetoid(sol, pSeed);
-		printPlanet(test);
+		Planet test = null;
+		//Planet test = PlanetGenerator.newGasgiant(sol, "Test Giant", pSeed);
+		//printPlanet(test);
 		
 		test = PlanetGenerator.newGasgiant(sol, "Test Planet", Constant.MAX_TERRESTRIAL_MASS, 1e29);
 		printPlanet(test);

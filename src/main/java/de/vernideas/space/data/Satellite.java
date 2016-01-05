@@ -24,6 +24,11 @@ public abstract class Satellite extends StellarObject {
 			return (o1.mass < o2.mass ? -1 : o1.mass > o2.mass ? 1 : 0);
 		}
 	};
+	public static final Comparator<Satellite> REVERSE_MASS_COMPARATOR = new Comparator<Satellite>() {
+		@Override public int compare(Satellite o1, Satellite o2) {
+			return (o1.mass < o2.mass ? 1 : o1.mass > o2.mass ? -1 : 0);
+		}
+	};
 
 
 	@NonNull @Getter protected StellarObject parent;

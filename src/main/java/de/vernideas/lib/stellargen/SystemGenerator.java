@@ -74,39 +74,33 @@ public class SystemGenerator {
 		
 		double stellarDust = stellarDustLimit;
 		
-		List<Double> planetMasses = null;
+		List<Planet> planets = null;
 		if( planetNum == 0 )
 		{
-			planetMasses = new ArrayList<Double>(0);
+			planets = new ArrayList<Planet>(0);
 		}
 		else
 		{
-			planetMasses = new ArrayList<Double>(planetNum);
-
+			planets = new ArrayList<Planet>(planetNum);
+			
 			int curPlanetNum = 0;
 			while( stellarDust > 1000.0 * Constant.YOTTAGRAM && planetNum > curPlanetNum )
 			{
-				double randomMass = 0.0;
+				Planet tempPlanet = null;
 				if( stellarDust > stellarDustLimit * 0.01 && stellarDust > Constant.MAX_TERRESTRIAL_MASS && star.random().nextInt(10) + gasgiantMod > 3 )
 				{
 					// Try generating gas giants first
 					double minMass = Math.max(Constant.MAX_TERRESTRIAL_MASS, stellarDust / 2.0);
-					randomMass = planetMass(star.random(), minMass, Math.min(maxPlanetaryMass, stellarDust)).first;
+					tempPlanet = PlanetGenerator.newGasgiant(star, null, minMass, Math.min(maxPlanetaryMass, stellarDust));
 				}
 				else
 				{
 					double maxMass = Math.min(maxPlanetaryMass, stellarDust * (0.5 + (planetNum - curPlanetNum) / (2.0 * planetNum)));
-					randomMass = planetMass(star.random(), 1e23, maxMass).first;
+					tempPlanet = PlanetGenerator.newTerrestialPlanet(star, null, Constant.MIN_TERRESTRIAL_MASS, maxMass);
 				}
-				if( randomMass <= stellarDust )
-				{
-					// Would be we left with a whole planet's worth of mass?
-					if( curPlanetNum >= planetNum - 1 && stellarDust - randomMass > Constant.MIN_TERRESTRIAL_MASS * 1.1 ) {
-						randomMass += (stellarDust - randomMass) * (1.0 - Math.abs(star.random().nextGaussian()) * 0.001);
-					}
-					randomMass = Math.min(randomMass, maxPlanetaryMass);
-					planetMasses.add(randomMass);
-					stellarDust -= randomMass;
+				if( null != tempPlanet && tempPlanet.mass() <= stellarDust ) {
+					planets.add(tempPlanet);
+					stellarDust -= tempPlanet.mass();
 					++ curPlanetNum;
 				}
 			}
@@ -115,10 +109,11 @@ public class SystemGenerator {
 		}
 				
 		// Assign orbits
-		Collections.sort(planetMasses, Collections.<Double>reverseOrder());
+		Collections.sort(planets, Satellite.REVERSE_MASS_COMPARATOR);
 		int generatedPlanets = 0;
 		double smallestPlanetMass = Constant.MAX_TERRESTRIAL_MASS;
 		for( int i = 0; i < planetNum; ++ i ) {
+			/*
 			Planet planet = null;
 			boolean habitable = false;
 			if( planetMasses.get(i) > Constant.MIN_TERRESTRIAL_MASS && planetMasses.get(i) < Constant.MAX_TERRESTRIAL_MASS ) {
@@ -135,6 +130,17 @@ public class SystemGenerator {
 				{
 					smallestPlanetMass = planet.mass();
 				}
+			}
+			*/
+			boolean habitable = false;
+			Planet planet = planets.get(i);
+			planet.name(star.name() + " " + (char)('b' + generatedPlanets));
+			habitable = habitable || planet.habitable();
+			star.planets.add(planet);
+			++ generatedPlanets;
+			if( planet.mass() < smallestPlanetMass )
+			{
+				smallestPlanetMass = planet.mass();
 			}
 		}
 
