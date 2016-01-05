@@ -122,9 +122,9 @@ public class SystemGenerator {
 			Planet planet = null;
 			boolean habitable = false;
 			if( planetMasses.get(i) > Constant.MIN_TERRESTRIAL_MASS && planetMasses.get(i) < Constant.MAX_TERRESTRIAL_MASS ) {
-				planet = PlanetGenerator.newTerrestialPlanet(star, planetMasses.get(i), star.name + " " + (char)('b' + generatedPlanets), habitable ? 0 : 1000);
+				planet = PlanetGenerator.newTerrestialPlanet(star, planetMasses.get(i), star.name() + " " + (char)('b' + generatedPlanets), habitable ? 0 : 1000);
 			} else {
-				planet = PlanetGenerator.newGasgiant(star, planetMasses.get(i), star.name + " " + (char)('b' + generatedPlanets));
+				planet = PlanetGenerator.newGasgiant(star, planetMasses.get(i), star.name() + " " + (char)('b' + generatedPlanets));
 			}
 			if( null != planet )
 			{

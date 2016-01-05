@@ -14,7 +14,7 @@ import lombok.experimental.Accessors;
 @Accessors(fluent = true)
 public abstract class StellarObject {
 
-	@NonNull public final String name;
+	@NonNull @Getter @Setter protected String name;
 	/** Mass in Yg (10^21 kg) */
 	@Getter @Setter protected double mass;
 	/** Diameter in m */
@@ -27,7 +27,7 @@ public abstract class StellarObject {
 	@Getter @Setter protected Person owner;
 	
 	protected StellarObject(String name) {
-		this.name = name;
+		this.name(name);
 		this.random = new Random();
 	}
 	

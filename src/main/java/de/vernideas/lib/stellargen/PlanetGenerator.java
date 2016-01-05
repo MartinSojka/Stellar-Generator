@@ -38,7 +38,7 @@ public final class PlanetGenerator {
 			{
 				planet.moons.add(newMoon((Star)planet.parent(), planet, 
 						(rnd) -> GenUtil.lerp(Constant.MIN_MOON_MASS, maxMass, Math.pow(rnd.nextDouble(), 9.0)),
-						planet.name + " " + GenUtil.romanNumber(m + 1)));
+						null /*planet.name + " " + GenUtil.romanNumber(m + 1)*/));
 			}
 		}
 	}
@@ -162,6 +162,9 @@ public final class PlanetGenerator {
 	private static final RealDistribution moonDistribution = new BetaDistribution(3.0, 9.0);
 	
 	public static Moon newMoon(Star star, Planet planet, Function<Random, Double> massGenerator, String name) {
+		if( null == name ) {
+			name = planet.name() + " " + GenUtil.romanNumber(planet.moons.size() + 1);
+		}
 		Moon moon = new Moon(name);
 		
 		// Pick planetary model
@@ -199,7 +202,7 @@ public final class PlanetGenerator {
 			eccentrity *= (orbit * 10000.0 * Constant.YOTTAGRAM / planet.mass());
 		}
 		
-		moon.orbit(planet, new Orbit(orbit, eccentrity, Math.abs(moon.random().nextGaussian() / 6 / Math.PI)));
+		moon.orbit(planet, new Orbit(orbit, eccentrity, Math.abs(planet.random().nextGaussian() / 6 / Math.PI)));
 		moon.rotationPeriod(rotationPeriod);
 		moon.diameter(diameter);
 		moon.material(material);

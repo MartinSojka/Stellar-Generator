@@ -67,7 +67,7 @@ public final class StarGenTest1 {
 
 	private static void printStar(Star star, int i)
 	{
-		System.out.println("[" + String.format("%02d", i) + "] (" + star.seed() + ") " + star.name
+		System.out.println("[" + String.format("%02d", i) + "] (" + star.seed() + ") " + star.name()
 				+ " (" + star.starClass.fullDeclaration() + "), mass "
 				+ String.format(Locale.ROOT, "%.3f", star.mass() / Constant.SOLAR_MASS)
 				+ " M☉, "
@@ -89,7 +89,7 @@ public final class StarGenTest1 {
 	
 	private static void printPlanet(Planet p)
 	{
-		System.out.println("     " + p.name + " [" + p.planetaryClass().name + "]"
+		System.out.println("     " + p.name() + " [" + p.planetaryClass().name + "]"
 				+ ", mass: " + String.format(Locale.ROOT, "%.3f Yg [gas giant limit %.3f Yg]", p.mass() / Constant.YOTTAGRAM, p.criticalMass() / Constant.YOTTAGRAM)
 				+ ", exclusion zone "
 				+ String.format(Locale.ROOT, "%.3f", p.exclusionZone() / Constant.AU)
@@ -113,7 +113,7 @@ public final class StarGenTest1 {
 	
 	private static void printMoon(Moon m)
 	{
-		System.out.println("         " + m.name + ", type: " + m.planetaryClass().name
+		System.out.println("         " + m.name() + ", type: " + m.planetaryClass().name
 				+ ", mass: " + String.format("%.3f", m.mass() / Constant.YOTTAGRAM)
 				+ " Yg, radius (Earth radii) " + String.format("%.2f", m.diameter() / Constant.EARTH_DIAMETER)
 				+ ", gravity: " + String.format("%.3f", m.surfaceGravity())
