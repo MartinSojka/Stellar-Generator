@@ -65,7 +65,10 @@ public final class StarGenTest1 {
 		//printPlanet(jupiter);
 		Planet test = PlanetGenerator.newPlanetoid(sol, pSeed);
 		printPlanet(test);
-
+		
+		test = PlanetGenerator.newGasgiant(sol, "Test Planet", Constant.MAX_TERRESTRIAL_MASS, 1e29);
+		printPlanet(test);
+		
 		System.exit(0);
 	}
 

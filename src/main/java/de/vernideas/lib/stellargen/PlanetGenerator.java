@@ -15,11 +15,13 @@ import de.vernideas.space.data.Moon;
 import de.vernideas.space.data.Orbit;
 import de.vernideas.space.data.Pair;
 import de.vernideas.space.data.Planet;
+import de.vernideas.space.data.Satellite;
 import de.vernideas.space.data.Star;
 import de.vernideas.space.data.planetaryclass.PlanetaryClass;
 import lombok.NonNull;
 
 public final class PlanetGenerator {
+	@Deprecated
 	public static Planet newTerrestialPlanet(Star star, double mass, String name) {
 		return newTerrestialPlanet(star, mass, name, 0);
 	}
@@ -79,6 +81,7 @@ public final class PlanetGenerator {
 		return null;
 	}
 	
+	@Deprecated
 	private static Orbit newPlanetaryOrbit(@NonNull Star star, OrbitFilter filter, @NonNull OrbitValidator validator, double inclinationMult) {
 		int tryCount = 0;
 		double orbit = 0.0;
@@ -105,7 +108,108 @@ public final class PlanetGenerator {
 		return new Orbit(orbit, eccentrity, inclination);
 	}
 	
+	/**
+	 * Reset the planet randomiser with a new seed, and apply all data that's generatable without
+	 * potential failure.
+	 * 
+	 * @param planet
+	 */
+	private static void seedPlanet(Planet planet, String name) {
+		planet.seed(planet.seed() + 13377331L);
+		planet.name(name);
+		planet.rotationPeriod(planet.random().nextGaussian() * 60000 + 72000);
+	}
+	
+	private static void decorateTerrestialPlanet(Planet planet, double mass, Star star, PlanetaryClass pClass, Orbit planetaryOrbit) {
+		planet.mass(mass);
+		planet.orbit(star, planetaryOrbit);
+
+		Material material = pClass.newMaterial(planet.random(), planetaryOrbit.blackbodyTemp(star));
+		planet.material(material);
+		double density = material.estimateCompressedDensity(mass);
+		planet.diameter(Math.pow(6 * mass / (Math.PI * density), 1.0 / 3.0));
+		planet.planetaryClass(pClass);
+		
+		generateMoons(planet);
+	}
+
 	/** Try to generate a new terrestial planet */
+	public static Planet newTerrestialPlanet(Star star, String name, double minMass, double maxMass) {
+		Planet planet = new Planet(name, false);
+		planet.seed(star.seed() + 47L * star.random().nextInt());
+		
+		int retriesLeft = 100;
+		
+		do {
+			seedPlanet(planet, name);
+			double mass = Satellite.newMass(planet.random());
+			Orbit planetaryOrbit = newPlanetaryOrbit(planet, star,
+					(orbit) -> {
+						if( orbit > star.frostLine() && mass < planet.random().nextDouble() * Constant.MAX_TERRESTRIAL_MASS ) {
+							return Math.max(Math.min(orbit, planet.random().nextDouble() * star.outerPlanetLimit()), star.innerPlanetLimit());
+						} else {
+							return orbit;
+						}
+					},
+					(orbit, eccentrity) -> star.orbitFree(orbit, eccentrity)
+						&& star.sternLevisonParameter(mass, orbit) >= 100.0, 1.0);
+			PlanetaryClass pClass = newTerrestialClass(planet.random());
+			if( pClass.validTemperature(star, planetaryOrbit) && mass >= minMass && mass <= maxMass ) {
+				decorateTerrestialPlanet(planet, mass, star, pClass, planetaryOrbit);
+				return planet;
+			}
+			-- retriesLeft;
+		} while( retriesLeft > 0 );
+		return null;
+	}
+	
+	private static void decorateGasgiant(Planet planet, double mass, Star star, PlanetaryClass pClass, Orbit planetaryOrbit) {
+		planet.mass(mass);
+		planet.orbit(star, planetaryOrbit);
+
+		// Create planetary material
+		Material material = pClass.newMaterial(planet.random(), planetaryOrbit.blackbodyTemp(star));
+		planet.material(material);
+		// We need a proper estimate for gas giants here
+		// double density = material.estimateCompressedDensity(mass);
+		planet.diameter(Math.pow(6 * mass / (Math.PI * material.uncompressedDensity), 1.0 / 3.0));
+		planet.planetaryClass(pClass);
+
+		generateMoons(planet);
+	}
+
+	/** Try to generate a new gas giant */
+	public static Planet newGasgiant(Star star, String name, double minMass, double maxMass) {
+		Planet planet = new Planet(name, false);
+		planet.seed(star.seed() + 47L * star.random().nextInt());
+		
+		int retriesLeft = 100;
+		
+		do {
+			seedPlanet(planet, name);
+			double mass = Satellite.newMass(planet.random());
+			Orbit planetaryOrbit = newPlanetaryOrbit(planet, star,
+					(orbit) -> {
+						if( orbit < star.frostLine() && mass * planet.random().nextDouble() > Constant.MAX_TERRESTRIAL_MASS ) {
+							return GenUtil.lerp(star.frostLine(), star.outerPlanetLimit(), Math.pow(Math.min(planet.random().nextDouble(), planet.random().nextDouble()), 1.5));
+						} else {
+							return orbit;
+						}
+					},
+					(orbit, eccentrity) -> star.orbitFree(orbit, eccentrity)
+						&& star.sternLevisonParameter(mass, orbit) >= 100.0, 1.0);
+			PlanetaryClass pClass = newGasgiantClass(planet.random());
+			if( pClass.validTemperature(star, planetaryOrbit) && mass >= minMass && mass <= maxMass ) {
+				decorateGasgiant(planet, mass, star, pClass, planetaryOrbit);
+				return planet;
+			}
+			-- retriesLeft;
+		} while( retriesLeft > 0 );
+		return null;
+	}
+
+	/** Try to generate a new terrestial planet */
+	@Deprecated
 	public static Planet newTerrestialPlanet(Star star, double mass, String name, int habitableRetries) {
 		if( mass > Constant.MAX_TERRESTRIAL_MASS || mass < Constant.MIN_TERRESTRIAL_MASS || null == star ) {
 			return null;
@@ -154,6 +258,7 @@ public final class PlanetGenerator {
 		return planet;
 	}
 	
+	@Deprecated
 	public static Planet newGasgiant(Star star, double mass, String planetName) {
 		Planet planet = new Planet(planetName, false);
 		planet.mass(mass);
@@ -287,58 +392,44 @@ public final class PlanetGenerator {
 					Math.pow(Math.min(rnd.nextDouble(), rnd.nextDouble()), 6.0));
 	
 	public static Planet newPlanetoid(Star star, double maxMass) {
-		return newPlanetoid(star, DEFAULT_PLANETOID_MASSGENERATOR, maxMass, (String)null);
+		return newPlanetoid(star, maxMass, (String)null);
 	}
 	
-	public static Planet newPlanetoid(Star star, Function<Random, Double> massGenerator, double maxMass) {
-		return newPlanetoid(star, massGenerator, maxMass, (String)null);
-	}
-	
-	public static Planet newPlanetoid(Star star, Function<Random, Double> massGenerator, double maxMass, String name)
+	public static Planet newPlanetoid(Star star, double maxMass, String name)
 	{
+		Function<Random, Double> massGenerator = DEFAULT_PLANETOID_MASSGENERATOR;
 		Planet planet = new Planet(null, true);
 		planet.seed(star.seed() + 47L * star.random().nextInt());
-		seedPlanetoid(planet, name);
 		
 		// Trying to get a free orbit and a valid planetoid class for it
 		int orbitRetriesLeft = 100;
 		
 		// Initial data
-		double mass = massGenerator.apply(planet.random());
-		double initialMass = mass;
-		Orbit planetoidOrbit = newPlanetaryOrbit(planet, star, (orbit) -> orbit * 30,
-				(orbit, eccentrity) -> star.orbitFree(orbit, eccentrity, 2.0)
-				&& star.sternLevisonParameter(initialMass, orbit) <= 0.01, 5.0);
-		PlanetaryClass pClass = newPlanetoidClass(planet.random());
-		
-		while( (!pClass.validTemperature(star, planetoidOrbit) || mass > maxMass) && orbitRetriesLeft > 0 ) {
-			-- orbitRetriesLeft;
+		do {
 			seedPlanetoid(planet, name);
-			mass = massGenerator.apply(planet.random());
-			double secondInitialMass = mass;
-			planetoidOrbit = newPlanetaryOrbit(planet, star, (orbit) -> orbit * 30,
+			
+			double mass = massGenerator.apply(planet.random());
+			Orbit planetoidOrbit = newPlanetaryOrbit(planet, star, (orbit) -> orbit * 30,
 					(orbit, eccentrity) -> star.orbitFree(orbit, eccentrity, 2.0)
-					&& star.sternLevisonParameter(secondInitialMass, orbit) <= 0.01, 5.0);
-			pClass = newPlanetoidClass(planet.random());
-		}
-		if( !pClass.validTemperature(star, planetoidOrbit) || mass > maxMass ) {
-			return null;
-		}
+					&& star.sternLevisonParameter(mass, orbit) <= 0.01, 5.0);
+			PlanetaryClass pClass = newPlanetoidClass(planet.random());
+			
+			if( pClass.validTemperature(star, planetoidOrbit) && mass <= maxMass ) {
+				decoratePlanetoid(planet, mass, star, pClass, planetoidOrbit);
+				return planet;
+			}
+			-- orbitRetriesLeft;
+		} while( orbitRetriesLeft > 0 );
 		
-		decoratePlanetoid(planet, mass, star, pClass, planetoidOrbit);
-		
-		return planet;
+		return null;
 	}
 
 	public static Planet newPlanetoid(Star star, long seed) {
-		return newPlanetoid(star, DEFAULT_PLANETOID_MASSGENERATOR, (String)null, seed);
+		return newPlanetoid(star, (String)null, seed);
 	}
 	
 	public static Planet newPlanetoid(Star star, String name, long seed) {
-		return newPlanetoid(star, DEFAULT_PLANETOID_MASSGENERATOR, name, seed);
-	}
-	
-	public static Planet newPlanetoid(Star star, Function<Random, Double> massGenerator, String name, long seed) {
+		Function<Random, Double> massGenerator = DEFAULT_PLANETOID_MASSGENERATOR;
 		Planet planet = new Planet(null, true);
 		planet.seed(seed);
 		planet.name(null != name ? name : planetoidName(planet.random()));
