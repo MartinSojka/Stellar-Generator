@@ -61,7 +61,7 @@ public final class PlanetGenerator {
 	 * @return
 	 */
 	public static Orbit newPlanetaryOrbit(@NonNull Planet planet, @NonNull Star star, OrbitFilter filter, @NonNull OrbitValidator validator, double inclinationMult) {
-		double blackbodyTemp = GenUtil.lerp(3200.0, 0.0, Math.sqrt(Math.min(planet.random().nextDouble(), planet.random().nextDouble())));
+		double blackbodyTemp = GenUtil.lerp(3200.0, 0.0, Math.pow(Math.min(planet.random().nextDouble(), planet.random().nextDouble()), 0.25));
 		double orbit = star.distanceForTemperature(blackbodyTemp);
 		double eccentrity = Math.pow(planet.random().nextDouble(), 6.0) / 2.0;
 		// Flatten out the eccentrity for low-lying planetary orbits (below 1.99 AU for the Sun)
@@ -306,8 +306,8 @@ public final class PlanetGenerator {
 		// Initial data
 		double mass = massGenerator.apply(planet.random());
 		double initialMass = mass;
-		Orbit planetoidOrbit = newPlanetaryOrbit(planet, star, null,
-				(orbit, eccentrity) -> star.orbitFree(orbit, eccentrity)
+		Orbit planetoidOrbit = newPlanetaryOrbit(planet, star, (orbit) -> orbit * 30,
+				(orbit, eccentrity) -> star.orbitFree(orbit, eccentrity, 2.0)
 				&& star.sternLevisonParameter(initialMass, orbit) <= 0.01, 5.0);
 		PlanetaryClass pClass = newPlanetoidClass(planet.random());
 		
@@ -316,8 +316,8 @@ public final class PlanetGenerator {
 			seedPlanetoid(planet, name);
 			mass = massGenerator.apply(planet.random());
 			double secondInitialMass = mass;
-			planetoidOrbit = newPlanetaryOrbit(planet, star, null,
-					(orbit, eccentrity) -> star.orbitFree(orbit, eccentrity)
+			planetoidOrbit = newPlanetaryOrbit(planet, star, (orbit) -> orbit * 30,
+					(orbit, eccentrity) -> star.orbitFree(orbit, eccentrity, 2.0)
 					&& star.sternLevisonParameter(secondInitialMass, orbit) <= 0.01, 5.0);
 			pClass = newPlanetoidClass(planet.random());
 		}
@@ -344,8 +344,8 @@ public final class PlanetGenerator {
 		planet.name(null != name ? name : planetoidName(planet.random()));
 		planet.rotationPeriod(planet.random().nextGaussian() * 60000 + 72000);
 		double mass = massGenerator.apply(planet.random());
-		Orbit planetoidOrbit = newPlanetaryOrbit(planet, star, null,
-				(orbit, eccentrity) -> star.orbitFree(orbit, eccentrity)
+		Orbit planetoidOrbit = newPlanetaryOrbit(planet, star, (orbit) -> orbit * 30,
+				(orbit, eccentrity) -> star.orbitFree(orbit, eccentrity, 2.0)
 				&& star.sternLevisonParameter(mass, orbit) <= 0.01, 5.0);
 		PlanetaryClass pClass = newPlanetoidClass(planet.random());
 

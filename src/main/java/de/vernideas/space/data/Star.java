@@ -110,10 +110,14 @@ public class Star extends StellarObject {
 	private final double RESONANCE_7_3 = Math.pow(7.0/3.0, -2.0/3.0);
 	// Weak - 9:2, 7:2, 10:3, 8:3, 5:3, 9:4, 11:5, 11:6 (not sure if we need to bother)
 	
+	public boolean orbitFree(double radius, double eccentrity) {
+		return orbitFree(radius, eccentrity, 1.0);
+	}
+	
 	/**
 	 * Goes through the current planet list and checks if the orbit is "free" to house another planet.
 	 */
-	public boolean orbitFree(double radius, double eccentrity) {
+	public boolean orbitFree(double radius, double eccentrity, double maxOrbitMultiplier) {
 		double peri = (1.0 - eccentrity) * radius;
 		double apo = (1.0 + eccentrity) * radius;
 		
@@ -121,7 +125,7 @@ public class Star extends StellarObject {
 		if( peri < diameter || peri < boilingLine ) {
 			return false;
 		}
-		if( radius < innerPlanetLimit || radius > outerPlanetLimit ) {
+		if( radius < innerPlanetLimit || radius > outerPlanetLimit * maxOrbitMultiplier ) {
 			return false;
 		}
 		
