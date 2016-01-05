@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.TreeMap;
+import java.util.function.Function;
 
 import org.apache.commons.math3.distribution.BetaDistribution;
 import org.apache.commons.math3.distribution.RealDistribution;
@@ -35,8 +36,9 @@ public final class PlanetGenerator {
 			double maxMass = Math.min(planet.mass() / 25.0, Constant.MAX_TERRESTRIAL_MASS * 2.0);
 			for( int m = 0; m < majorMoons; ++ m )
 			{
-				double moonMass = GenUtil.lerp(Constant.MIN_MOON_MASS, maxMass, Math.pow(planet.random().nextDouble(), 9.0));
-				planet.moons.add(newMoon((Star)planet.parent(), planet, moonMass, planet.name + " " + GenUtil.romanNumber(m + 1)));
+				planet.moons.add(newMoon((Star)planet.parent(), planet, 
+						(rnd) -> GenUtil.lerp(Constant.MIN_MOON_MASS, maxMass, Math.pow(rnd.nextDouble(), 9.0)),
+						planet.name + " " + GenUtil.romanNumber(m + 1)));
 			}
 		}
 	}
@@ -159,15 +161,21 @@ public final class PlanetGenerator {
 	
 	private static final RealDistribution moonDistribution = new BetaDistribution(3.0, 9.0);
 	
-	public static Moon newMoon(Star star, Planet planet, double mass, String name) {
+	public static Moon newMoon(Star star, Planet planet, Function<Random, Double> massGenerator, String name) {
 		Moon moon = new Moon(name);
-		moon.mass(mass);
-		moon.seed(planet.seed() + planet.random().nextInt());
 		
 		// Pick planetary model
+		moon.seed(planet.seed() + planet.random().nextInt());
+		double mass = massGenerator.apply(moon.random());
+		moon.mass(mass);
 		boolean minor = mass < Constant.MIN_TERRESTRIAL_MASS;
 		PlanetaryClass pClass = minor ? newPlanetoidClass(moon.random()) : newTerrestialClass(moon.random());
 		while( !pClass.validTemperature(star, planet.orbit()) ) {
+			// Try with a different seed
+			moon.seed(moon.seed() + 1337);
+			mass = massGenerator.apply(moon.random());
+			moon.mass(mass);
+			minor = mass < Constant.MIN_TERRESTRIAL_MASS;
 			pClass = minor ? newPlanetoidClass(moon.random()) : newTerrestialClass(moon.random());
 		}
 
@@ -212,11 +220,11 @@ public final class PlanetGenerator {
 		if( null == planetoidOrbit ) {
 			return null;
 		}
-		Planet planet = new Planet(name, true);
+		String planetoidName = null != name ? name : planetoidName(star.random());
+		Planet planet = new Planet(planetoidName, true);
 		planet.seed(star.seed() + 47L * star.random().nextInt());
 
 		double rotationPeriod = planet.random().nextGaussian() * 60000 + 72000;
-		String planetoidName = null != name ? name : planetoidName(planet.random());
 
 		// Create planetary material
 		PlanetaryClass pClass = newPlanetoidClass(planet.random());
