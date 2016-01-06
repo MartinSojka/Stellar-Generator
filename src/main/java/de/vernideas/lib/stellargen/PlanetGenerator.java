@@ -57,17 +57,17 @@ public final class PlanetGenerator {
 	 * @param inclinationMult
 	 * @return
 	 */
-	public static Orbit newPlanetaryOrbit(@NonNull Planet planet, @NonNull Star star, OrbitFilter filter, @NonNull OrbitValidator validator, double inclinationMult) {
+	public static Orbit newPlanetaryOrbit(@NonNull Planet planet, @NonNull Star star, BlackbodyFilter filter, @NonNull OrbitValidator validator, double inclinationMult) {
 		double blackbodyTemp = GenUtil.lerp(3200.0, 0.0, Math.pow(Math.min(planet.random().nextDouble(), planet.random().nextDouble()), 0.25));
+		// Filter if needed
+		if( null != filter ) {
+			blackbodyTemp = filter.filter(blackbodyTemp);
+		}
 		double orbit = star.distanceForTemperature(blackbodyTemp);
 		double eccentrity = Math.pow(planet.random().nextDouble(), 6.0) / 2.0;
 		// Flatten out the eccentrity for low-lying planetary orbits (below 1.99 AU for the Sun)
 		if( orbit / Constant.AU < star.mass() / 1e29 ) {
 			eccentrity *= (orbit / Constant.AU * 1e29 / star.mass());
-		}
-		// Filter if needed
-		if( null != filter ) {
-			orbit = filter.filter(orbit);
 		}
 		if( validator.validate(orbit, eccentrity) ) {
 			double inclination = Math.toRadians(inclinationMult * Math.sqrt(-2.0 * Math.log(planet.random().nextDouble())));
@@ -112,11 +112,11 @@ public final class PlanetGenerator {
 			seedPlanet(planet, name);
 			double mass = Satellite.newMass(planet.random());
 			Orbit planetaryOrbit = newPlanetaryOrbit(planet, star,
-					(orbit) -> {
-						if( orbit > star.frostLine() && mass < planet.random().nextDouble() * Constant.MAX_TERRESTRIAL_MASS ) {
-							return Math.max(Math.min(orbit, planet.random().nextDouble() * star.outerPlanetLimit()), star.innerPlanetLimit());
+					(blackbodyTemperature) -> {
+						if( blackbodyTemperature < 150 && mass < planet.random().nextDouble() * Constant.MAX_TERRESTRIAL_MASS ) {
+							return Math.max(blackbodyTemperature, GenUtil.lerp(3200.0, 0.0, Math.pow(planet.random().nextDouble(), 0.25)));
 						} else {
-							return orbit;
+							return blackbodyTemperature;
 						}
 					},
 					(orbit, eccentrity) -> star.orbitFree(orbit, eccentrity)
@@ -142,11 +142,11 @@ public final class PlanetGenerator {
 		planet.rotationPeriod(planet.random().nextGaussian() * 60000 + 72000);
 		double mass = Satellite.newMass(planet.random());
 		Orbit planetaryOrbit = newPlanetaryOrbit(planet, star,
-				(orbit) -> {
-					if( orbit > star.frostLine() && mass < planet.random().nextDouble() * Constant.MAX_TERRESTRIAL_MASS ) {
-						return Math.max(Math.min(orbit, planet.random().nextDouble() * star.outerPlanetLimit()), star.innerPlanetLimit());
+				(blackbodyTemperature) -> {
+					if( blackbodyTemperature < 150 && mass < planet.random().nextDouble() * Constant.MAX_TERRESTRIAL_MASS ) {
+						return Math.max(blackbodyTemperature, GenUtil.lerp(3200.0, 0.0, Math.pow(planet.random().nextDouble(), 0.25)));
 					} else {
-						return orbit;
+						return blackbodyTemperature;
 					}
 				},
 				(orbit, eccentrity) -> true, 1.0);
@@ -181,11 +181,11 @@ public final class PlanetGenerator {
 			seedPlanet(planet, name);
 			double mass = Satellite.newMass(planet.random());
 			Orbit planetaryOrbit = newPlanetaryOrbit(planet, star,
-					(orbit) -> {
-						if( orbit < star.frostLine() && mass * planet.random().nextDouble() > Constant.MAX_TERRESTRIAL_MASS ) {
-							return GenUtil.lerp(star.frostLine(), star.outerPlanetLimit(), Math.pow(Math.min(planet.random().nextDouble(), planet.random().nextDouble()), 1.5));
+					(blackbodyTemperature) -> {
+						if( blackbodyTemperature > 150 && mass * planet.random().nextDouble() > Constant.MAX_TERRESTRIAL_MASS ) {
+							return GenUtil.lerp(150.0, 0.0, Math.pow(Math.min(planet.random().nextDouble(), planet.random().nextDouble()), 0.2));
 						} else {
-							return orbit;
+							return blackbodyTemperature;
 						}
 					},
 					(orbit, eccentrity) -> star.orbitFree(orbit, eccentrity)
@@ -211,11 +211,11 @@ public final class PlanetGenerator {
 		planet.rotationPeriod(planet.random().nextGaussian() * 60000 + 72000);
 		double mass = Satellite.newMass(planet.random());
 		Orbit planetaryOrbit = newPlanetaryOrbit(planet, star,
-				(orbit) -> {
-					if( orbit < star.frostLine() && mass * planet.random().nextDouble() > Constant.MAX_TERRESTRIAL_MASS ) {
-						return GenUtil.lerp(star.frostLine(), star.outerPlanetLimit(), Math.pow(Math.min(planet.random().nextDouble(), planet.random().nextDouble()), 1.5));
+				(blackbodyTemperature) -> {
+					if( blackbodyTemperature > 150 && mass * planet.random().nextDouble() > Constant.MAX_TERRESTRIAL_MASS ) {
+						return GenUtil.lerp(150.0, 0.0, Math.pow(Math.min(planet.random().nextDouble(), planet.random().nextDouble()), 0.2));
 					} else {
-						return orbit;
+						return blackbodyTemperature;
 					}
 				},
 				(orbit, eccentrity) -> true, 1.0);
@@ -334,7 +334,7 @@ public final class PlanetGenerator {
 			seedPlanetoid(planet, name);
 			
 			double mass = massGenerator.apply(planet.random());
-			Orbit planetoidOrbit = newPlanetaryOrbit(planet, star, (orbit) -> orbit * 30,
+			Orbit planetoidOrbit = newPlanetaryOrbit(planet, star, (blackbodyTemperature) -> blackbodyTemperature / 2.5,
 					(orbit, eccentrity) -> star.orbitFree(orbit, eccentrity, 2.0)
 					&& star.sternLevisonParameter(mass, orbit) <= 0.01, 5.0);
 			PlanetaryClass pClass = newPlanetoidClass(planet.random());
@@ -361,7 +361,7 @@ public final class PlanetGenerator {
 		planet.explicitName(true);
 		planet.rotationPeriod(planet.random().nextGaussian() * 60000 + 72000);
 		double mass = massGenerator.apply(planet.random());
-		Orbit planetoidOrbit = newPlanetaryOrbit(planet, star, (orbit) -> orbit * 30,
+		Orbit planetoidOrbit = newPlanetaryOrbit(planet, star, (blackbodyTemperature) -> blackbodyTemperature / 2.5,
 				(orbit, eccentrity) -> true, 5.0);
 		PlanetaryClass pClass = newPlanetoidClass(planet.random());
 		decoratePlanetoid(planet, mass, star, pClass, planetoidOrbit);
@@ -485,8 +485,8 @@ public final class PlanetGenerator {
 	}
 	
 	@FunctionalInterface
-	private static interface OrbitFilter {
-		public double filter(double orbit);
+	private static interface BlackbodyFilter {
+		public double filter(double blackbodyTemperature);
 	}
 
 	@FunctionalInterface

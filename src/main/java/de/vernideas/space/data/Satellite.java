@@ -132,6 +132,7 @@ public abstract class Satellite extends StellarObject {
 	/** In kg/m^3, rough estimate (only really valid for terrestial planets) */
 	@Getter protected double uncompressedDensity;
 	/** Mass at which this planet or moon would start to accrete gas as well as dust */
+	
 	private double criticalMass;
 	private boolean criticalMassCalculated = false;
 	
