@@ -13,12 +13,12 @@ import lombok.experimental.Accessors;
 @EqualsAndHashCode(of={"name","mass","diameter"})
 @Accessors(fluent = true)
 public abstract class StellarObject {
-
 	@Getter @Setter protected String name;
 	/** Mass in Yg (10^21 kg) */
 	@Getter @Setter protected double mass;
 	/** Diameter in m */
 	@Getter @Setter protected double diameter;
+	@Getter @Setter protected boolean explicitName;
 
 	/** Randomiser data for consistent object building */
 	@Getter private long seed;
@@ -28,6 +28,7 @@ public abstract class StellarObject {
 	
 	protected StellarObject(String name) {
 		this.name = name;
+		this.explicitName = false;
 		this.random = new Random();
 	}
 	
@@ -38,6 +39,12 @@ public abstract class StellarObject {
 	public StellarObject seed(long seed) {
 		this.seed = seed;
 		this.random.setSeed(seed);
+		return this;
+	}
+	
+	public StellarObject name(String name) {
+		this.name = name;
+		this.explicitName = true;
 		return this;
 	}
 	

@@ -100,6 +100,7 @@ public class SystemGenerator {
 				}
 				if( null != tempPlanet && tempPlanet.mass() <= stellarDust ) {
 					planets.add(tempPlanet);
+					star.planets.add(tempPlanet);
 					stellarDust -= tempPlanet.mass();
 					++ curPlanetNum;
 				}
@@ -136,7 +137,7 @@ public class SystemGenerator {
 			Planet planet = planets.get(i);
 			planet.name(star.name() + " " + (char)('b' + generatedPlanets));
 			habitable = habitable || planet.habitable();
-			star.planets.add(planet);
+			//star.planets.add(planet);
 			++ generatedPlanets;
 			if( planet.mass() < smallestPlanetMass )
 			{

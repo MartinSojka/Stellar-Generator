@@ -3,6 +3,7 @@ package de.vernideas.space.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.vernideas.lib.stellargen.GenUtil;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -34,6 +35,19 @@ public class Planet extends Satellite implements Location {
 	@Override public Star parent() {
 		return (Star)this.parent;
 	};
+	
+	@Override public StellarObject name(String name) {
+		super.name(name);
+		int num = 1;
+		for( Moon moon : moons ) {
+			if( !moon.explicitName() ) {
+				moon.name(name() + " " + GenUtil.romanNumber(num));
+				moon.explicitName(false);
+			}
+			++ num;
+		}
+		return this;
+	}
 	
 	public static Planet byID(int id) { return null; }
 }
