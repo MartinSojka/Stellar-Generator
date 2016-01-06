@@ -131,6 +131,30 @@ public final class PlanetGenerator {
 		return null;
 	}
 	
+	public static Planet newTerrestialPlanet(Star star, long seed) {
+		return newTerrestialPlanet(star, (String)null, seed);
+	}
+
+	public static Planet newTerrestialPlanet(Star star, String name, long seed) {
+		Planet planet = new Planet(name, false);
+		planet.seed(seed);
+		planet.name(name);
+		planet.rotationPeriod(planet.random().nextGaussian() * 60000 + 72000);
+		double mass = Satellite.newMass(planet.random());
+		Orbit planetaryOrbit = newPlanetaryOrbit(planet, star,
+				(orbit) -> {
+					if( orbit > star.frostLine() && mass < planet.random().nextDouble() * Constant.MAX_TERRESTRIAL_MASS ) {
+						return Math.max(Math.min(orbit, planet.random().nextDouble() * star.outerPlanetLimit()), star.innerPlanetLimit());
+					} else {
+						return orbit;
+					}
+				},
+				(orbit, eccentrity) -> true, 1.0);
+		PlanetaryClass pClass = newTerrestialClass(planet.random());
+		decorateTerrestialPlanet(planet, mass, star, pClass, planetaryOrbit);
+		return planet;
+	}
+	
 	private static void decorateGasgiant(Planet planet, double mass, Star star, PlanetaryClass pClass, Orbit planetaryOrbit) {
 		planet.mass(mass);
 		planet.orbit(star, planetaryOrbit);
