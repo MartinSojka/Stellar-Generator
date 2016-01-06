@@ -130,7 +130,7 @@ public class Star extends StellarObject {
 		}
 		
 		for(Planet p : planets) {
-			if( apo >= p.orbit.pericenter - p.exclusionZone && peri <= p.orbit.apocenter + p.exclusionZone ) {
+			if( apo >= p.orbit.pericenter - p.exclusionZone() && peri <= p.orbit.apocenter + p.exclusionZone() ) {
 				return false;
 			}
 			// Kirkwood gaps

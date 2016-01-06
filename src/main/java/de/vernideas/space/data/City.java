@@ -20,7 +20,7 @@ public class City extends Place {
 
 	@Builder
 	protected City(@NonNull String name, Satellite planet, float longitude) {
-		super(name, planet.dayLength);
+		super(name, planet.dayLength());
 		
 		if( longitude < -180.0f || longitude > 180.0f )
 		{
