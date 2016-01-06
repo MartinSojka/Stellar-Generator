@@ -175,7 +175,31 @@ public final class PlanetGenerator {
 		} while( retriesLeft > 0 );
 		return null;
 	}
+	
+	public static Planet newGasgiant(Star star, long seed) {
+		return newGasgiant(star, (String)null, seed);
+	}
 
+	public static Planet newGasgiant(Star star, String name, long seed) {
+		Planet planet = new Planet(name, false);
+		planet.seed(seed);
+		planet.name(name);
+		planet.rotationPeriod(planet.random().nextGaussian() * 60000 + 72000);
+		double mass = Satellite.newMass(planet.random());
+		Orbit planetaryOrbit = newPlanetaryOrbit(planet, star,
+				(orbit) -> {
+					if( orbit < star.frostLine() && mass * planet.random().nextDouble() > Constant.MAX_TERRESTRIAL_MASS ) {
+						return GenUtil.lerp(star.frostLine(), star.outerPlanetLimit(), Math.pow(Math.min(planet.random().nextDouble(), planet.random().nextDouble()), 1.5));
+					} else {
+						return orbit;
+					}
+				},
+				(orbit, eccentrity) -> true, 1.0);
+		PlanetaryClass pClass = newGasgiantClass(planet.random());
+		decorateGasgiant(planet, mass, star, pClass, planetaryOrbit);
+		return planet;
+	}
+	
 	private static final RealDistribution moonDistribution = new BetaDistribution(3.0, 9.0);
 	
 	public static Moon newMoon(Star star, Planet planet, Function<Random, Double> massGenerator, String name) {
@@ -314,12 +338,9 @@ public final class PlanetGenerator {
 		planet.rotationPeriod(planet.random().nextGaussian() * 60000 + 72000);
 		double mass = massGenerator.apply(planet.random());
 		Orbit planetoidOrbit = newPlanetaryOrbit(planet, star, (orbit) -> orbit * 30,
-				(orbit, eccentrity) -> star.orbitFree(orbit, eccentrity, 2.0)
-				&& star.sternLevisonParameter(mass, orbit) <= 0.01, 5.0);
+				(orbit, eccentrity) -> true, 5.0);
 		PlanetaryClass pClass = newPlanetoidClass(planet.random());
-
 		decoratePlanetoid(planet, mass, star, pClass, planetoidOrbit);
-		
 		return planet;
 	}
 	

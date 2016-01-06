@@ -21,7 +21,7 @@ public final class StarGenTest1 {
 	public static void main(String[] args) {
 		Universe u = new Universe(/*-5638973688361399781L*/);
 		System.err.println("UNIVERSE SEED " + u.seed);
-		Star s = SystemGenerator.star(u, "G2V");
+		Star s = SystemGenerator.star(u, "A2V");
 
 		printStar(s, 1);
 		List<Planet> planets = new ArrayList<Planet>(s.planets);
@@ -67,9 +67,11 @@ public final class StarGenTest1 {
 		//Planet test = PlanetGenerator.newGasgiant(sol, "Test Giant", pSeed);
 		//printPlanet(test);
 		
-		test = PlanetGenerator.newGasgiant(sol, "Test Planet", Constant.MAX_TERRESTRIAL_MASS, 1e29);
-		printPlanet(test);
-		
+		test = PlanetGenerator.newGasgiant(sol, "Test Planet", -7956472799291748583L);
+		printPlanet(test, true);
+		test = PlanetGenerator.newGasgiant(s, "Test Planet", -7956472799291748583L);
+		printPlanet(test, true);
+
 		System.exit(0);
 	}
 
@@ -95,8 +97,11 @@ public final class StarGenTest1 {
 					star.blackbodyTemp(star.frostLine()), star.blackbodyTemp(star.outerPlanetLimit())));
 	}
 	
-	private static void printPlanet(Planet p)
-	{
+	private static void printPlanet(Planet p) {
+		printPlanet(p, false);
+	}
+	
+	private static void printPlanet(Planet p, boolean printMoons) {
 		System.out.println("     (" + p.seed() + ") " + p.name() + " [" + p.planetaryClass().name + "]"
 				+ ", mass: " + String.format(Locale.ROOT, "%.3f Yg [gas giant limit %.3f Yg]", p.mass() / Constant.YOTTAGRAM, p.criticalMass() / Constant.YOTTAGRAM)
 				+ ", exclusion zone "
@@ -118,6 +123,13 @@ public final class StarGenTest1 {
 				+ String.format(Locale.ROOT, "%.2f",  p.dayLength() / 3600.0) + " hours, year length: "
 				+ String.format(Locale.ROOT, "%.2f", p.siderealPeriod() / 90000.0) + " galactic days, moons: "
 				+ p.moons.size());
+		if( printMoons ) {
+			List<Moon> moons = new ArrayList<Moon>(p.moons);
+			Collections.sort(moons, Satellite.ORBITAL_COMPARATOR);
+			for( Moon m : moons ) {
+				printMoon(m);
+			}
+		}
 	}
 	
 	private static void printMoon(Moon m)
