@@ -48,12 +48,14 @@ public final class Constant {
 	 */
 	public static final double ESCAPE_MULTIPLIER = Math.sqrt(2.0 * G);
 	
+	public static final double YOTTAGRAM = 1e21 / MASS_UNIT;
+
 	/** Solar radius (in distance units) */
 	public static final double SOLAR_DIAMETER = 1.391e9 / DISTANCE_UNIT;
 	/** Solar luminosity (in W) */
 	public static final double SOLAR_LUM = 3.846e26 / LUM_UNIT;
 	/** Solar mass (in mass units) */
-	public static final double SOLAR_MASS = 1.98855e30 / MASS_UNIT;
+	public static final double SOLAR_MASS = 1.98855e9 * YOTTAGRAM;
 	public static final double SOLAR_TEMPERATURE = 5778.0;
 	
 	/** One milli-lightyear in distance units */
@@ -90,13 +92,11 @@ public final class Constant {
 	/** 8.3144621 m^2 kg s^-2 K^-1 mol^-1  */
 	public static final double MOLAR_GAS = 8.314459848 / ENERGY_UNIT;
 	
-	/** Rough upper limit of terrestrial planets, in Yg */
-	public static final double MAX_TERRESTRIAL_MASS = 5e25 / MASS_UNIT;
-	public static final double MIN_TERRESTRIAL_MASS = 1e23 / MASS_UNIT;
-	public static final double MIN_MOON_MASS = 1e19 / MASS_UNIT;
-	public static final double EARTH_MASS = 5.97219e24 / MASS_UNIT;
-	
-	public static final double YOTTAGRAM = 1e21 / MASS_UNIT;
+	public static final double MAX_PLANETARY_MASS = 25e6 * Constant.YOTTAGRAM;
+	public static final double MAX_TERRESTRIAL_MASS = 50000 * Constant.YOTTAGRAM;
+	public static final double MIN_TERRESTRIAL_MASS = 100 * Constant.YOTTAGRAM;
+	public static final double MIN_MOON_MASS = 0.01 * Constant.YOTTAGRAM;
+	public static final double EARTH_MASS = 5972.19 * Constant.YOTTAGRAM;
 	
 	// Earth - estimated density limits for core, mantle and crust.
 	// Used with linear interpolation

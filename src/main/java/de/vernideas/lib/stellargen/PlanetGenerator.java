@@ -2,6 +2,7 @@ package de.vernideas.lib.stellargen;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 import java.util.TreeMap;
 import java.util.function.Function;
@@ -64,14 +65,14 @@ public final class PlanetGenerator {
 			blackbodyTemp = filter.filter(blackbodyTemp);
 		}
 		double orbit = star.distanceForTemperature(blackbodyTemp);
-		double eccentrity = Math.pow(planet.random().nextDouble(), 6.0) / 2.0;
-		// Flatten out the eccentrity for low-lying planetary orbits (below 1.99 AU for the Sun)
-		if( orbit / Constant.AU < star.mass() / 1e29 ) {
-			eccentrity *= (orbit / Constant.AU * 1e29 / star.mass());
+		double eccentricity = Math.pow(planet.random().nextDouble(), 4.0) * 0.8;
+		// Flatten out the eccentricity for low-lying planetary orbits (below 1.99 AU for the Sun)
+		if( orbit / Constant.AU < star.mass() / 1e30 ) {
+			eccentricity *= (orbit / Constant.AU * 1e30 / star.mass());
 		}
-		if( validator.validate(orbit, eccentrity) ) {
+		if( validator.validate(orbit, eccentricity) ) {
 			double inclination = Math.toRadians(inclinationMult * Math.sqrt(-2.0 * Math.log(planet.random().nextDouble())));
-			return new Orbit(orbit, eccentrity, inclination);
+			return new Orbit(orbit, eccentricity, inclination);
 		}
 		return null;
 	}
@@ -119,7 +120,7 @@ public final class PlanetGenerator {
 							return blackbodyTemperature;
 						}
 					},
-					(orbit, eccentrity) -> star.orbitFree(orbit, eccentrity)
+					(orbit, eccentricity) -> star.orbitFree(orbit, eccentricity)
 						&& star.sternLevisonParameter(mass, orbit) >= 100.0, 1.0);
 			PlanetaryClass pClass = newTerrestialClass(planet.random());
 			if( pClass.validTemperature(star, planetaryOrbit) && mass >= minMass && mass <= maxMass ) {
@@ -149,7 +150,7 @@ public final class PlanetGenerator {
 						return blackbodyTemperature;
 					}
 				},
-				(orbit, eccentrity) -> true, 1.0);
+				(orbit, eccentricity) -> true, 1.0);
 		PlanetaryClass pClass = newTerrestialClass(planet.random());
 		decorateTerrestialPlanet(planet, mass, star, pClass, planetaryOrbit);
 		return planet;
@@ -188,7 +189,7 @@ public final class PlanetGenerator {
 							return blackbodyTemperature;
 						}
 					},
-					(orbit, eccentrity) -> star.orbitFree(orbit, eccentrity)
+					(orbit, eccentricity) -> star.orbitFree(orbit, eccentricity)
 						&& star.sternLevisonParameter(mass, orbit) >= 100.0, 1.0);
 			PlanetaryClass pClass = newGasgiantClass(planet.random());
 			if( pClass.validTemperature(star, planetaryOrbit) && mass >= minMass && mass <= maxMass ) {
@@ -218,7 +219,7 @@ public final class PlanetGenerator {
 						return blackbodyTemperature;
 					}
 				},
-				(orbit, eccentrity) -> true, 1.0);
+				(orbit, eccentricity) -> true, 1.0);
 		PlanetaryClass pClass = newGasgiantClass(planet.random());
 		decorateGasgiant(planet, mass, star, pClass, planetaryOrbit);
 		return planet;
@@ -258,16 +259,16 @@ public final class PlanetGenerator {
 		// beta distribution with a=3, b=9 between the Roche limit and Hill's radius
 		double orbit = GenUtil.lerp(rocheLimit, planet.hillsRadius(), moonDistribution.inverseCumulativeProbability(planet.random().nextDouble()));
 		double rotationPeriod = moon.random().nextGaussian() * 1000 + 1200;
-		double eccentrity = Math.pow(planet.random().nextDouble(), 6.0) / 1.01;
-		// Limit eccentrity for anything which would dip below the Roche limit
-		eccentrity = Math.min(eccentrity, 1.0 - rocheLimit / orbit);
-		// Flatten out the eccentrity for low-lying orbits (below 1.99 AU for the Sun)
+		double eccentricity = Math.pow(planet.random().nextDouble(), 6.0) / 1.01;
+		// Limit eccentricity for anything which would dip below the Roche limit
+		eccentricity = Math.min(eccentricity, 1.0 - rocheLimit / orbit);
+		// Flatten out the eccentricity for low-lying orbits (below 1.99 AU for the Sun)
 		if( orbit < planet.mass() / (10000 * Constant.YOTTAGRAM) )
 		{
-			eccentrity *= (orbit * 10000.0 * Constant.YOTTAGRAM / planet.mass());
+			eccentricity *= (orbit * 10000.0 * Constant.YOTTAGRAM / planet.mass());
 		}
 		
-		moon.orbit(planet, new Orbit(orbit, eccentrity, Math.abs(planet.random().nextGaussian() / 6 / Math.PI)));
+		moon.orbit(planet, new Orbit(orbit, eccentricity, Math.abs(planet.random().nextGaussian() / 6 / Math.PI)));
 		moon.rotationPeriod(rotationPeriod);
 		moon.diameter(diameter);
 		moon.material(material);
@@ -335,7 +336,7 @@ public final class PlanetGenerator {
 			
 			double mass = massGenerator.apply(planet.random());
 			Orbit planetoidOrbit = newPlanetaryOrbit(planet, star, (blackbodyTemperature) -> blackbodyTemperature / 2.5,
-					(orbit, eccentrity) -> star.orbitFree(orbit, eccentrity, 2.0)
+					(orbit, eccentricity) -> star.orbitFree(orbit, eccentricity, 2.0)
 					&& star.sternLevisonParameter(mass, orbit) <= 0.01, 5.0);
 			PlanetaryClass pClass = newPlanetoidClass(planet.random());
 			
@@ -362,7 +363,7 @@ public final class PlanetGenerator {
 		planet.rotationPeriod(planet.random().nextGaussian() * 60000 + 72000);
 		double mass = massGenerator.apply(planet.random());
 		Orbit planetoidOrbit = newPlanetaryOrbit(planet, star, (blackbodyTemperature) -> blackbodyTemperature / 2.5,
-				(orbit, eccentrity) -> true, 5.0);
+				(orbit, eccentricity) -> true, 5.0);
 		PlanetaryClass pClass = newPlanetoidClass(planet.random());
 		decoratePlanetoid(planet, mass, star, pClass, planetoidOrbit);
 		return planet;
@@ -491,6 +492,6 @@ public final class PlanetGenerator {
 
 	@FunctionalInterface
 	private static interface OrbitValidator {
-		public boolean validate(double orbit, double eccentrity);
+		public boolean validate(double orbit, double eccentricity);
 	}
 }

@@ -3,6 +3,7 @@ package de.vernideas.lib.stellargen;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 
 import de.vernideas.space.data.Constant;
@@ -58,7 +59,7 @@ public class SystemGenerator {
 	}
 	
 	private static void addPlanetarySystem(Star star) {
-		double maxPlanetaryMass = Math.min(25e28, star.mass() / 25.0);
+		double maxPlanetaryMass = Math.min(Constant.MAX_PLANETARY_MASS, star.mass() / 25.0);
 		
 		// Planet building phase
 		int gasgiantMod = StarClassHelper.gasgiantMod(star.starClass);
@@ -66,7 +67,7 @@ public class SystemGenerator {
 		if( planetNum < 0 ) { planetNum = 0; }
 		if( planetNum > 26 ) { planetNum = 26; } // Arbitrary, to not complicate the naming scheme
 
-		double stellarDustLimit = 1e13 * Math.pow(12 + gasgiantMod, 3.0) * Math.pow(star.mass(), 1.0 / 3.0) * (1.0 + star.random().nextGaussian() * 0.1);
+		double stellarDustLimit = 1e14 * Math.pow(12 + gasgiantMod, 3.0) * Math.pow(star.mass(), 1.0 / 3.0) * (0.95 + star.random().nextGaussian() * 0.1);
 		if( stellarDustLimit < 0.0 ) {
 			stellarDustLimit = 1e13 *  Math.pow(star.mass(), 1.0 / 3.0);
 		}
@@ -109,30 +110,11 @@ public class SystemGenerator {
 			planetNum = curPlanetNum;
 		}
 				
-		// Assign orbits
+		// Assign names
 		Collections.sort(planets, Satellite.REVERSE_MASS_COMPARATOR);
 		int generatedPlanets = 0;
 		double smallestPlanetMass = Constant.MAX_TERRESTRIAL_MASS;
 		for( int i = 0; i < planetNum; ++ i ) {
-			/*
-			Planet planet = null;
-			boolean habitable = false;
-			if( planetMasses.get(i) > Constant.MIN_TERRESTRIAL_MASS && planetMasses.get(i) < Constant.MAX_TERRESTRIAL_MASS ) {
-				planet = PlanetGenerator.newTerrestialPlanet(star, planetMasses.get(i), star.name() + " " + (char)('b' + generatedPlanets), habitable ? 0 : 1000);
-			} else {
-				planet = PlanetGenerator.newGasgiant(star, planetMasses.get(i), star.name() + " " + (char)('b' + generatedPlanets));
-			}
-			if( null != planet )
-			{
-				habitable = habitable || planet.habitable();
-				star.planets.add(planet);
-				++ generatedPlanets;
-				if( planet.mass() < smallestPlanetMass )
-				{
-					smallestPlanetMass = planet.mass();
-				}
-			}
-			*/
 			boolean habitable = false;
 			Planet planet = planets.get(i);
 			planet.name(star.name() + " " + (char)('b' + generatedPlanets));
