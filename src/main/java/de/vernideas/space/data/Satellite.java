@@ -452,4 +452,9 @@ public abstract class Satellite extends StellarObject {
 		}
 		return surfaceGravity;
 	}
+	
+	// Validate all potentially random parameters
+	public void validateAll() {
+		planetaryClass();
+	}
 }

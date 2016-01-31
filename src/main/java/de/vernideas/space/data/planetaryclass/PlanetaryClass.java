@@ -270,7 +270,7 @@ public class PlanetaryClass {
 	 */
 	public static final PlanetaryClass OCEAN = new Terrestrial("Ocean planet",
 			(planet) -> planet.molecularLimit() <= 18.00 /* water vapour */, 0.2, 1.5)
-			.materialDensity(2800, 1000, 1200, 3800)
+			.materialDensity(1800, 700, 1200, 2600)
 			.materialCompressibility(500e-12, 10000e-12, 2.0)
 			.validZones(OrbitalZone.HABITABLE)
 			.temperatureLimits(260, 350);

@@ -100,6 +100,7 @@ public final class PlanetGenerator {
 		planet.planetaryClass(pClass);
 		
 		generateMoons(planet);
+		planet.validateAll();
 	}
 
 	/** Try to generate a new terrestial planet */
@@ -125,6 +126,7 @@ public final class PlanetGenerator {
 			PlanetaryClass pClass = newTerrestialClass(planet.random());
 			if( pClass.validTemperature(star, planetaryOrbit) && mass >= minMass && mass <= maxMass ) {
 				decorateTerrestialPlanet(planet, mass, star, pClass, planetaryOrbit);
+				System.err.println("Asked for " + pClass.name + ", got " + planet.planetaryClass().name);
 				return planet;
 			}
 			-- retriesLeft;
@@ -169,6 +171,7 @@ public final class PlanetGenerator {
 		planet.planetaryClass(pClass);
 
 		generateMoons(planet);
+		planet.validateAll();
 	}
 
 	/** Try to generate a new gas giant */
@@ -274,6 +277,7 @@ public final class PlanetGenerator {
 		moon.material(material);
 		moon.planetaryClass(pClass);
 		
+		moon.validateAll();
 		return moon;
 	}
 	
