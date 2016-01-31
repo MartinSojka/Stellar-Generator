@@ -126,7 +126,6 @@ public final class PlanetGenerator {
 			PlanetaryClass pClass = newTerrestialClass(planet.random());
 			if( pClass.validTemperature(star, planetaryOrbit) && mass >= minMass && mass <= maxMass ) {
 				decorateTerrestialPlanet(planet, mass, star, pClass, planetaryOrbit);
-				System.err.println("Asked for " + pClass.name + ", got " + planet.planetaryClass().name);
 				return planet;
 			}
 			-- retriesLeft;
