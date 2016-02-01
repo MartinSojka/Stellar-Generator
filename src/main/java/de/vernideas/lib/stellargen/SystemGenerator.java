@@ -83,9 +83,11 @@ public class SystemGenerator {
 		else
 		{
 			planets = new ArrayList<Planet>(planetNum);
+			// Limit the amount of tries; sometimes we just don't have the place for all the planets, especially around big stars
+			int planetTriesLeft = planetNum * 10;
 			
 			int curPlanetNum = 0;
-			while( stellarDust > 1000.0 * Constant.YOTTAGRAM && planetNum > curPlanetNum )
+			while( stellarDust > 1000.0 * Constant.YOTTAGRAM && planetNum > curPlanetNum && planetTriesLeft > 0 )
 			{
 				Planet tempPlanet = null;
 				if( stellarDust > stellarDustLimit * 0.01 && stellarDust > Constant.MAX_TERRESTRIAL_MASS && star.random().nextInt(10) + gasgiantMod > 3 )
@@ -105,6 +107,7 @@ public class SystemGenerator {
 					stellarDust -= tempPlanet.mass();
 					++ curPlanetNum;
 				}
+				-- planetTriesLeft;
 			}
 			
 			planetNum = curPlanetNum;
