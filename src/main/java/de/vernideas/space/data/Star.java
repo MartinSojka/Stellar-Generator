@@ -80,6 +80,10 @@ public class Star extends StellarObject {
 		super.mass(mass);
 		
 		// Empirical data
+		// Inner planet limit : either mass in solar masses times 0.1 or original luminosity in solar lums
+		// times 0.01; whichever is bigger, in AU
+		this.innerPlanetLimit = Math.max(this.mass / Constant.SOLAR_MASS * 0.1, this.originalLuminosity / Constant.SOLAR_LUM * 0.01) * Constant.AU;
+		
 		// Outer planet limit : mass in solar masses times 40, as AU
 		this.outerPlanetLimit = this.mass / Constant.SOLAR_MASS * 40.0 * Constant.AU;
 		
