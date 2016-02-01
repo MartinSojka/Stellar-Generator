@@ -134,7 +134,9 @@ public class Star extends StellarObject {
 		}
 		
 		for(Planet p : planets) {
-			if( apo >= p.orbit.pericenter - p.exclusionZone() && peri <= p.orbit.apocenter + p.exclusionZone() ) {
+			// Enforce a 0.1 AU minimum distance between planets
+			double exclusionZone = Math.max(p.exclusionZone(), Constant.AU * 0.1);
+			if( apo >= p.orbit.pericenter - exclusionZone && peri <= p.orbit.apocenter + exclusionZone ) {
 				return false;
 			}
 			// Kirkwood gaps
