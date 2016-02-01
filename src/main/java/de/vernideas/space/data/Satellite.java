@@ -30,7 +30,6 @@ public abstract class Satellite extends StellarObject {
 		}
 	};
 
-
 	/** Generate a random planetary mass */
 	public static double newMass(Random random) {
 		double rnd = random.nextDouble();

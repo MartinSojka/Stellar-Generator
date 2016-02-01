@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.vernideas.lib.stellargen.GenUtil;
-import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;

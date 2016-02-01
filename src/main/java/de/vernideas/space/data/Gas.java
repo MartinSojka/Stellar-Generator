@@ -17,6 +17,7 @@ import lombok.experimental.Accessors;
 public class Gas {
 	public static final Gas ATOMIC_HYDROGEN = new Gas("Atomic Hydrogen", "H", 1.01);
 	public static final Gas HYDROGEN = new Gas("Hydrogen", "H₂", 2.02);
+	public static final Gas JUPITER_ATMOSPHERE = new Gas("Atmosphere (Jupiter)", "", 2.3);
 	public static final Gas HELIUM = new Gas("Helium", "He", 4.00);
 	public static final Gas ATOMIC_NITROGEN = new Gas("Atomic Nitrogen", "N", 14.01);
 	public static final Gas ATOMIC_OXYGEN = new Gas("Atomic Oxygen", "O", 16.00);
@@ -31,6 +32,7 @@ public class Gas {
 	public static final Gas ACETYLENE = new Gas("Acetylene", "C₂H₂", 26.04);
 	public static final Gas NITROGEN = new Gas("Nitrogen", "N₂", 28.01);
 	public static final Gas CARBON_MONOXIDE = new Gas("Carbon monoxide", "CO", 28.01);
+	public static final Gas EARTH_ATMOSPHERE = new Gas("Atmosphere (Earth)", "", 28.9645);
 	public static final Gas NITRIC_OXIDE = new Gas("Nitric oxide", "NO", 30.01);
 	public static final Gas ETHANE = new Gas("Ethane", "C₂H₆", 30.07);
 	public static final Gas OXYGEN = new Gas("Oxygen", "O₂", 32.00);
@@ -43,6 +45,7 @@ public class Gas {
 	public static final Gas POTASSIUM_VAPOUR = new Gas("Potassium vapour", "K", 39.10);
 	public static final Gas ARGON = new Gas("Argon", "Ar", 39.95);
 	public static final Gas CALCIUM_VAPOUR = new Gas("Calcium vapour", "Ca", 40.08);
+	public static final Gas MARS_ATMOSPHERE = new Gas("Atmosphere (Mars)", "", 43.34);
 	public static final Gas CARBON_DIOXIDE = new Gas("Carbon dioxide", "CO₂", 44.01);
 	public static final Gas NITROUS_OXIDE = new Gas("Nitrous oxide", "N₂O", 44.01);
 	public static final Gas PROPANE = new Gas("Propane", "C₃H₈", 44.10);
