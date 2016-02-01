@@ -105,10 +105,12 @@ public final class PlanetGenerator {
 
 	/** Try to generate a new terrestial planet */
 	public static Planet newTerrestialPlanet(Star star, String name, double minMass, double maxMass) {
+		minMass = Math.max(minMass, Constant.MIN_TERRESTRIAL_MASS);
+		maxMass = Math.min(maxMass, Constant.MAX_TERRESTRIAL_MASS);
 		Planet planet = new Planet(name, false);
 		planet.seed(star.seed() + 47L * star.random().nextInt());
 		
-		int retriesLeft = 100;
+		int retriesLeft = 1000;
 		
 		do {
 			seedPlanet(planet, name);
