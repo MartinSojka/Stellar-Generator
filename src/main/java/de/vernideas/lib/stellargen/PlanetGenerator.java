@@ -41,15 +41,13 @@ public final class PlanetGenerator {
 		}
 	}
 	
-	// TODO: Rewrite this so it's using the planet's random instance, and get the orbital radius from
-	// generating a random blackbody temperature first.
-	// Max temperature (boiling line): 3200 K
-	// Min temperature (outer planet limit): 0 K
-	//   (it actually "only" goes down to 23 K for M-class, 18 K for L-class and 6 K for T-class stars)
-	
 	/**
 	 * This method tries <i>once</i> and returns null if it failed for the given star.
 	 * This lets the generator retry with a new planetary seed.
+	 * <p>
+	 * Max temperature: 1500 K (very close orbits for A-class stars)
+	 * Min temperature: 0K
+	 *    (it actually "only" goes down to 23 K for M-class, 18 K for L-class and 6 K for T-class stars)
 	 * 
 	 * @param planet
 	 * @param star
@@ -103,7 +101,9 @@ public final class PlanetGenerator {
 		planet.validateAll();
 	}
 
-	/** Try to generate a new terrestial planet */
+	/**
+	 * Try to generate a new terrestial planet.
+	 */
 	public static Planet newTerrestialPlanet(Star star, String name, double minMass, double maxMass) {
 		minMass = Math.max(minMass, Constant.MIN_TERRESTRIAL_MASS);
 		maxMass = Math.min(maxMass, Constant.MAX_TERRESTRIAL_MASS);
@@ -139,6 +139,14 @@ public final class PlanetGenerator {
 		return newTerrestialPlanet(star, (String)null, seed);
 	}
 
+	/**
+	 * Create a terrestial planet based on a supplied seed.
+	 * <p>
+	 * None of the generated parameters are checked for validity. This method is meant
+	 * to re-create a specific planet around a specific (not always *the same*) star,
+	 * so it tries to recreate the basic physical properties on the surface as
+	 * much as possible.
+	 */
 	public static Planet newTerrestialPlanet(Star star, String name, long seed) {
 		Planet planet = new Planet(name, false);
 		planet.seed(seed);
