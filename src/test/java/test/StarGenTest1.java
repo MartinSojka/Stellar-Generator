@@ -15,17 +15,21 @@ import de.vernideas.space.data.Star;
 import de.vernideas.space.data.Universe;
 import de.vernideas.space.data.VectorD3D;
 import de.vernideas.space.data.starclass.StarClassHelper;
+import de.vernideas.space.data.starclass.Type;
 
 public final class StarGenTest1 {
 
 	public static void main(String[] args) {
 		Universe u = new Universe(/*-5638973688361399781L*/);
 		System.err.println("UNIVERSE SEED " + u.seed);
-		Star s = SystemGenerator.star(u, "A2V");
+		Star s = null;
+		do {
+			s = SystemGenerator.star(u);
+		} while( s.starClass.type() != Type.K );
 
 		printStar(s, 1);
 		List<Planet> planets = new ArrayList<Planet>(s.planets);
-		//planets.addAll(s.planetoids);
+		planets.addAll(s.planetoids);
 		long pSeed = 0;
 		if( s.planets.size() > 0 ) {
 			pSeed = s.planets.get(0).seed();
@@ -48,10 +52,12 @@ public final class StarGenTest1 {
 		
 		// Test for Earth
 		
+		/*
 		Star sol = new Star("Sol", StarClassHelper.parse("G2V"));
 		sol.diameter(Constant.SOLAR_DIAMETER);
 		sol.luminosity(Constant.SOLAR_LUM).mass(Constant.SOLAR_MASS);
 		sol.temperature(Constant.SOLAR_TEMPERATURE).position(new VectorD3D());
+		*/
 		/*
 		Planet earth = Planet.builder().name("Earth").diameter(Constant.EARTH_DIAMETER).mass(Constant.EARTH_MASS).parent(sol)
 				.rotationPeriod(24 * 3600 * 364.0f / 365.0f).orbit(new Orbit(Constant.AU, 0.0167086f, 0.0f))
@@ -60,6 +66,7 @@ public final class StarGenTest1 {
 				.rotationPeriod(24 * 3600 /* ignorable *//*).orbit(new Orbit(778547200000.0, 0.048775f, 0.0f))
 				.material(new Material("", 1326, 1e-12)).build();
 				*/
+		/*
 		printStar(sol, 2);
 		//printPlanet(earth);
 		//printPlanet(jupiter);
@@ -71,6 +78,7 @@ public final class StarGenTest1 {
 		printPlanet(test, true);
 		test = PlanetGenerator.newGasgiant(s, "Test Planet", -7956472799291748583L);
 		printPlanet(test, true);
+		*/
 
 		System.exit(0);
 	}
