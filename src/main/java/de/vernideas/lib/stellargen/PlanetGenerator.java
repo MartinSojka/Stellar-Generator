@@ -270,7 +270,7 @@ public final class PlanetGenerator {
 		double rocheLimit = Math.max(planet.diameter() * 0.55, Constant.ROCHE_LIMIT_RIGID * diameter / 2.0 * Math.pow(planet.mass() / mass, 1.0 / 3.0));
 		// beta distribution with a=3, b=9 between the Roche limit and Hill's radius
 		double orbit = GenUtil.lerp(rocheLimit, planet.hillsRadius(), moonDistribution.inverseCumulativeProbability(planet.random().nextDouble()));
-		double rotationPeriod = moon.random().nextGaussian() * 1000 + 1200;
+		double rotationPeriod = moon.random().nextGaussian() * 60000 + 72000;
 		double eccentricity = Math.pow(planet.random().nextDouble(), 6.0) / 1.01;
 		// Limit eccentricity for anything which would dip below the Roche limit
 		eccentricity = Math.min(eccentricity, 1.0 - rocheLimit / orbit);
