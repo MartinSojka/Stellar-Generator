@@ -51,7 +51,7 @@ public final class Constant {
 	public static final double YOTTAGRAM = 1e21 / MASS_UNIT;
 
 	/** Solar radius (in distance units) */
-	public static final double SOLAR_DIAMETER = 1.391e9 / DISTANCE_UNIT;
+	public static final double SOLAR_DIAMETER = 1.3914e9 / DISTANCE_UNIT;
 	/** Solar luminosity (in W) */
 	public static final double SOLAR_LUM = 3.846e26 / LUM_UNIT;
 	/** Solar mass (in mass units) */
@@ -112,5 +112,8 @@ public final class Constant {
 	
 	/** For calculation of the Stern-Levison parameter */
 	public static final double STERN_LEVISON_CONSTANT = 1.53e5 * Math.pow(AU, 1.5) / EARTH_MASS / EARTH_MASS / Math.sqrt(SOLAR_MASS);
+	
+	/** Celsius zero point in K */
+	public static final double CELSIUS_ZERO = 273.15;
 	
 }

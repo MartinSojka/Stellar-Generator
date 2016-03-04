@@ -24,27 +24,35 @@ public final class StarGenTest1 {
 		System.err.println("UNIVERSE SEED " + u.seed);
 		Star s = null;
 		do {
-			s = SystemGenerator.star(u);
-		} while( s.starClass.type() != Type.K );
+			s = SystemGenerator.star(u, "G6V", -5018178568867470810L);
+		} while( s.starClass.type() != Type.G );
+		
+		s.name("Aquagea");
 
-		printStar(s, 1);
+		printStarMM(s);
+		
+		//printStar(s, 1);
 		List<Planet> planets = new ArrayList<Planet>(s.planets);
-		planets.addAll(s.planetoids);
+		//planets.addAll(s.planetoids);
 		long pSeed = 0;
 		if( s.planets.size() > 0 ) {
 			pSeed = s.planets.get(0).seed();
 		}
 		Collections.sort(planets, Satellite.ORBITAL_COMPARATOR);
+		int sysPos = 1;
 		for( Planet p : planets )
 		{
-			printPlanet(p);
+			printPlanetMM(p, sysPos);
 			List<Moon> moons = new ArrayList<Moon>(p.moons);
 			Collections.sort(moons, Satellite.ORBITAL_COMPARATOR);
 			for( Moon m : moons ) {
-				printMoon(m);
+				//printMoon(m);
 			}
+			++ sysPos;
 		}
 		
+		System.exit(0);
+
 		// Generate a bunch more to test for bugs and outliers
 		for( int i = 2; i < 1; ++ i ) {
 			printStar(SystemGenerator.star(u), i);
@@ -82,6 +90,19 @@ public final class StarGenTest1 {
 
 		System.exit(0);
 	}
+	
+	private static void printStarMM(Star star) {
+		System.out.println("<star>");
+		System.out.println("<name>" + star.name() + "</name>");
+		System.out.println("<spectralType>" + star.starClass.fullDeclaration() + "</spectralType>");
+		System.out.println(String.format(Locale.ROOT, "<mass>%.3f</mass>", star.mass() / Constant.SOLAR_MASS ));
+		System.out.println(String.format(Locale.ROOT, "<lum>%.6f</lum>", star.luminosity() / Constant.SOLAR_LUM ));
+		System.out.println(String.format(Locale.ROOT, "<temperature>%.0f</temperature>", star.temperature() ));
+		System.out.println(String.format(Locale.ROOT, "<radius>%.4f</radius>", star.diameter() / Constant.SOLAR_DIAMETER ));
+		System.out.println("<planets>" + star.planets.size() + "</planets>");
+		System.out.println("<minorPlanets>" + star.planetoids.size() + "</minorPlanets>");
+		System.out.println("</star>");
+	}
 
 	private static void printStar(Star star, int i)
 	{
@@ -107,6 +128,28 @@ public final class StarGenTest1 {
 	
 	private static void printPlanet(Planet p) {
 		printPlanet(p, false);
+	}
+	
+	private static void printPlanetMM(Planet planet, int sysPos) {
+		System.out.println("<planet>");
+		System.out.println("<name>" + planet.name() + "</name>");
+		System.out.println("<starId>" + planet.mainStar().name() + "</starId>");
+		System.out.println("<sysPos>" + sysPos + "</sysPos>");
+		System.out.println(String.format(Locale.ROOT, "<orbitRadius>%.4f</orbitRadius>", planet.orbit().radius / Constant.AU));
+		System.out.println(String.format(Locale.ROOT, "<orbitEccentricity>%.4f</orbitEccentricity>", planet.orbit().eccentricity));
+		System.out.println(String.format(Locale.ROOT, "<orbitInclination>%.2f</orbitInclination>", planet.orbit().inclination));
+		System.out.println(String.format(Locale.ROOT, "<temperature>%.0f</temperature>", planet.blackbodyTemperature() - Constant.CELSIUS_ZERO));
+		System.out.println("<satellites>" + planet.moons.size() + "</satellites>");
+		for( Moon moon : planet.moons ) {
+			System.out.println("<satellite>" + moon.name() + "</satellite>");
+		}
+		System.out.println(String.format(Locale.ROOT, "<mass>%.3f</mass>", planet.mass() / Constant.EARTH_MASS ));
+		System.out.println(String.format(Locale.ROOT, "<radius>%.3f</radius>", planet.diameter() / Constant.EARTH_DIAMETER ));
+		System.out.println(String.format(Locale.ROOT, "<density>%.3f</density>", planet.density()));
+		System.out.println(String.format(Locale.ROOT, "<gravity>%.3f</gravity>", planet.surfaceGravity() / Constant.EARTH_SURFACE_GRAVITY));
+		System.out.println(String.format(Locale.ROOT, "<dayLength>%.2f</dayLength>", planet.dayLength() / 3600));
+		System.out.println("<class>" + planet.planetaryClass().name + "</class>");
+		System.out.println("</planet>");
 	}
 	
 	private static void printPlanet(Planet p, boolean printMoons) {
